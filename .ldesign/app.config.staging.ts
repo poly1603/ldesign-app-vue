@@ -1,0 +1,20 @@
+/**
+ * 预发布环境应用配置
+ *
+ * 此配置会与基础配置（app.config.ts）深度合并
+ * 预发布环境特点：
+ * - 接近生产环境
+ * - 保留部分调试功能
+ * - 使用预发布 API
+ * - 用于最终测试
+ */
+export default {
+  /**
+   * 应用基本信息
+   */
+  app: {
+    name: 'LDesign App (预发布)',
+    description: 'LDesign 应用示例 - 预发布环境',
+    environment: 'staging',
+  },
+}
