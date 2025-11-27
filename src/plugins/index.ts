@@ -1,7 +1,7 @@
 /**
  * 引擎插件配置
  */
-import { createCacheEnginePlugin } from '@ldesign/cache-vue/plugins'
+import { createCacheEnginePlugin } from '@ldesign/cache'
 import { createColorEnginePlugin } from '@ldesign/color-vue/plugins'
 import { createDeviceEnginePlugin } from '@ldesign/device-vue/plugins'
 import { createHttpEnginePlugin } from '@ldesign/http-vue'

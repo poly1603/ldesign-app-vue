@@ -30,7 +30,7 @@
     "clean": "rimraf dist node_modules/.vite .ldesign/.cache"
   },
   "dependencies": {
-    "@ldesign/cache-vue": "workspace:*",
+    "@ldesign/cache": "workspace:*",
     "@ldesign/color-vue": "workspace:*",
     "@ldesign/device-vue": "workspace:*",
     "@ldesign/engine-vue3": "workspace:*",

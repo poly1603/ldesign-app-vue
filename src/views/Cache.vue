@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useCache, useCacheStats, useCacheValue } from '@ldesign/cache-vue'
 /**
  * 缓存功能演示页面
  *
- * 展示 @ldesign/cache-vue 的使用方法
+ * 展示 @ldesign/cache 的使用方法
  */
 import { ref } from 'vue'
+import { useCache, useCacheStats, useCacheValue } from '@ldesign/cache/vue'
 
 // 使用缓存组合式函数
 const { set, get, clear, useReactiveCache } = useCache()
