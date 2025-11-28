@@ -43,6 +43,18 @@ export const routes = [
     path: '/cache',
     name: 'cache',
     component: () => import('../views/Cache.vue'),
-    meta: { title: '缓存管理' },
+    meta: { title: '缂撳瓨绠＄悊' },
+  },
+  {
+    path: '/crypto',
+    name: 'crypto',
+    component: () => import('../views/CryptoDemo.vue'),
+    meta: { title: '加密功能' },
+  },
+  {
+    path: '/dependencies',
+    name: 'dependencies',
+    component: () => import('../views/DependencyManagement.vue'),
+    meta: { title: '渚濊禆绠＄悊' },
   },
 ]

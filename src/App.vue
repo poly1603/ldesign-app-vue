@@ -26,6 +26,9 @@ const { t, locale } = useI18n()
           <router-link to="/http" class="nav-link">
             HTTP 请求
           </router-link>
+          <router-link to="/crypto" class="nav-link">
+            🔐 加密功能
+          </router-link>
         </nav>
 
         <div class="header-actions">
