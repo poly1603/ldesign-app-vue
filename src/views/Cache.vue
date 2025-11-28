@@ -4,16 +4,21 @@
  *
  * 展示 @ldesign/cache 的使用方法
  */
-import { ref } from 'vue'
-import { useCache, useCacheStats, useCacheValue } from '@ldesign/cache/vue'
+import { computed, ref } from 'vue'
+import { useCache } from '@ldesign/cache/vue'
 
 // 使用缓存组合式函数
-const { set, get, clear, useReactiveCache } = useCache()
+const { set, get, clear, stats, size, keys } = useCache({
+  strategy: 'lru',
+  maxSize: 100,
+  defaultTTL: 60000,
+  enableStats: true,
+})
 
-// 使用缓存统计
-const { stats, hitRatePercent, refresh: refreshStats } = useCacheStats({
-  autoRefresh: true,
-  refreshInterval: 2000,
+// 计算命中率百分比
+const hitRatePercent = computed(() => {
+  const rate = stats.value.hitRate || 0
+  return (rate * 100).toFixed(2)
 })
 
 // 响应式缓存示例
@@ -22,10 +27,21 @@ interface User {
   age: number
 }
 
-const userCache = useReactiveCache<User>('demo:user', { name: '', age: 0 })
+const userCache = ref<User>({ name: '', age: 0 })
 
 // 简单值缓存示例
-const { value: counter, set: setCounter } = useCacheValue<number>('demo:counter', 0)
+const counter = ref<number>(0)
+
+// 初始化时从缓存加载
+const cachedUser = get<User>('demo:user')
+if (cachedUser) {
+  userCache.value = cachedUser
+}
+
+const cachedCounter = get<number>('demo:counter')
+if (cachedCounter !== undefined) {
+  counter.value = cachedCounter
+}
 
 // 表单数据
 const formData = ref({
@@ -39,16 +55,15 @@ const result = ref<string>('')
 /**
  * 设置缓存
  */
-async function handleSet() {
+function handleSet() {
   if (!formData.value.key || !formData.value.value) {
     result.value = '请输入键和值'
     return
   }
 
   try {
-    await set(formData.value.key, formData.value.value, { ttl: 60000 })
+    set(formData.value.key, formData.value.value, 60000)
     result.value = `成功设置: ${formData.value.key} = ${formData.value.value}`
-    await refreshStats()
   }
   catch (error) {
     result.value = `设置失败: ${error}`
@@ -58,16 +73,15 @@ async function handleSet() {
 /**
  * 获取缓存
  */
-async function handleGet() {
+function handleGet() {
   if (!formData.value.key) {
     result.value = '请输入键'
     return
   }
 
   try {
-    const value = await get<string>(formData.value.key)
-    result.value = value !== null ? `获取成功: ${formData.value.key} = ${value}` : `键 "${formData.value.key}" 不存在`
-    await refreshStats()
+    const value = get<string>(formData.value.key)
+    result.value = value !== undefined ? `获取成功: ${formData.value.key} = ${value}` : `键 "${formData.value.key}" 不存在`
   }
   catch (error) {
     result.value = `获取失败: ${error}`
@@ -77,11 +91,10 @@ async function handleGet() {
 /**
  * 清空缓存
  */
-async function handleClear() {
+function handleClear() {
   try {
-    await clear()
+    clear()
     result.value = '缓存已清空'
-    await refreshStats()
   }
   catch (error) {
     result.value = `清空失败: ${error}`
@@ -91,19 +104,22 @@ async function handleClear() {
 /**
  * 更新用户缓存
  */
-async function updateUser() {
-  await userCache.set({
+function updateUser() {
+  const newUser = {
     name: `用户${Math.floor(Math.random() * 100)}`,
     age: Math.floor(Math.random() * 50) + 18,
-  })
+  }
+  userCache.value = newUser
+  set('demo:user', newUser, 60000)
 }
 
 /**
  * 增加计数器
  */
-async function incrementCounter() {
-  const current = counter.value ?? 0
-  await setCounter(current + 1)
+function incrementCounter() {
+  const newValue = (counter.value ?? 0) + 1
+  counter.value = newValue
+  set('demo:counter', newValue, 60000)
 }
 </script>
 
@@ -160,12 +176,12 @@ async function incrementCounter() {
     <!-- 用户缓存示例 -->
     <section class="user-section">
       <h2>用户缓存示例</h2>
-      <div v-if="userCache.value.value" class="user-info">
+      <div v-if="userCache.name" class="user-info">
         <p>
-          <strong>姓名:</strong> {{ userCache.value.value.name }}
+          <strong>姓名:</strong> {{ userCache.name }}
         </p>
         <p>
-          <strong>年龄:</strong> {{ userCache.value.value.age }}
+          <strong>年龄:</strong> {{ userCache.age }}
         </p>
       </div>
       <div v-else class="user-info">
