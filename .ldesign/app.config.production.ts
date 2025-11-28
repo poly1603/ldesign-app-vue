@@ -8,14 +8,48 @@
  * - 最小日志输出
  * - 生产 API 地址
  * - 启用性能优化
+ *
+ * @see https://github.com/ldesign/launcher#app-config
  */
-export default {
+import { defineConfig } from '@ldesign/engine-vue3'
+
+export default defineConfig({
   /**
-   * 应用基本信息
+   * 应用基本信息（覆盖基础配置）
    */
   app: {
     name: 'LDesign App',
     description: 'LDesign 应用示例 - 生产环境',
-    environment: 'production',
   },
-}
+
+  /**
+   * 当前环境标识
+   */
+  environment: 'production',
+
+  /**
+   * 生产环境 API 配置
+   */
+  api: {
+    baseUrl: 'https://api.ldesign.example.com',
+  },
+
+  /**
+   * 生产环境功能开关
+   */
+  features: {
+    debug: false,
+    mock: false,
+    performance: true,
+    errorReporting: true,
+  },
+
+  /**
+   * 生产环境日志配置
+   */
+  log: {
+    level: 'error',
+    console: false,
+    report: true,
+  },
+})

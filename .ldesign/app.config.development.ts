@@ -7,19 +7,45 @@
  * - 启用 Mock 数据
  * - 详细的日志输出
  * - 本地 API 地址
+ *
+ * @see https://github.com/ldesign/launcher#app-config
  */
-export default {
+import { defineConfig } from '@ldesign/engine-vue3'
+
+export default defineConfig({
   /**
-   * 应用基本信息
+   * 应用基本信息（覆盖基础配置）
    */
   app: {
-    name: 'LDesign App (开发) - ✅ 热更新成功',
-    description: 'LDesign 应用示例 - 开发环境 - 热更新功能正常工作',
-    environment: 'development',
-    testField: '热更新测试字段',
-    timestamp: new Date().toISOString(),
-    hmrTest: '这是通过热更新添加的新字段！',
-    test: '132323',
-    a: '1',
+    name: 'LDesign App (开发)',
+    description: 'LDesign 应用示例 - 开发环境',
   },
-}
+
+  /**
+   * 当前环境标识
+   */
+  environment: 'development',
+
+  /**
+   * 开发环境 API 配置
+   */
+  api: {
+    baseUrl: 'http://localhost:8080/api',
+  },
+
+  /**
+   * 开发环境功能开关
+   */
+  features: {
+    debug: true,
+    mock: true,
+  },
+
+  /**
+   * 开发环境日志配置
+   */
+  log: {
+    level: 'debug',
+    console: true,
+  },
+})

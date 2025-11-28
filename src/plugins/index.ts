@@ -8,6 +8,7 @@ import { createHttpEnginePlugin } from '@ldesign/http-vue'
 import { createI18nEnginePlugin } from '@ldesign/i18n-vue/plugins'
 import { createRouterEnginePlugin } from '@ldesign/router-vue/plugins'
 import { createSizeEnginePlugin } from '@ldesign/size-vue/plugins'
+import { createStoreEnginePlugin } from '@ldesign/store-vue'
 import httpClient from '../api/http'
 import messages from '../locales'
 import { routes } from '../router'
@@ -132,6 +133,18 @@ export function createEnginePlugins() {
         },
       },
       debug: import.meta.env.DEV,
+    }),
+
+    // 状态管理插件
+    createStoreEnginePlugin({
+      persist: true,
+      persistOptions: {
+        storage: 'localStorage',
+        keyPrefix: 'ldesign-app-store:',
+      },
+      devtools: import.meta.env.DEV,
+      debug: import.meta.env.DEV,
+      globalProperties: true,
     }),
   ]
 }

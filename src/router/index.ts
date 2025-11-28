@@ -52,6 +52,12 @@ export const routes = [
     meta: { title: '加密功能' },
   },
   {
+    path: '/store',
+    name: 'store',
+    component: () => import('../views/StoreDemo.vue'),
+    meta: { title: '状态管理' },
+  },
+  {
     path: '/dependencies',
     name: 'dependencies',
     component: () => import('../views/DependencyManagement.vue'),

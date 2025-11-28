@@ -17,7 +17,7 @@ export default defineConfig({
    */
   server: {
     host: '0.0.0.0', // 允许外部访问（手机、其他设备）
-    port: 3000, // 开发服务器端口
+    port: 4000, // 开发服务器端口
     open: true, // 自动打开浏览器
     cors: true, // 启用 CORS
     strictPort: false, // 端口被占用时自动使用下一个可用端口
