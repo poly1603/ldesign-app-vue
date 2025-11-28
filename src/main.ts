@@ -2,15 +2,30 @@
  * 应用入口文件
  */
 import { createVueEngine } from '@ldesign/engine-vue3'
+import { createLogger, LogLevel } from '@ldesign/logger-vue'
 import App from './App.vue'
 import { createEnginePlugins } from './plugins'
 import './style.css'
+
+// 创建日志器实例
+const logger = createLogger({
+  name: 'LDesignApp',
+  level: import.meta.env.DEV ? LogLevel.DEBUG : LogLevel.WARN,
+  enableErrorTracking: true,
+  // 关闭性能监控以避免与 Engine 内部性能监控冲突
+  enablePerformanceMonitoring: false,
+  enableRouterTracking: true,
+  enableVueErrorHandler: import.meta.env.DEV,
+  enableVueWarnHandler: import.meta.env.DEV,
+})
 
 // 创建引擎并配置插件
 // @ts-ignore - 开发环境使用源码导致类型问题
 const engine = createVueEngine({
   name: 'LDesign App',
-  debug: true,
+  // 关闭 debug 模式以避免性能监控的慢操作警告
+  // 如需调试可临时开启
+  debug: false,
   app: {
     rootComponent: App,
   },
@@ -20,15 +35,29 @@ const engine = createVueEngine({
 // 挂载应用
 await engine.mount('#app')
 
+// 在引擎挂载后安装日志器 Vue 插件
+const vueApp = engine.getApp()
+if (vueApp) {
+  // eslint-disable-next-line ts/no-explicit-any
+  logger.install(vueApp as any)
+}
+
+// 使用日志器记录应用启动
+logger.info('🚀 LDesign App 已启动', {
+  environment: import.meta.env.MODE,
+  version: '1.0.0',
+})
+
 // 监听语言变化事件
 engine.events.on('i18n:localeChanged', (payload) => {
-  console.log('🌐 [i18n] Locale changed:', payload)
+  logger.info('🌐 语言已变更', payload)
 })
 
 // 开发环境调试
 if (import.meta.env.DEV) {
-  // 暴露引擎到 window
-  (window as any).engine = engine
+  // 暴露引擎和日志器到 window
+  ; (window as any).engine = engine
+    ; (window as any).logger = logger
 
   // 暴露各个服务方便调试
   const serviceNames = ['i18n', 'color', 'size', 'http', 'device']
@@ -36,13 +65,16 @@ if (import.meta.env.DEV) {
   serviceNames.forEach((name) => {
     const service = (engine.api as any).get(name)
     if (service) {
-      (window as any)[name] = service
-      console.log(`✅ ${name.charAt(0).toUpperCase() + name.slice(1)} service initialized`)
+      ; (window as any)[name] = service
+      logger.debug(`✅ ${name.charAt(0).toUpperCase() + name.slice(1)} service initialized`)
 
       // 输出设备信息
       if (name === 'device' && service.getDeviceInfo) {
-        console.log('📱 Device info:', service.getDeviceInfo())
+        logger.debug('📱 Device info', service.getDeviceInfo())
       }
     }
   })
+
+  // 开发环境提示
+  logger.info('💡 开发模式：可通过 window.logger 访问日志器实例')
 }

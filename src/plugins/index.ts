@@ -120,7 +120,8 @@ export function createEnginePlugins() {
       enableResize: true,
       enableOrientation: true,
       modules: ['network', 'battery'],
-      debug: import.meta.env.DEV,
+      // debug 模式会输出大量日志，仅在需要时开启
+      debug: false,
     }),
 
     // 缓存管理插件
@@ -132,7 +133,8 @@ export function createEnginePlugins() {
           evictionStrategy: 'LRU',
         },
       },
-      debug: import.meta.env.DEV,
+      // debug 模式会输出大量日志，仅在需要时开启
+      debug: false,
     }),
 
     // 状态管理插件
@@ -143,7 +145,8 @@ export function createEnginePlugins() {
         keyPrefix: 'ldesign-app-store:',
       },
       devtools: import.meta.env.DEV,
-      debug: import.meta.env.DEV,
+      // debug 模式会输出大量日志，仅在需要时开启
+      debug: false,
       globalProperties: true,
     }),
   ]

@@ -37,6 +37,7 @@
     "@ldesign/engine-vue3": "workspace:*",
     "@ldesign/http-vue": "workspace:*",
     "@ldesign/i18n-vue": "workspace:*",
+    "@ldesign/logger-vue": "workspace:^",
     "@ldesign/router-vue": "workspace:*",
     "@ldesign/size-vue": "workspace:*",
     "@ldesign/store-vue": "workspace:*",
