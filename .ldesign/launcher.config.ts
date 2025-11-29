@@ -72,6 +72,8 @@ export default defineConfig({
    */
   optimizeDeps: {
     exclude: [
+      '@ldesign/auth-core',
+      '@ldesign/auth-vue',
       '@ldesign/engine-core',
       '@ldesign/engine-vue3',
       '@ldesign/router-core',
@@ -115,6 +117,12 @@ export default defineConfig({
       { find: '@', replacement: resolve(__dirname, '../src'), stage: 'all' as const },
 
       // ==================== @ldesign 包别名（按字母顺序） ====================
+
+      // Auth 认证包
+      { find: /^@ldesign\/auth-core\/(.+)$/, replacement: `${monorepoRoot}/packages/auth/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/auth-core', replacement: `${monorepoRoot}/packages/auth/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/auth-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/auth/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/auth-vue', replacement: `${monorepoRoot}/packages/auth/packages/vue/src/index.ts`, stage: 'dev' as const },
 
       // Cache 缓存包（使用构建产物，无源码别名）
       // @ldesign/cache 包已构建，直接使用 node_modules 中的产物

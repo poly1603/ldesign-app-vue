@@ -1,5 +1,11 @@
 /**
  * 路由配置
+ *
+ * 路由元信息说明：
+ * - title: 页面标题
+ * - requiresAuth: 是否需要认证（默认 true）
+ * - permissions: 需要的权限列表
+ * - roles: 需要的角色列表
  */
 
 export const routes = [
@@ -7,13 +13,13 @@ export const routes = [
     path: '/',
     name: 'home',
     component: () => import('../views/Home.vue'),
-    meta: { title: '首页' },
+    meta: { title: '首页', requiresAuth: true },
   },
   {
     path: '/login',
     name: 'login',
     component: () => import('../views/Login.vue'),
-    meta: { title: '登录' },
+    meta: { title: '登录', requiresAuth: false },
   },
   {
     path: '/theme',

@@ -14,6 +14,7 @@
  * - error.ts     - 错误处理插件
  * - tracker.ts   - 用户行为追踪插件
  * - template.ts  - 模板插件
+ * - auth.ts      - 认证插件
  */
 import { createI18nPlugin } from './i18n'
 import { createRouterPlugin } from './router'
@@ -27,6 +28,7 @@ import { createLoggerPlugin } from './logger'
 import { createErrorHandlerPlugin } from './error'
 import { createTrackerPlugin_ } from './tracker'
 import { createTemplatePlugin } from './template'
+import { createAuthEnginePlugin } from './auth'
 
 /**
  * 创建所有引擎插件
@@ -44,6 +46,7 @@ import { createTemplatePlugin } from './template'
  * 10. error - 错误处理（依赖日志）
  * 11. tracker - 用户行为追踪
  * 12. template - 模板（可能依赖其他插件）
+ * 13. auth - 认证（依赖 router 进行守卫）
  */
 export function createEnginePlugins() {
   return [
@@ -59,6 +62,7 @@ export function createEnginePlugins() {
     createErrorHandlerPlugin(),
     createTrackerPlugin_(),
     createTemplatePlugin(),
+    createAuthEnginePlugin(),
   ]
 }
 
@@ -76,6 +80,7 @@ export {
   createErrorHandlerPlugin,
   createTrackerPlugin_,
   createTemplatePlugin,
+  createAuthEnginePlugin,
 }
 
 // 导出错误处理组件和 composables

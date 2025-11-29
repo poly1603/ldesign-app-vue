@@ -30,6 +30,8 @@
     "clean": "rimraf dist node_modules/.vite .ldesign/.cache"
   },
   "dependencies": {
+    "@ldesign/auth-core": "workspace:*",
+    "@ldesign/auth-vue": "workspace:*",
     "@ldesign/cache": "workspace:*",
     "@ldesign/color-vue": "workspace:*",
     "@ldesign/crypto-vue": "workspace:*",
