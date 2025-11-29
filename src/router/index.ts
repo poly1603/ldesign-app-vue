@@ -69,4 +69,10 @@ export const routes = [
     component: () => import('../views/Logger.vue'),
     meta: { title: '日志系统' },
   },
+  {
+    path: '/notification',
+    name: 'notification',
+    component: () => import('../views/NotificationDemo.vue'),
+    meta: { title: '通知系统' },
+  },
 ]

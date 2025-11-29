@@ -1,15 +1,26 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
 import { LanguageSwitcher, useI18n } from '@ldesign/i18n-vue'
 import { SizeSwitcher } from '@ldesign/size-vue'
 
 const { t, locale } = useI18n()
+const route = useRoute()
+
+/**
+ * 判断是否为全屏页面（隐藏头部导航栏）
+ * 登录页为全屏页面
+ */
+const isFullscreenPage = computed(() => {
+  return route.path === '/login'
+})
 </script>
 
 <template>
-  <div id="app">
-    <!-- 顶部导航栏 -->
-    <header class="app-header">
+  <div id="app" :class="{ 'fullscreen-mode': isFullscreenPage }">
+    <!-- 顶部导航栏（全屏页面时隐藏） -->
+    <header v-if="!isFullscreenPage" class="app-header">
       <div class="header-content">
         <div class="logo">
           <span class="logo-icon">🎨</span>
@@ -44,7 +55,7 @@ const { t, locale } = useI18n()
     </header>
 
     <!-- 主内容区 -->
-    <main class="app-main">
+    <main class="app-main" :class="{ 'fullscreen-main': isFullscreenPage }">
       <router-view />
     </main>
   </div>
@@ -139,6 +150,16 @@ body {
 .app-main {
   flex: 1;
   padding-top: 0;
+}
+
+/* 全屏模式 */
+.fullscreen-mode {
+  height: 100vh;
+}
+
+.fullscreen-main {
+  height: 100vh;
+  padding: 0;
 }
 
 /* 响应式 */

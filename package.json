@@ -38,9 +38,12 @@
     "@ldesign/http-vue": "workspace:*",
     "@ldesign/i18n-vue": "workspace:*",
     "@ldesign/logger-vue": "workspace:^",
+    "@ldesign/notification-vue": "workspace:*",
     "@ldesign/router-vue": "workspace:*",
     "@ldesign/size-vue": "workspace:*",
     "@ldesign/store-vue": "workspace:*",
+    "@ldesign/template-core": "workspace:*",
+    "@ldesign/template-vue": "workspace:*",
     "pinia": "^2.1.0",
     "vue": "^3.4.0"
   },

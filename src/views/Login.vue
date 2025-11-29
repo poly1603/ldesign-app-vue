@@ -1,81 +1,328 @@
 <script setup lang="ts">
+/**
+ * 登录页面（全屏模式）
+ *
+ * 使用模板系统实现多设备适配的登录页面
+ * - 支持 desktop、tablet、mobile 三种设备类型的模板切换
+ * - 当浏览器窗口大小变化时自动切换到对应设备的默认模板
+ * - 集成 TemplateSelector 组件，支持用户手动选择模板
+ */
 import { useEngine, useRouterService } from '@ldesign/engine-vue3'
-import { ref } from 'vue'
+import { TemplateSelector, useTemplate } from '@ldesign/template-vue'
+import { useWindowSize } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
+
+/** 登录数据类型 */
+interface LoginData {
+  username: string
+  password: string
+}
+
+/** 设备类型 */
+type DeviceType = 'desktop' | 'tablet' | 'mobile'
+
+/** 设备断点配置 */
+const BREAKPOINTS = {
+  mobile: 768, // 小于 768px 为移动端
+  tablet: 1024, // 768px - 1024px 为平板端
+  // 大于 1024px 为桌面端
+}
 
 const engine = useEngine()
 const router = useRouterService()
 
-const username = ref('')
-const password = ref('')
+// 使用 @vueuse/core 的 useWindowSize 监听窗口大小变化
+const { width: windowWidth } = useWindowSize()
 
-function handleLogin() {
-  console.log('[Login]', username.value, password.value)
+// 当前选中的模板 ID（初始只设置 category:device，让 useTemplate 决定使用缓存还是默认）
+const selectedTemplateId = ref<string>('login:desktop:default')
+
+// 是否显示模板选择器面板
+const showSelector = ref(false)
+
+// 使用 useTemplate 动态加载模板组件
+const {
+  component: currentTemplate,
+  loading: templateLoading,
+  load: loadTemplate,
+  template: currentTemplateMeta,
+} = useTemplate(
+  selectedTemplateId,
+  { immediate: true },
+)
+
+/**
+ * 根据窗口宽度计算设备类型
+ */
+const detectedDeviceType = computed<DeviceType>(() => {
+  const width = windowWidth.value
+  if (width < BREAKPOINTS.mobile) return 'mobile'
+  if (width < BREAKPOINTS.tablet) return 'tablet'
+  return 'desktop'
+})
+
+/**
+ * 监听设备类型变化，自动切换模板
+ * 使用 category:device:default 格式，让 useTemplate 内部决定是使用缓存还是默认模板
+ */
+watch(
+  detectedDeviceType,
+  (newType) => {
+    // 设备切换时，让 useTemplate 自动决定模板（会优先使用缓存）
+    // 注意：这里不传 loadSource，useTemplate 会自己检查缓存
+    loadTemplate(`login:${newType}:default`)
+  },
+  { immediate: true },
+)
+
+/**
+ * 处理用户手动选择模板
+ * 使用 'user' 来源标记，这样会写入缓存
+ */
+function handleTemplateChange(templateId: string): void {
+  // 用户手动选择，传入 'user' 来源，会写入缓存
+  loadTemplate(templateId, 'user')
+  // 同步更新本地状态
+  selectedTemplateId.value = templateId
+  // 选择后关闭面板
+  showSelector.value = false
+}
+
+/**
+ * 获取当前实际使用的模板ID（用于选择器高亮）
+ */
+const currentTemplateId = computed(() => {
+  return currentTemplateMeta.value?.id || selectedTemplateId.value
+})
+
+/**
+ * 处理登录提交
+ */
+function handleLogin(data: LoginData): void {
+  console.log('[Login]', data.username, data.password)
 
   // 模拟登录成功
-  engine.events.emit('user:login', { username: username.value })
+  engine.events.emit('user:login', { username: data.username })
 
   // 跳转到首页
   router.push('/')
 }
+
+/**
+ * 切换模板选择器面板显示
+ */
+function toggleSelector(): void {
+  showSelector.value = !showSelector.value
+}
 </script>
 
 <template>
-  <div class="container">
-    <div class="card" style="max-width: 400px; margin: 4rem auto;">
-      <h1>{{ $t('login.title') }}</h1>
+  <div class="login-page">
+    <!-- 模板选择器触发按钮 -->
+    <button
+      class="template-trigger"
+      :class="{ active: showSelector }"
+      title="选择登录模板"
+      @click="toggleSelector"
+    >
+      🎨
+    </button>
 
-      <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label class="form-label">{{ $t('login.username') }}</label>
-          <input
-            v-model="username"
-            type="text"
-            class="form-input"
-            :placeholder="$t('login.usernamePlaceholder')"
-            required
-          >
+    <!-- 模板选择器面板 -->
+    <Transition name="slide">
+      <div v-if="showSelector" class="template-panel">
+        <div class="panel-header">
+          <h3>选择模板</h3>
+          <button class="close-btn" @click="showSelector = false">×</button>
         </div>
-
-        <div class="form-group">
-          <label class="form-label">{{ $t('login.password') }}</label>
-          <input
-            v-model="password"
-            type="password"
-            class="form-input"
-            :placeholder="$t('login.passwordPlaceholder')"
-            required
-          >
+        <div class="panel-content">
+          <TemplateSelector
+            category="login"
+            :device="detectedDeviceType"
+            :model-value="currentTemplateId"
+            :show-preview="true"
+            :show-description="true"
+            @update:model-value="handleTemplateChange"
+          />
         </div>
-
-        <button type="submit" class="btn btn-primary" style="width: 100%">
-          {{ $t('login.loginButton') }}
-        </button>
-      </form>
-
-      <div style="margin-top: 1rem; text-align: center;">
-        <router-link to="/">
-          {{ $t('common.back') }}
-        </router-link>
       </div>
+    </Transition>
+
+    <!-- 遮罩层 -->
+    <Transition name="fade">
+      <div v-if="showSelector" class="overlay" @click="showSelector = false" />
+    </Transition>
+
+    <!-- 动态渲染登录模板 -->
+    <div v-if="templateLoading" class="template-loading">
+      <span>加载模板中...</span>
     </div>
+    <component
+      v-else-if="currentTemplate"
+      :is="currentTemplate"
+      :title="$t('login.title')"
+      :on-submit="handleLogin"
+    />
   </div>
 </template>
 
 <style scoped>
-h1 {
-  color: var(--color-text-primary, #2c3e50);
-  margin-bottom: 2rem;
-  text-align: center;
+.login-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
-a {
-  color: var(--color-primary-default, #3b82f6);
-  text-decoration: none;
-  transition: color 0.2s;
+.template-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 16px;
+  color: #666;
 }
 
-a:hover {
-  color: var(--color-primary-hover, #2563eb);
-  text-decoration: underline;
+/* 模板选择器触发按钮 */
+.template-trigger {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1001;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.template-trigger:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.template-trigger.active {
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* 模板选择器面板 */
+.template-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 1000;
+  width: 400px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 120px);
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.close-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+
+
+/* 遮罩层 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 动画 */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+  .template-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .template-trigger {
+    top: auto;
+    bottom: 20px;
+  }
 }
 </style>

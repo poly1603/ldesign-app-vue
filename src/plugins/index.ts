@@ -1,153 +1,69 @@
 /**
  * 引擎插件配置
+ *
+ * 本文件负责整合所有插件，各插件的具体配置请查看对应文件：
+ * - i18n.ts      - 国际化插件
+ * - router.ts    - 路由插件
+ * - color.ts     - 颜色主题插件
+ * - size.ts      - 尺寸管理插件
+ * - http.ts      - HTTP 请求插件
+ * - device.ts    - 设备信息插件
+ * - cache.ts     - 缓存管理插件
+ * - store.ts     - 状态管理插件
+ * - logger.ts    - 日志插件
+ * - template.ts  - 模板插件
  */
-import { createCacheEnginePlugin } from '@ldesign/cache'
-import { createColorEnginePlugin } from '@ldesign/color-vue/plugins'
-import { createDeviceEnginePlugin } from '@ldesign/device-vue/plugins'
-import { createHttpEnginePlugin } from '@ldesign/http-vue'
-import { createI18nEnginePlugin } from '@ldesign/i18n-vue/plugins'
-import { createRouterEnginePlugin } from '@ldesign/router-vue/plugins'
-import { createSizeEnginePlugin } from '@ldesign/size-vue/plugins'
-import { createStoreEnginePlugin } from '@ldesign/store-vue'
-import httpClient from '../api/http'
-import messages from '../locales'
-import { routes } from '../router'
+import { createI18nPlugin } from './i18n'
+import { createRouterPlugin } from './router'
+import { createColorPlugin } from './color'
+import { createSizePlugin } from './size'
+import { createHttpPlugin } from './http'
+import { createDevicePlugin } from './device'
+import { createCachePlugin } from './cache'
+import { createStorePlugin } from './store'
+import { createLoggerPlugin } from './logger'
+import { createTemplatePlugin } from './template'
 
 /**
  * 创建所有引擎插件
+ *
+ * 插件加载顺序很重要，依赖关系如下：
+ * 1. i18n - 国际化（基础功能，其他插件可能需要）
+ * 2. router - 路由（页面导航基础）
+ * 3. color - 颜色主题
+ * 4. size - 尺寸管理
+ * 5. http - HTTP 请求
+ * 6. device - 设备信息
+ * 7. cache - 缓存管理
+ * 8. store - 状态管理
+ * 9. logger - 日志（依赖路由进行跟踪）
+ * 10. template - 模板（可能依赖其他插件）
  */
 export function createEnginePlugins() {
   return [
-    // I18n 国际化插件
-    createI18nEnginePlugin({
-      locale: 'zh-CN',
-      fallbackLocale: 'en-US',
-      messages,
-      cache: true,
-      cacheSize: 100,
-      performance: true,
-      preloadLocales: ['zh-CN', 'en-US'],
-      persistence: {
-        enabled: true,
-        key: 'ldesign-app-locale',
-      },
-      globalProperties: true,
-      globalComponents: true,
-    }),
-
-    // 路由插件
-    createRouterEnginePlugin({
-      routes,
-      mode: 'history',
-    }),
-
-    // 颜色主题插件
-    createColorEnginePlugin({
-      primaryColor: 'brand-primary',
-      mode: 'light',
-      persistence: {
-        enabled: true,
-        key: 'ldesign-app-theme',
-      },
-      customPresets: [
-        {
-          name: 'brand-primary',
-          label: '品牌主色',
-          color: '#FF6B6B',
-          description: '公司品牌主色调',
-          order: 1,
-        },
-        {
-          name: 'brand-secondary',
-          label: '品牌辅色',
-          color: '#4ECDC4',
-          description: '公司品牌辅助色',
-          order: 2,
-        },
-      ],
-      globalProperties: true,
-      globalComponents: true,
-    }),
-
-    // 尺寸管理插件
-    createSizeEnginePlugin({
-      baseSize: 'brand-default',
-      scale: 1.25,
-      unit: 'px',
-      customPresets: [
-        {
-          name: 'brand-compact',
-          label: '品牌紧凑',
-          description: '品牌定制的紧凑尺寸系统',
-          order: 1,
-          config: {
-            baseSize: 14,
-            scale: 1.2,
-            unit: 'px',
-            lineHeight: 1.5,
-          },
-        },
-        {
-          name: 'brand-default',
-          label: '品牌默认',
-          description: '品牌定制的默认尺寸系统',
-          order: 2,
-          config: {
-            baseSize: 16,
-            scale: 1.25,
-            unit: 'px',
-            lineHeight: 1.6,
-          },
-        },
-      ],
-      persistence: {
-        enabled: true,
-        key: 'ldesign-app-size',
-      },
-      globalProperties: true,
-      globalComponents: true,
-    }),
-
-    // HTTP 请求插件
-    createHttpEnginePlugin({
-      client: httpClient,
-      baseURL: import.meta.env.VITE_API_BASE_URL || 'https://jsonplaceholder.typicode.com',
-      timeout: 10000,
-    }),
-
-    // 设备信息插件
-    createDeviceEnginePlugin({
-      enableResize: true,
-      enableOrientation: true,
-      modules: ['network', 'battery'],
-      // debug 模式会输出大量日志，仅在需要时开启
-      debug: false,
-    }),
-
-    // 缓存管理插件
-    createCacheEnginePlugin({
-      defaultTTL: 5 * 60 * 1000, // 5分钟默认过期时间
-      engines: {
-        memory: {
-          maxItems: 5000,
-          evictionStrategy: 'LRU',
-        },
-      },
-      // debug 模式会输出大量日志，仅在需要时开启
-      debug: false,
-    }),
-
-    // 状态管理插件
-    createStoreEnginePlugin({
-      persist: true,
-      persistOptions: {
-        storage: 'localStorage',
-        keyPrefix: 'ldesign-app-store:',
-      },
-      devtools: import.meta.env.DEV,
-      // debug 模式会输出大量日志，仅在需要时开启
-      debug: false,
-      globalProperties: true,
-    }),
+    createI18nPlugin(),
+    createRouterPlugin(),
+    createColorPlugin(),
+    createSizePlugin(),
+    createHttpPlugin(),
+    createDevicePlugin(),
+    createCachePlugin(),
+    createStorePlugin(),
+    createLoggerPlugin(),
+    createTemplatePlugin(),
   ]
+}
+
+// 导出各插件创建函数，方便单独使用
+export {
+  createI18nPlugin,
+  createRouterPlugin,
+  createColorPlugin,
+  createSizePlugin,
+  createHttpPlugin,
+  createDevicePlugin,
+  createCachePlugin,
+  createStorePlugin,
+  createLoggerPlugin,
+  createTemplatePlugin,
 }
