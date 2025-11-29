@@ -9,7 +9,7 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { AliasConfig } from '@ldesign/launcher'
-import { defineConfig } from '@ldesign/launcher'
+import { defineConfig, devLoggerPlugin } from '@ldesign/launcher'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -19,6 +19,23 @@ const monorepoRoot = resolve(__dirname, '../../..')
 console.log('📁 Monorepo 根目录:', monorepoRoot)
 
 export default defineConfig({
+  /**
+   * Vite 插件配置
+   * 添加开发日志插件，启用 WebSocket 服务器接收浏览器日志
+   */
+  plugins: [
+    devLoggerPlugin({
+      port: 9527,
+      path: '/__dev_logger',
+      logDir: resolve(__dirname, '../logs'),
+      maxFileSize: 10 * 1024 * 1024, // 10MB
+      maxFiles: 5,
+      filePrefix: 'dev',
+      enableConsole: true,
+      enabled: true,
+    }),
+  ],
+
   /**
    * 开发服务器配置
    * launcher 会自动检测 Vue 3 框架，无需手动配置
@@ -69,6 +86,10 @@ export default defineConfig({
       '@ldesign/http-vue',
       '@ldesign/device-core',
       '@ldesign/device-vue',
+      '@ldesign/error-core',
+      '@ldesign/error-vue',
+      '@ldesign/tracker-core',
+      '@ldesign/tracker-vue',
     ],
   },
 
@@ -139,6 +160,18 @@ export default defineConfig({
       { find: '@ldesign/logger-core', replacement: `${monorepoRoot}/packages/logger/packages/core/src/index.ts`, stage: 'dev' as const },
       { find: /^@ldesign\/logger-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/logger/packages/vue/src/$1`, stage: 'dev' as const },
       { find: '@ldesign/logger-vue', replacement: `${monorepoRoot}/packages/logger/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // Error 错误处理包
+      { find: /^@ldesign\/error-core\/(.+)$/, replacement: `${monorepoRoot}/packages/error/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/error-core', replacement: `${monorepoRoot}/packages/error/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/error-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/error/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/error-vue', replacement: `${monorepoRoot}/packages/error/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // Tracker 用户行为追踪包
+      { find: /^@ldesign\/tracker-core\/(.+)$/, replacement: `${monorepoRoot}/packages/tracker/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/tracker-core', replacement: `${monorepoRoot}/packages/tracker/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/tracker-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/tracker/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/tracker-vue', replacement: `${monorepoRoot}/packages/tracker/packages/vue/src/index.ts`, stage: 'dev' as const },
 
       // Notification 通知包
       { find: /^@ldesign\/notification-core\/(.+)$/, replacement: `${monorepoRoot}/packages/notification/packages/core/src/$1`, stage: 'dev' as const },

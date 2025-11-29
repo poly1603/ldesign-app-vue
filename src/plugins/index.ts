@@ -11,6 +11,8 @@
  * - cache.ts     - 缓存管理插件
  * - store.ts     - 状态管理插件
  * - logger.ts    - 日志插件
+ * - error.ts     - 错误处理插件
+ * - tracker.ts   - 用户行为追踪插件
  * - template.ts  - 模板插件
  */
 import { createI18nPlugin } from './i18n'
@@ -22,6 +24,8 @@ import { createDevicePlugin } from './device'
 import { createCachePlugin } from './cache'
 import { createStorePlugin } from './store'
 import { createLoggerPlugin } from './logger'
+import { createErrorHandlerPlugin } from './error'
+import { createTrackerPlugin_ } from './tracker'
 import { createTemplatePlugin } from './template'
 
 /**
@@ -37,7 +41,9 @@ import { createTemplatePlugin } from './template'
  * 7. cache - 缓存管理
  * 8. store - 状态管理
  * 9. logger - 日志（依赖路由进行跟踪）
- * 10. template - 模板（可能依赖其他插件）
+ * 10. error - 错误处理（依赖日志）
+ * 11. tracker - 用户行为追踪
+ * 12. template - 模板（可能依赖其他插件）
  */
 export function createEnginePlugins() {
   return [
@@ -50,6 +56,8 @@ export function createEnginePlugins() {
     createCachePlugin(),
     createStorePlugin(),
     createLoggerPlugin(),
+    createErrorHandlerPlugin(),
+    createTrackerPlugin_(),
     createTemplatePlugin(),
   ]
 }
@@ -65,5 +73,13 @@ export {
   createCachePlugin,
   createStorePlugin,
   createLoggerPlugin,
+  createErrorHandlerPlugin,
+  createTrackerPlugin_,
   createTemplatePlugin,
 }
+
+// 导出错误处理组件和 composables
+export { ErrorBoundary, useErrorHandler } from './error'
+
+// 导出追踪 composables 和指令
+export { useTracker, vTrack } from './tracker'

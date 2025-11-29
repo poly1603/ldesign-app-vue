@@ -35,6 +35,7 @@
     "@ldesign/crypto-vue": "workspace:*",
     "@ldesign/device-vue": "workspace:*",
     "@ldesign/engine-vue3": "workspace:*",
+    "@ldesign/error-vue": "workspace:*",
     "@ldesign/http-vue": "workspace:*",
     "@ldesign/i18n-vue": "workspace:*",
     "@ldesign/logger-vue": "workspace:^",
@@ -44,6 +45,7 @@
     "@ldesign/store-vue": "workspace:*",
     "@ldesign/template-core": "workspace:*",
     "@ldesign/template-vue": "workspace:*",
+    "@ldesign/tracker-vue": "workspace:*",
     "pinia": "^2.1.0",
     "vue": "^3.4.0"
   },
