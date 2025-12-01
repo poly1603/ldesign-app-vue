@@ -31,6 +31,13 @@ export function createTemplatePlugin() {
           mobile: 'minimal',
         },
       },
+      layout: {
+        defaults: {
+          desktop: 'sidebar',
+          tablet: 'sidebar',
+          mobile: 'tab-bar',
+        },
+      },
     },
 
     // 模板选择器配置
