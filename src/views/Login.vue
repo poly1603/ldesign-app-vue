@@ -3,14 +3,19 @@
  * 登录页面（全屏模式）
  *
  * 使用模板系统实现多设备适配的登录页面
- * - 支持 desktop、tablet、mobile 三种设备类型的模板切换
- * - 当浏览器窗口大小变化时自动切换到对应设备的默认模板
+ * - 自动检测设备类型（desktop/tablet/mobile）
+ * - 当浏览器窗口大小变化时自动切换到对应设备的模板
  * - 集成 TemplateSelector 组件，支持用户手动选择模板
+ *
+ * 简化后的实现：
+ * - 无需手动使用 useWindowSize 监听窗口大小
+ * - 无需手动计算设备类型
+ * - 无需手动 watch 设备变化
+ * - useTemplate 和 TemplateSelector 会自动处理设备检测
  */
 import { useEngine, useRouterService } from '@ldesign/engine-vue3'
 import { TemplateSelector, useTemplate } from '@ldesign/template-vue'
-import { useWindowSize } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 /** 登录数据类型 */
 interface LoginData {
@@ -18,71 +23,38 @@ interface LoginData {
   password: string
 }
 
-/** 设备类型 */
-type DeviceType = 'desktop' | 'tablet' | 'mobile'
-
-/** 设备断点配置 */
-const BREAKPOINTS = {
-  mobile: 768, // 小于 768px 为移动端
-  tablet: 1024, // 768px - 1024px 为平板端
-  // 大于 1024px 为桌面端
-}
-
 const engine = useEngine()
 const router = useRouterService()
-
-// 使用 @vueuse/core 的 useWindowSize 监听窗口大小变化
-const { width: windowWidth } = useWindowSize()
-
-// 当前选中的模板 ID（初始只设置 category:device，让 useTemplate 决定使用缓存还是默认）
-const selectedTemplateId = ref<string>('login:desktop:default')
 
 // 是否显示模板选择器面板
 const showSelector = ref(false)
 
-// 使用 useTemplate 动态加载模板组件
+/**
+ * 使用 useTemplate 动态加载模板组件
+ *
+ * 简化模式：只传分类名 'login'，自动检测设备类型
+ * - 自动检测当前设备类型（desktop/tablet/mobile）
+ * - 窗口大小变化时自动切换到对应设备的模板
+ * - 优先使用缓存中的用户选择
+ */
 const {
   component: currentTemplate,
   loading: templateLoading,
   load: loadTemplate,
   template: currentTemplateMeta,
-} = useTemplate(
-  selectedTemplateId,
-  { immediate: true },
-)
+  disabled: templateDisabled,
+  disabledMessage,
+  deviceType,
+} = useTemplate('login', { immediate: true })
 
 /**
- * 根据窗口宽度计算设备类型
+ * 获取当前模板ID（用于选择器高亮）
  */
-const detectedDeviceType = computed<DeviceType>(() => {
-  const width = windowWidth.value
-  if (width < BREAKPOINTS.mobile) return 'mobile'
-  if (width < BREAKPOINTS.tablet) return 'tablet'
-  return 'desktop'
-})
-
-/**
- * 监听设备类型变化，自动切换模板
- * 使用 category:device:default 格式，让 useTemplate 内部决定是使用缓存还是默认模板
- */
-watch(
-  detectedDeviceType,
-  (newType) => {
-    // 设备切换时，让 useTemplate 自动决定模板（会优先使用缓存）
-    // 注意：这里不传 loadSource，useTemplate 会自己检查缓存
-    loadTemplate(`login:${newType}:default`)
-  },
-  { immediate: true },
-)
+const currentTemplateId = computed(() => currentTemplateMeta.value?.id)
 
 /**
  * 处理用户手动选择模板
  * 使用 'user' 来源标记，这样会写入缓存
- *
- * 注意：不需要更新 selectedTemplateId，因为：
- * 1. loadTemplate 会更新 template.value
- * 2. currentTemplateId 会从 template.value.id 获取正确的值
- * 3. 避免触发 useTemplate 内部的 watch 导致重复加载
  */
 function handleTemplateChange(templateId: string): void {
   // 用户手动选择，传入 'user' 来源，会写入缓存
@@ -90,13 +62,6 @@ function handleTemplateChange(templateId: string): void {
   // 选择后关闭面板
   showSelector.value = false
 }
-
-/**
- * 获取当前实际使用的模板ID（用于选择器高亮）
- */
-const currentTemplateId = computed(() => {
-  return currentTemplateMeta.value?.id || selectedTemplateId.value
-})
 
 /**
  * 处理登录提交
@@ -122,12 +87,7 @@ function toggleSelector(): void {
 <template>
   <div class="login-page">
     <!-- 模板选择器触发按钮 -->
-    <button
-      class="template-trigger"
-      :class="{ active: showSelector }"
-      title="选择登录模板"
-      @click="toggleSelector"
-    >
+    <button class="template-trigger" :class="{ active: showSelector }" title="选择登录模板" @click="toggleSelector">
       🎨
     </button>
 
@@ -139,14 +99,9 @@ function toggleSelector(): void {
           <button class="close-btn" @click="showSelector = false">×</button>
         </div>
         <div class="panel-content">
-          <TemplateSelector
-            category="login"
-            :device="detectedDeviceType"
-            :model-value="currentTemplateId"
-            :show-preview="true"
-            :show-description="true"
-            @update:model-value="handleTemplateChange"
-          />
+          <!-- 简化：不再需要传递 device，TemplateSelector 会自动检测设备类型 -->
+          <TemplateSelector category="login" :model-value="currentTemplateId" :show-preview="true"
+            :show-description="true" @update:model-value="handleTemplateChange" />
         </div>
       </div>
     </Transition>
@@ -160,12 +115,8 @@ function toggleSelector(): void {
     <div v-if="templateLoading" class="template-loading">
       <span>加载模板中...</span>
     </div>
-    <component
-      v-else-if="currentTemplate"
-      :is="currentTemplate"
-      :title="$t('login.title')"
-      :on-submit="handleLogin"
-    />
+    <component v-else-if="currentTemplate" :is="currentTemplate" title="登录" :on-submit="handleLogin" :category="'login'"
+      :device="deviceType" :message="disabledMessage" />
   </div>
 </template>
 
