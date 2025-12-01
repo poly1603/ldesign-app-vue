@@ -2,39 +2,26 @@
 /**
  * 布局系统演示页面
  *
- * 展示 @ldesign/template-vue 中的布局模板使用
+ * 展示 @ldesign/template-vue 中的布局组件使用
  */
-import { ref, computed } from 'vue'
-import {
-  TemplateRenderer,
-  useLayout,
-  LayoutHeader,
-  LayoutSider,
-  LayoutContent,
-  LayoutFooter,
-  LayoutTabs,
-  type TabItem,
-} from '@ldesign/template-vue'
+import { ref } from 'vue'
+import type { TabItem } from '@ldesign/template-vue'
 
 // 布局模式选择
 const layoutModes = ['admin', 'portal', 'dashboard', 'blank'] as const
 const currentMode = ref<typeof layoutModes[number]>('admin')
 
-// 使用布局状态管理
-const {
-  siderCollapsed,
-  toggleSider,
-  showTabs,
-  showFooter,
-  isMobile,
-} = useLayout()
+// 侧边栏折叠状态（仅用于演示）
+const siderCollapsed = ref(false)
+const showTabs = ref(true)
+const showFooter = ref(true)
 
 // 模拟菜单数据
 const menuItems = [
-  { key: 'dashboard', label: '📊 仪表盘', path: '/dashboard' },
-  { key: 'users', label: '👥 用户管理', path: '/users' },
-  { key: 'settings', label: '⚙️ 系统设置', path: '/settings' },
-  { key: 'logs', label: '📝 操作日志', path: '/logs' },
+  { key: 'dashboard', label: '📊 仪表盘', icon: '📊' },
+  { key: 'users', label: '👥 用户管理', icon: '👥' },
+  { key: 'settings', label: '⚙️ 系统设置', icon: '⚙️' },
+  { key: 'logs', label: '📝 操作日志', icon: '📝' },
 ]
 
 // 模拟标签页数据
@@ -48,6 +35,11 @@ const activeTab = ref('home')
 /** 切换布局模式 */
 function switchMode(mode: typeof layoutModes[number]) {
   currentMode.value = mode
+}
+
+/** 切换侧边栏 */
+function toggleSider() {
+  siderCollapsed.value = !siderCollapsed.value
 }
 
 /** 处理标签切换 */
@@ -72,131 +64,117 @@ function handleTabClose(key: string) {
     <!-- 布局模式选择器 -->
     <div class="mode-selector">
       <h2>🎨 布局系统演示</h2>
-      <p>选择布局模式：</p>
+      <p>选择布局模式查看不同布局效果：</p>
       <div class="mode-buttons">
         <button v-for="mode in layoutModes" :key="mode" :class="['mode-btn', { active: currentMode === mode }]"
           @click="switchMode(mode)">
           {{ mode }}
         </button>
       </div>
-      <p class="tip">当前设备: {{ isMobile ? '移动端' : '桌面端' }}</p>
     </div>
 
     <!-- 布局预览区域 -->
     <div class="layout-preview">
       <!-- Admin 布局 -->
-      <div v-if="currentMode === 'admin'" class="preview-container">
-        <div class="admin-preview">
-          <LayoutSider :collapsed="siderCollapsed" :width="200" :collapsed-width="64" class="preview-sider">
-            <template #logo>
-              <div class="logo">{{ siderCollapsed ? '🎨' : '🎨 LDesign' }}</div>
-            </template>
-            <div class="menu">
+      <div v-if="currentMode === 'admin'" class="preview-frame">
+        <div class="admin-layout">
+          <!-- 侧边栏 -->
+          <aside class="admin-sider" :class="{ collapsed: siderCollapsed }">
+            <div class="sider-logo">
+              {{ siderCollapsed ? '🎨' : '🎨 LDesign' }}
+            </div>
+            <nav class="sider-menu">
               <div v-for="item in menuItems" :key="item.key" class="menu-item">
-                {{ siderCollapsed ? item.label.slice(0, 2) : item.label }}
+                <span class="menu-icon">{{ item.icon }}</span>
+                <span v-if="!siderCollapsed" class="menu-text">{{ item.label.slice(2) }}</span>
+              </div>
+            </nav>
+          </aside>
+
+          <!-- 主区域 -->
+          <div class="admin-main">
+            <!-- 顶栏 -->
+            <header class="admin-header">
+              <button class="toggle-btn" @click="toggleSider">☰</button>
+              <span class="header-title">Admin Layout</span>
+              <span class="header-user">👤 用户</span>
+            </header>
+
+            <!-- 标签栏 -->
+            <div v-if="showTabs" class="admin-tabs">
+              <div v-for="tab in tabs" :key="tab.key" :class="['tab-item', { active: activeTab === tab.key }]"
+                @click="handleTabChange(tab.key)">
+                <span v-if="tab.pinned" class="pin">📌</span>
+                {{ tab.title }}
+                <span v-if="!tab.pinned" class="close" @click.stop="handleTabClose(tab.key)">×</span>
               </div>
             </div>
-          </LayoutSider>
 
-          <div class="preview-main" :style="{ marginLeft: siderCollapsed ? '64px' : '200px' }">
-            <LayoutHeader :height="48" @toggle-sider="toggleSider">
-              <template #menuButton>
-                <span class="menu-icon">☰</span>
-              </template>
-              <template #left>
-                <span>Admin Layout</span>
-              </template>
-              <template #right>
-                <span>👤 用户</span>
-              </template>
-            </LayoutHeader>
-
-            <LayoutTabs v-if="showTabs" :tabs="tabs" :active-key="activeTab" :height="36" style="margin-top: 48px;"
-              @change="handleTabChange" @close="handleTabClose" />
-
-            <LayoutContent :padding="16" :style="{ marginTop: showTabs ? '84px' : '48px' }">
-              <div class="content-area">
+            <!-- 内容区 -->
+            <main class="admin-content">
+              <div class="content-card">
                 <h3>内容区域</h3>
                 <p>这是 Admin 布局的内容区域，包含侧边栏、顶栏、标签栏和页脚。</p>
                 <div class="controls">
-                  <label>
-                    <input v-model="showTabs" type="checkbox">
-                    显示标签栏
-                  </label>
-                  <label>
-                    <input v-model="showFooter" type="checkbox">
-                    显示页脚
-                  </label>
+                  <label><input v-model="showTabs" type="checkbox"> 显示标签栏</label>
+                  <label><input v-model="showFooter" type="checkbox"> 显示页脚</label>
                 </div>
               </div>
-            </LayoutContent>
+            </main>
 
-            <LayoutFooter v-if="showFooter" :height="40">
-              <span>Copyright © 2024 LDesign</span>
-            </LayoutFooter>
+            <!-- 页脚 -->
+            <footer v-if="showFooter" class="admin-footer">
+              Copyright © 2024 LDesign
+            </footer>
           </div>
         </div>
       </div>
 
       <!-- Portal 布局 -->
-      <div v-else-if="currentMode === 'portal'" class="preview-container">
-        <div class="portal-preview">
-          <LayoutHeader :height="56" class="portal-header">
-            <template #left>
-              <span class="portal-logo">🎨 LDesign Portal</span>
-            </template>
-            <template #center>
-              <nav class="portal-nav">
-                <span>首页</span>
-                <span>产品</span>
-                <span>文档</span>
-                <span>关于</span>
-              </nav>
-            </template>
-            <template #right>
-              <span>登录</span>
-            </template>
-          </LayoutHeader>
-          <LayoutContent :padding="24" style="margin-top: 56px; min-height: 300px;">
-            <div class="portal-content">
-              <h3>Portal 门户布局</h3>
-              <p>适合官网、博客、门户网站等顶部导航的场景。</p>
-            </div>
-          </LayoutContent>
-          <LayoutFooter :height="48" class="portal-footer">
-            <span>© 2024 LDesign. All rights reserved.</span>
-          </LayoutFooter>
+      <div v-else-if="currentMode === 'portal'" class="preview-frame">
+        <div class="portal-layout">
+          <header class="portal-header">
+            <span class="portal-logo">🎨 LDesign Portal</span>
+            <nav class="portal-nav">
+              <span>首页</span>
+              <span>产品</span>
+              <span>文档</span>
+              <span>关于</span>
+            </nav>
+            <span class="portal-login">登录</span>
+          </header>
+          <main class="portal-content">
+            <h3>Portal 门户布局</h3>
+            <p>适合官网、博客、门户网站等顶部导航的场景。</p>
+          </main>
+          <footer class="portal-footer">
+            © 2024 LDesign. All rights reserved.
+          </footer>
         </div>
       </div>
 
       <!-- Dashboard 布局 -->
-      <div v-else-if="currentMode === 'dashboard'" class="preview-container">
-        <div class="dashboard-preview">
-          <LayoutHeader :height="48" :shadow="false" class="dashboard-header">
-            <template #left>
-              <span>📊 数据监控中心</span>
-            </template>
-            <template #center>
-              <span>2024-01-01 12:00:00</span>
-            </template>
-            <template #right>
-              <span>⛶ 全屏</span>
-            </template>
-          </LayoutHeader>
-          <LayoutContent :padding="16" style="margin-top: 48px;" class="dashboard-content">
+      <div v-else-if="currentMode === 'dashboard'" class="preview-frame">
+        <div class="dashboard-layout">
+          <header class="dashboard-header">
+            <span>📊 数据监控中心</span>
+            <span>2024-01-01 12:00:00</span>
+            <span>⛶ 全屏</span>
+          </header>
+          <main class="dashboard-content">
             <div class="dashboard-grid">
-              <div class="dashboard-card">图表 1</div>
-              <div class="dashboard-card">图表 2</div>
-              <div class="dashboard-card">图表 3</div>
-              <div class="dashboard-card">图表 4</div>
+              <div class="dashboard-card">📈 图表 1</div>
+              <div class="dashboard-card">📊 图表 2</div>
+              <div class="dashboard-card">📉 图表 3</div>
+              <div class="dashboard-card">🗂️ 图表 4</div>
             </div>
-          </LayoutContent>
+          </main>
         </div>
       </div>
 
       <!-- Blank 布局 -->
-      <div v-else-if="currentMode === 'blank'" class="preview-container">
-        <div class="blank-preview">
+      <div v-else-if="currentMode === 'blank'" class="preview-frame">
+        <div class="blank-layout">
           <div class="blank-content">
             <h3>Blank 空白布局</h3>
             <p>无任何装饰的空白布局，适合登录页、错误页等。</p>
@@ -216,126 +194,218 @@ function handleTabClose(key: string) {
 <style scoped>
 .layout-demo {
   padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 .mode-selector {
   margin-bottom: 24px;
-  padding: 16px;
-  background: var(--color-bg-container, #fff);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .mode-selector h2 {
-  margin-bottom: 8px;
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.mode-selector p {
+  margin: 0 0 12px;
+  color: #666;
 }
 
 .mode-buttons {
   display: flex;
   gap: 8px;
-  margin: 12px 0;
 }
 
 .mode-btn {
-  padding: 8px 16px;
-  border: 1px solid var(--color-border, #d9d9d9);
+  padding: 8px 20px;
+  border: 1px solid #d9d9d9;
   border-radius: 4px;
-  background: var(--color-bg-container, #fff);
+  background: #fff;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 14px;
 }
 
 .mode-btn:hover {
-  border-color: var(--color-primary, #1890ff);
-  color: var(--color-primary, #1890ff);
+  border-color: #1890ff;
+  color: #1890ff;
 }
 
 .mode-btn.active {
-  background: var(--color-primary, #1890ff);
-  border-color: var(--color-primary, #1890ff);
+  background: #1890ff;
+  border-color: #1890ff;
   color: #fff;
 }
 
-.tip {
-  font-size: 12px;
-  color: var(--color-text-secondary, #999);
-}
-
+/* 预览框架 */
 .layout-preview {
-  border: 1px solid var(--color-border, #d9d9d9);
+  border: 2px solid #e8e8e8;
   border-radius: 8px;
   overflow: hidden;
-  min-height: 500px;
-  background: var(--color-bg-page, #f0f2f5);
+  background: #f5f5f5;
 }
 
-.preview-container {
-  height: 100%;
-  min-height: 500px;
+.preview-frame {
+  height: 500px;
+  overflow: hidden;
 }
 
-/* Admin 布局样式 */
-.admin-preview {
+/* ==================== Admin 布局 ==================== */
+.admin-layout {
   display: flex;
   height: 100%;
-  min-height: 500px;
-  position: relative;
+  background: #f0f2f5;
 }
 
-.preview-sider {
-  position: absolute !important;
-  left: 0;
-  top: 0;
-  bottom: 0;
-}
-
-.preview-main {
-  flex: 1;
+.admin-sider {
+  width: 200px;
+  background: #001529;
+  color: #fff;
+  transition: width 0.3s;
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.3s;
+  flex-shrink: 0;
 }
 
-.logo {
-  padding: 16px;
-  color: #fff;
+.admin-sider.collapsed {
+  width: 64px;
+}
+
+.sider-logo {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
-  text-align: center;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.menu {
+.sider-menu {
+  flex: 1;
   padding: 8px;
 }
 
 .menu-item {
-  padding: 12px 16px;
-  color: rgba(255, 255, 255, 0.85);
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
   border-radius: 4px;
-  margin-bottom: 4px;
+  cursor: pointer;
   transition: background 0.2s;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .menu-item:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.menu-icon {
-  font-size: 18px;
-  cursor: pointer;
+.collapsed .menu-item {
+  justify-content: center;
 }
 
-.content-area {
-  background: var(--color-bg-container, #fff);
+.menu-icon {
+  font-size: 16px;
+}
+
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-header {
+  height: 48px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  gap: 16px;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.header-title {
+  font-weight: 500;
+}
+
+.header-user {
+  margin-left: auto;
+}
+
+.admin-tabs {
+  height: 36px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-bottom: 1px solid #e8e8e8;
+  gap: 4px;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #f5f5f5;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.tab-item.active {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.tab-item .pin {
+  font-size: 10px;
+}
+
+.tab-item .close {
+  font-size: 14px;
+  margin-left: 4px;
+  opacity: 0.5;
+}
+
+.tab-item .close:hover {
+  opacity: 1;
+  color: #ff4d4f;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 16px;
+  overflow: auto;
+}
+
+.content-card {
+  background: #fff;
   padding: 24px;
   border-radius: 8px;
-  min-height: 200px;
+}
+
+.content-card h3 {
+  margin: 0 0 8px;
+}
+
+.content-card p {
+  margin: 0 0 16px;
+  color: #666;
 }
 
 .controls {
-  margin-top: 16px;
   display: flex;
   gap: 16px;
 }
@@ -347,15 +417,32 @@ function handleTabClose(key: string) {
   cursor: pointer;
 }
 
-/* Portal 布局样式 */
-.portal-preview {
-  min-height: 500px;
+.admin-footer {
+  height: 40px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 13px;
+  border-top: 1px solid #e8e8e8;
+}
+
+/* ==================== Portal 布局 ==================== */
+.portal-layout {
+  height: 100%;
   display: flex;
   flex-direction: column;
+  background: #fff;
 }
 
 .portal-header {
-  background: var(--color-bg-container, #fff) !important;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid #e8e8e8;
 }
 
 .portal-logo {
@@ -365,67 +452,96 @@ function handleTabClose(key: string) {
 
 .portal-nav {
   display: flex;
-  gap: 24px;
+  gap: 32px;
 }
 
 .portal-nav span {
   cursor: pointer;
+  color: #333;
 }
 
 .portal-nav span:hover {
-  color: var(--color-primary, #1890ff);
+  color: #1890ff;
+}
+
+.portal-login {
+  color: #1890ff;
+  cursor: pointer;
 }
 
 .portal-content {
-  max-width: 800px;
-  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 48px 0;
+  padding: 48px;
+}
+
+.portal-content h3 {
+  margin: 0 0 16px;
+  font-size: 24px;
+}
+
+.portal-content p {
+  margin: 0;
+  color: #666;
 }
 
 .portal-footer {
-  background: #001529 !important;
-  color: rgba(255, 255, 255, 0.65) !important;
-  margin-top: auto;
+  height: 48px;
+  background: #001529;
+  color: rgba(255, 255, 255, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
 }
 
-/* Dashboard 布局样式 */
-.dashboard-preview {
-  min-height: 500px;
+/* ==================== Dashboard 布局 ==================== */
+.dashboard-layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background: #0d1117;
   color: #e6edf3;
 }
 
 .dashboard-header {
-  background: transparent !important;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e6edf3 !important;
 }
 
 .dashboard-content {
-  background: transparent !important;
+  flex: 1;
+  padding: 16px;
 }
 
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
+  height: 100%;
 }
 
 .dashboard-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  padding: 24px;
-  min-height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 18px;
 }
 
-/* Blank 布局样式 */
-.blank-preview {
-  min-height: 500px;
+/* ==================== Blank 布局 ==================== */
+.blank-layout {
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -437,17 +553,27 @@ function handleTabClose(key: string) {
   color: #fff;
 }
 
+.blank-content h3 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.blank-content p {
+  margin: 0 0 24px;
+  opacity: 0.9;
+}
+
 .login-card {
-  margin-top: 24px;
   padding: 32px;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
   color: #333;
-  min-width: 300px;
+  min-width: 280px;
 }
 
 .login-card h4 {
-  margin-bottom: 16px;
+  margin: 0 0 20px;
+  text-align: center;
 }
 
 .login-card input {
@@ -456,15 +582,21 @@ function handleTabClose(key: string) {
   margin-bottom: 12px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
+  box-sizing: border-box;
 }
 
 .login-card button {
   width: 100%;
   padding: 10px;
-  background: var(--color-primary, #1890ff);
+  background: #1890ff;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
+}
+
+.login-card button:hover {
+  background: #40a9ff;
 }
 </style>
