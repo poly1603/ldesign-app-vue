@@ -43,6 +43,9 @@ const isFullscreenPage = computed(() => {
           <router-link to="/store" class="nav-link">
             🗃️ 状态管理
           </router-link>
+          <router-link to="/layout" class="nav-link">
+            🖼️ 布局系统
+          </router-link>
         </nav>
 
         <div class="header-actions">

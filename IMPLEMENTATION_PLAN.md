@@ -31,7 +31,7 @@
 |------|--------|------|
 | **认证系统** | 🔴 必需 | ❌ 缺失 |
 | **权限系统** | 🔴 必需 | ⚠️ 有基础，未集成 |
-| **布局系统** | 🔴 必需 | ❌ 缺失 |
+| **布局系统** | 🔴 必需 | ⚠️ 在 template 包中扩展实现 |
 | **菜单系统** | 🔴 必需 | ❌ 缺失 |
 | **标签页系统** | 🟡 重要 | ❌ 缺失 |
 | **面包屑** | 🟡 重要 | ❌ 缺失 |
@@ -136,51 +136,101 @@ packages/permission/  （或增强 router-core）
 
 #### 2.1 布局系统 (Layout) ⭐⭐⭐⭐⭐
 
-**状态**: ❌ 需要新建 `packages/layout`
+**状态**: ✅ 在 `packages/template` 中扩展实现（复用现有模板基础设施）
+
+**设计决策**:
+> 💡 Layout 本质上也是一种"模板"——布局模板。与其新建 `packages/layout` 包，不如在已有的 `packages/template` 中扩展 `layout` 分类，复用现有的模板管理、响应式设备检测、懒加载等基础设施，减少包数量和维护成本。
 
 **核心功能**:
 - 多种布局模式：
   - `admin` - 后台管理（侧边栏+顶栏）
   - `portal` - 门户网站（顶部导航）
   - `dashboard` - 仪表盘（全屏+面板）
-  - `mobile` - 移动端（底部导航）
   - `blank` - 空白布局
-- 布局切换
-- 响应式适配
+- 响应式设备适配（复用 template 的 desktop/mobile/tablet 三端适配）
+- 布局切换（使用 TemplateRenderer + category="layout"）
 - 侧边栏折叠
 
-**包结构**:
+**在 template 包中扩展**:
 ```
-packages/layout/
-├── packages/
-│   ├── core/
-│   │   └── src/
-│   │       ├── types.ts
-│   │       ├── layout-manager.ts
-│   │       ├── responsive.ts         # 响应式逻辑
-│   │       └── index.ts
-│   └── vue/
-│       └── src/
-│           ├── layouts/
-│           │   ├── AdminLayout.vue   # 后台管理布局
-│           │   ├── PortalLayout.vue  # 门户布局
-│           │   ├── DashboardLayout.vue
-│           │   ├── MobileLayout.vue
-│           │   └── BlankLayout.vue
-│           ├── components/
-│           │   ├── LayoutHeader.vue
-│           │   ├── LayoutSider.vue
-│           │   ├── LayoutContent.vue
-│           │   ├── LayoutFooter.vue
-│           │   └── LayoutTabs.vue
-│           ├── composables/
-│           │   ├── useLayout.ts
-│           │   └── useSider.ts
-│           ├── plugin/
-│           └── index.ts
+packages/template/packages/vue/src/
+├── templates/
+│   ├── login/                        # 现有：登录模板
+│   └── layout/                       # 🆕 新增：布局模板分类
+│       ├── desktop/
+│       │   ├── admin/                # 后台管理布局
+│       │   │   ├── index.vue
+│       │   │   └── template.config.ts
+│       │   ├── portal/               # 门户网站布局
+│       │   │   ├── index.vue
+│       │   │   └── template.config.ts
+│       │   ├── dashboard/            # 仪表盘布局
+│       │   │   ├── index.vue
+│       │   │   └── template.config.ts
+│       │   └── blank/                # 空白布局
+│       │       ├── index.vue
+│       │       └── template.config.ts
+│       ├── mobile/
+│       │   └── default/              # 移动端布局（底部导航）
+│       │       ├── index.vue
+│       │       └── template.config.ts
+│       └── tablet/
+│           └── default/              # 平板布局
+│               ├── index.vue
+│               └── template.config.ts
+├── components/
+│   ├── TemplateRenderer.vue          # 现有
+│   ├── TemplateSelector.vue          # 现有
+│   └── layout/                       # 🆕 新增：布局子组件
+│       ├── LayoutHeader.vue          # 顶栏组件
+│       ├── LayoutSider.vue           # 侧边栏组件
+│       ├── LayoutContent.vue         # 内容区组件
+│       ├── LayoutFooter.vue          # 底部组件
+│       ├── LayoutTabs.vue            # 标签页组件
+│       └── index.ts                  # 导出
+└── composables/
+    ├── useTemplate.ts                # 现有
+    ├── useTemplateList.ts            # 现有
+    ├── useAutoDevice.ts              # 现有（布局复用）
+    ├── useLayout.ts                  # 🆕 新增：布局状态管理
+    └── useSider.ts                   # 🆕 新增：侧边栏控制
 ```
 
-**工作量**: 25-30 小时
+**使用方式**:
+```vue
+<script setup lang="ts">
+import { TemplateRenderer, useLayout } from '@ldesign/template-vue'
+
+// 使用布局状态管理
+const { siderCollapsed, toggleSider, layoutMode } = useLayout()
+</script>
+
+<template>
+  <!-- 使用 TemplateRenderer 渲染布局，自动响应式切换 -->
+  <TemplateRenderer
+    category="layout"
+    :props="{
+      siderCollapsed,
+      onToggleSider: toggleSider,
+      menu: menuData
+    }"
+  >
+    <!-- 内容通过默认 slot 传入 -->
+    <router-view />
+  </TemplateRenderer>
+</template>
+```
+
+**优势**:
+| 方面 | 新建 packages/layout | 扩展 template 包 |
+|------|---------------------|------------------|
+| 包数量 | +2 个新包 | 不变 |
+| 代码复用 | 需重复实现模板管理 | 复用现有基础设施 |
+| API 一致性 | 两套不同 API | 统一 TemplateRenderer |
+| 响应式 | 需重新实现 | 直接复用 useAutoDevice |
+| 维护成本 | 更高 | 更低 |
+
+**工作量**: 18-22 小时（比新建包减少约 30%）
 
 ---
 
@@ -271,7 +321,7 @@ packages/tabs/
 
 #### 2.4 面包屑 (Breadcrumb) ⭐⭐⭐
 
-**状态**: ❌ 需要新建（可集成到 router 或 layout）
+**状态**: ❌ 需要新建（可集成到 router 或 template 的布局组件中）
 
 **核心功能**:
 - 基于路由自动生成
@@ -279,7 +329,7 @@ packages/tabs/
 - 图标支持
 - 下拉菜单（子页面快速跳转）
 
-**建议**: 作为 `@ldesign/layout-vue` 的一部分
+**建议**: 作为 `@ldesign/template-vue` 布局子组件的一部分（`components/layout/LayoutBreadcrumb.vue`）
 
 **工作量**: 5-8 小时
 
@@ -436,15 +486,23 @@ Week 2:
 
 ```
 Week 3:
-├── Day 1-3: 创建 packages/layout/packages/core
-├── Day 4-5: 创建 packages/layout/packages/vue
+├── Day 1-2: 在 packages/template 中扩展 layout 分类
+│            - 创建布局子组件（Header/Sider/Content/Footer）
+│            - 创建 useLayout、useSider composables
+├── Day 3-4: 实现布局模板
+│            - layout:desktop:admin（后台管理布局）
+│            - layout:desktop:portal（门户布局）
+│            - layout:desktop:dashboard（仪表盘布局）
+│            - layout:desktop:blank（空白布局）
+│            - layout:mobile:default（移动端布局）
+└── Day 5:   布局模板测试与调试
 
 Week 4:
 ├── Day 1-3: 创建 packages/menu
-├── Day 4-5: 布局与菜单集成
+├── Day 4-5: 布局与菜单集成到 app-vue
 ```
 
-**成果**: 支持多种布局模式的应用框架
+**成果**: 支持多种布局模式的应用框架（复用 template 基础设施）
 
 ---
 
@@ -488,16 +546,15 @@ apps/app-vue/src/
 │   ├── auth.ts               # 认证 API
 │   ├── user.ts               # 用户 API
 │   └── index.ts
-├── layouts/                  # 布局组件
-│   ├── AdminLayout.vue       # 后台管理布局
-│   ├── PortalLayout.vue      # 门户布局
-│   └── BlankLayout.vue       # 空白布局
+├── config/                   # 配置
+│   ├── layout.ts             # 🆕 布局配置（使用哪种布局模板）
+│   └── menu.ts               # 🆕 菜单配置
 ├── locales/                  # 国际化
 ├── plugins/                  # 引擎插件
 │   ├── index.ts
 │   ├── auth.ts               # 🆕 认证插件
 │   ├── permission.ts         # 🆕 权限插件
-│   ├── layout.ts             # 🆕 布局插件
+│   ├── template.ts           # 🆕 模板插件（配置布局模板）
 │   ├── menu.ts               # 🆕 菜单插件
 │   ├── tabs.ts               # 🆕 标签页插件
 │   └── ...existing...
@@ -512,7 +569,7 @@ apps/app-vue/src/
 │   ├── auth.ts               # 🆕 认证状态
 │   ├── user.ts               # 🆕 用户状态
 │   ├── permission.ts         # 🆕 权限状态
-│   ├── layout.ts             # 🆕 布局状态
+│   ├── layout.ts             # 🆕 布局状态（与 useLayout 联动）
 │   ├── tabs.ts               # 🆕 标签页状态
 │   └── app.ts                # 🆕 应用状态
 ├── views/
@@ -527,9 +584,11 @@ apps/app-vue/src/
 │   ├── dashboard/            # 仪表盘
 │   │   └── Index.vue
 │   └── ...other views...
-├── App.vue
+├── App.vue                   # 🆕 使用 TemplateRenderer 渲染布局
 └── main.ts
 ```
+
+> 💡 **注意**: 布局组件不再放在 `layouts/` 目录中，而是通过 `@ldesign/template-vue` 的 `TemplateRenderer` 组件动态渲染。布局模板统一管理在 `packages/template` 包中。
 
 ---
 
@@ -565,7 +624,9 @@ apps/app-vue/src/
 
 ---
 
-## 📦 需要新建的 packages 汇总
+## 📦 需要新建/扩展的 packages 汇总
+
+### 新建的包
 
 | 包名 | 路径 | 优先级 | 工作量 |
 |------|------|--------|--------|
@@ -573,8 +634,6 @@ apps/app-vue/src/
 | `@ldesign/auth-vue` | `packages/auth/packages/vue` | P0 | 10h |
 | `@ldesign/permission-core` | `packages/permission/packages/core` | P0 | 10h |
 | `@ldesign/permission-vue` | `packages/permission/packages/vue` | P0 | 8h |
-| `@ldesign/layout-core` | `packages/layout/packages/core` | P0 | 12h |
-| `@ldesign/layout-vue` | `packages/layout/packages/vue` | P0 | 15h |
 | `@ldesign/menu-core` | `packages/menu/packages/core` | P1 | 10h |
 | `@ldesign/menu-vue` | `packages/menu/packages/vue` | P1 | 12h |
 | `@ldesign/tabs-core` | `packages/tabs/packages/core` | P1 | 10h |
@@ -582,13 +641,33 @@ apps/app-vue/src/
 | `@ldesign/command-core` | `packages/command/packages/core` | P2 | 8h |
 | `@ldesign/command-vue` | `packages/command/packages/vue` | P2 | 10h |
 
-**总计**: 约 120-130 小时（15-16 个工作日）
+### 扩展现有包（代替新建）
+
+| 包名 | 扩展内容 | 优先级 | 工作量 |
+|------|---------|--------|--------|
+| `@ldesign/template-vue` | 布局模板分类 (`layout`) | P0 | 18h |
+| | - 布局子组件 (Header/Sider/Content/Footer/Tabs) | | |
+| | - 布局 composables (useLayout/useSider) | | |
+| | - 多种布局模板 (admin/portal/dashboard/blank) | | |
+| | - 移动端/平板布局模板 | | |
+
+### 优化说明
+
+> ⚡ **减少包数量**: 通过在 `packages/template` 中扩展布局功能，避免新建 `packages/layout` (2个包)，减少维护成本
+>
+> 📦 **复用基础设施**: 布局系统复用 template 的模板管理、响应式设备检测、懒加载等能力
+>
+> 🎯 **统一 API**: 使用 `TemplateRenderer` 渲染布局，与其他模板使用方式一致
+
+**总计**: 约 93-105 小时（12-13 个工作日）
+**节省**: 约 27 小时（相比原方案减少约 20%）
 
 ---
 
 ## 🔗 参考资源
 
 **现有实现（可参考）**:
+- `packages/template/packages/vue/src` - 模板系统基础设施（布局扩展基础）
 - `libraries/webcomponent/src/components/menu` - 菜单 Web Component
 - `libraries/webcomponent/src/components/tabs` - 标签页 Web Component
 - `packages/router/packages/core/src/features/permissions.ts` - 权限基础
@@ -599,3 +678,8 @@ apps/app-vue/src/
 - Naive UI Admin
 - Vue Vben Admin
 
+---
+
+**最后更新**: 2025-12-01
+**变更记录**:
+- 优化布局系统实现方案：从新建 `packages/layout` 改为在 `packages/template` 中扩展 `layout` 分类
