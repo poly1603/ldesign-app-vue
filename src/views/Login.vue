@@ -78,12 +78,15 @@ watch(
 /**
  * 处理用户手动选择模板
  * 使用 'user' 来源标记，这样会写入缓存
+ *
+ * 注意：不需要更新 selectedTemplateId，因为：
+ * 1. loadTemplate 会更新 template.value
+ * 2. currentTemplateId 会从 template.value.id 获取正确的值
+ * 3. 避免触发 useTemplate 内部的 watch 导致重复加载
  */
 function handleTemplateChange(templateId: string): void {
   // 用户手动选择，传入 'user' 来源，会写入缓存
   loadTemplate(templateId, 'user')
-  // 同步更新本地状态
-  selectedTemplateId.value = templateId
   // 选择后关闭面板
   showSelector.value = false
 }
