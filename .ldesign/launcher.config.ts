@@ -92,6 +92,8 @@ export default defineConfig({
       '@ldesign/error-vue',
       '@ldesign/tracker-core',
       '@ldesign/tracker-vue',
+      '@ldesign/permission-core',
+      '@ldesign/permission-vue',
     ],
   },
 
@@ -186,6 +188,12 @@ export default defineConfig({
       { find: '@ldesign/notification-core', replacement: `${monorepoRoot}/packages/notification/packages/core/src/index.ts`, stage: 'dev' as const },
       { find: /^@ldesign\/notification-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/notification/packages/vue/src/$1`, stage: 'dev' as const },
       { find: '@ldesign/notification-vue', replacement: `${monorepoRoot}/packages/notification/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // Permission 权限包
+      { find: /^@ldesign\/permission-core\/(.+)$/, replacement: `${monorepoRoot}/packages/permission/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/permission-core', replacement: `${monorepoRoot}/packages/permission/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/permission-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/permission/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/permission-vue', replacement: `${monorepoRoot}/packages/permission/packages/vue/src/index.ts`, stage: 'dev' as const },
 
       // Router 路由包
       { find: /^@ldesign\/router-core\/(.+)$/, replacement: `${monorepoRoot}/packages/router/packages/core/src/$1`, stage: 'dev' as const },
