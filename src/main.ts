@@ -4,7 +4,7 @@
 import { createVueEngine } from '@ldesign/engine-vue3'
 import { getLoggerInstance } from '@ldesign/logger-vue/plugins'
 import App from './App.vue'
-import { createEnginePlugins } from './plugins'
+import { createEnginePlugins, setupBookmark } from './plugins'
 import './style.css'
 
 // 创建引擎并配置插件
@@ -18,6 +18,11 @@ const engine = createVueEngine({
     rootComponent: App,
   },
   plugins: createEnginePlugins(),
+})
+
+// 监听 Vue 应用创建事件，安装书签插件
+engine.events.on('app:created', (payload: any) => {
+  setupBookmark(payload.app)
 })
 
 // 挂载应用

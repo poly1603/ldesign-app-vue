@@ -87,4 +87,10 @@ export const routes = [
     component: () => import('../views/LayoutDemo.vue'),
     meta: { title: '布局系统' },
   },
+  {
+    path: '/bookmark',
+    name: 'bookmark',
+    component: () => import('../views/BookmarkDemo.vue'),
+    meta: { title: '书签系统' },
+  },
 ]

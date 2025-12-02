@@ -16,6 +16,7 @@
  * - template.ts   - 模板插件
  * - auth.ts       - 认证插件
  * - permission.ts - 权限插件
+ * - bookmark.ts   - 书签插件
  */
 import { createI18nPlugin } from './i18n'
 import { createRouterPlugin } from './router'
@@ -31,6 +32,7 @@ import { createTrackerPlugin_ } from './tracker'
 import { createTemplatePlugin } from './template'
 import { createAuthEnginePlugin } from './auth'
 import { createPermissionPlugin } from './permission'
+import { setupBookmark } from './bookmark'
 
 /**
  * 创建所有引擎插件
@@ -86,6 +88,7 @@ export {
   createTemplatePlugin,
   createAuthEnginePlugin,
   createPermissionPlugin,
+  setupBookmark,
 }
 
 // 导出错误处理组件和 composables

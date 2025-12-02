@@ -126,6 +126,12 @@ export default defineConfig({
       { find: /^@ldesign\/auth-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/auth/packages/vue/src/$1`, stage: 'dev' as const },
       { find: '@ldesign/auth-vue', replacement: `${monorepoRoot}/packages/auth/packages/vue/src/index.ts`, stage: 'dev' as const },
 
+      // Bookmark 书签包
+      { find: /^@ldesign\/bookmark-core\/(.+)$/, replacement: `${monorepoRoot}/packages/bookmark/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/bookmark-core', replacement: `${monorepoRoot}/packages/bookmark/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/bookmark-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/bookmark/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/bookmark-vue', replacement: `${monorepoRoot}/packages/bookmark/packages/vue/src/index.ts`, stage: 'dev' as const },
+
       // Cache 缓存包（使用构建产物，无源码别名）
       // @ldesign/cache 包已构建，直接使用 node_modules 中的产物
 

@@ -16,6 +16,7 @@ import { LMenu, LMenuItem, LSubMenu } from '@ldesign/menu-vue'
 import '@ldesign/menu-vue/styles'
 import { SizeSwitcher } from '@ldesign/size-vue'
 import { TemplateSelector, useTemplate } from '@ldesign/template-vue'
+import { ChromeTabs, useRouteTabs } from '@ldesign/bookmark-vue'
 
 // 导入 Lucide 图标组件
 import {
@@ -43,6 +44,29 @@ const TemplateIcon = markRaw(LayoutTemplate)
 const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
+
+/**
+ * 路由页签管理
+ * 自动监听路由变化，管理页签的添加、删除、切换
+ */
+const {
+  tabs,
+  activeKey,
+  refreshKey,
+  switchTab,
+  removeTab,
+  closeOthers,
+  closeLeft,
+  closeRight,
+  closeAll,
+  refreshTab,
+  togglePin,
+} = useRouteTabs({
+  router,
+  homePath: '/',
+  homeTitle: '首页',
+  excludes: ['/login', '/404', '/403', '/500'],
+})
 
 /** 判断是否为全屏页面 */
 const isFullscreenPage = computed(() => route.path === '/login')
@@ -260,7 +284,7 @@ function goToLogin() {
   </div>
 
   <!-- 动态渲染布局模板组件 -->
-  <component v-else-if="LayoutComponent" :is="LayoutComponent" :show-tabs="false" :show-footer="false"
+  <component v-else-if="LayoutComponent" :is="LayoutComponent" :show-tabs="true" :show-footer="false"
     :category="'layout'" :device="deviceType">
     <!-- Logo 插槽 -->
     <template #logo="{ collapsed }">
@@ -293,6 +317,13 @@ function goToLogin() {
           </LMenuItem>
         </template>
       </LMenu>
+    </template>
+
+    <!-- 页签栏插槽 - 使用 @ldesign/bookmark-vue 的 ChromeTabs 组件 -->
+    <template #tabs>
+      <ChromeTabs :tabs="tabs" :active-key="activeKey" variant="chrome" @change="switchTab" @close="removeTab"
+        @toggle-pin="togglePin" @refresh="refreshTab" @close-left="closeLeft" @close-right="closeRight"
+        @close-others="closeOthers" @close-all="closeAll" />
     </template>
 
     <!-- 顶栏右侧操作区 -->
@@ -334,7 +365,7 @@ function goToLogin() {
 
     <!-- 主内容区 -->
     <template #default>
-      <router-view />
+      <router-view :key="`${route.fullPath}-${refreshKey}`" />
     </template>
   </component>
 </template>
