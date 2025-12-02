@@ -41,6 +41,7 @@
     "@ldesign/http-vue": "workspace:*",
     "@ldesign/i18n-vue": "workspace:*",
     "@ldesign/logger-vue": "workspace:^",
+    "@ldesign/menu-vue": "workspace:*",
     "@ldesign/notification-vue": "workspace:*",
     "@ldesign/permission-core": "workspace:*",
     "@ldesign/permission-vue": "workspace:*",

@@ -1,7 +1,7 @@
 /**
  * 权限插件配置
  */
-import { createPermissionEnginePlugin } from '@ldesign/permission-vue/plugins'
+import { createPermissionEnginePlugin } from '@ldesign/permission-vue'
 
 /**
  * 创建权限插件

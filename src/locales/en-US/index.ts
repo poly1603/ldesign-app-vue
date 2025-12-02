@@ -170,8 +170,30 @@ export default {
       'brand-compact': 'Brand Compact',
       'brand-default': 'Brand Default',
       'compact': 'Compact',
+      'comfortable': 'Comfortable',
       'default': 'Default',
+      'spacious': 'Spacious',
       'large': 'Large',
+      'extra-compact': 'Extra Compact',
+      'extra-spacious': 'Extra Spacious',
     },
+    descriptions: {
+      'brand-compact': 'Brand customized compact size system',
+      'brand-default': 'Brand customized default size system',
+      'compact': 'High density for maximum content',
+      'comfortable': 'Balanced spacing for everyday use',
+      'default': 'Standard size settings',
+      'spacious': 'Lower density for better readability',
+      'large': 'Large size system',
+      'extra-compact': 'Very high density for maximum content',
+      'extra-spacious': 'Very low density for enhanced readability',
+    },
+  },
+
+  // Template Selector
+  template: {
+    selectLayout: 'Select Layout Template',
+    loading: 'Loading templates...',
+    empty: 'No templates available',
   },
 }

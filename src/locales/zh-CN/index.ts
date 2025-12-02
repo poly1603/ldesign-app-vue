@@ -170,8 +170,30 @@ export default {
       'brand-compact': '品牌紧凑',
       'brand-default': '品牌默认',
       'compact': '紧凑',
+      'comfortable': '舒适',
       'default': '默认',
+      'spacious': '宽松',
       'large': '大号',
+      'extra-compact': '超紧凑',
+      'extra-spacious': '超宽松',
     },
+    descriptions: {
+      'brand-compact': '品牌定制的紧凑尺寸系统',
+      'brand-default': '品牌定制的默认尺寸系统',
+      'compact': '高密度，最大化内容显示',
+      'comfortable': '平衡的间距，日常使用',
+      'default': '标准尺寸设置',
+      'spacious': '低密度，更好的可读性',
+      'large': '大号尺寸系统',
+      'extra-compact': '超高密度，适合信息密集场景',
+      'extra-spacious': '超低密度，提升可读性',
+    },
+  },
+
+  // 模板选择器
+  template: {
+    selectLayout: '选择布局模板',
+    loading: '加载模板中...',
+    empty: '暂无可用模板',
   },
 }

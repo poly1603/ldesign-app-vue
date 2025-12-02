@@ -7,10 +7,13 @@
  * - 集成 TemplateSelector 组件，支持用户手动选择布局模板
  * - 与 Login.vue 使用相同的模板管理方式
  */
-import { computed, markRaw, onMounted, onUnmounted, ref } from 'vue'
+import { computed, markRaw, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
 import { LanguageSwitcher, useI18n } from '@ldesign/i18n-vue'
+import type { MenuSelectEventParams } from '@ldesign/menu-vue'
+import { LMenu, LMenuItem, LSubMenu } from '@ldesign/menu-vue'
+import '@ldesign/menu-vue/styles'
 import { SizeSwitcher } from '@ldesign/size-vue'
 import { TemplateSelector, useTemplate } from '@ldesign/template-vue'
 
@@ -106,34 +109,138 @@ onUnmounted(() => {
   document.removeEventListener('click', handleDocumentClick)
 })
 
-/** 菜单项类型定义 */
-interface MenuItem {
-  /** 路由路径 */
-  path: string
-  /** 菜单标签（支持 i18n key） */
+/** 图标组件映射 */
+const iconMap = {
+  home: markRaw(Home),
+  palette: markRaw(Palette),
+  ruler: markRaw(Ruler),
+  globe: markRaw(Globe),
+  smartphone: markRaw(Smartphone),
+  database: markRaw(Database),
+  lock: markRaw(Lock),
+  archive: markRaw(Archive),
+  fileText: markRaw(FileText),
+  bell: markRaw(Bell),
+  layoutDashboard: markRaw(LayoutDashboardIcon),
+  package: markRaw(Package),
+}
+
+/** 菜单项接口 */
+interface AppMenuItem {
+  key: string
   label: string
-  /** Lucide 图标组件 */
-  icon: ReturnType<typeof markRaw>
+  icon?: string
+  disabled?: boolean
+  children?: AppMenuItem[]
 }
 
 /**
  * 侧边栏导航菜单数据
- * 使用 markRaw 包装图标组件，避免 Vue 响应式系统追踪
+ * 支持多层级菜单结构
  */
-const menuItems: MenuItem[] = [
-  { path: '/', label: 'nav.home', icon: markRaw(Home) },
-  { path: '/theme', label: '主题管理', icon: markRaw(Palette) },
-  { path: '/size', label: '尺寸管理', icon: markRaw(Ruler) },
-  { path: '/http', label: 'HTTP 请求', icon: markRaw(Globe) },
-  { path: '/device', label: '设备信息', icon: markRaw(Smartphone) },
-  { path: '/cache', label: '缓存管理', icon: markRaw(Database) },
-  { path: '/crypto', label: '加密功能', icon: markRaw(Lock) },
-  { path: '/store', label: '状态管理', icon: markRaw(Archive) },
-  { path: '/logger', label: '日志系统', icon: markRaw(FileText) },
-  { path: '/notification', label: '通知系统', icon: markRaw(Bell) },
-  { path: '/layout', label: '布局系统', icon: markRaw(LayoutDashboardIcon) },
-  { path: '/dependencies', label: '依赖管理', icon: markRaw(Package) },
+const menuItems: AppMenuItem[] = [
+  { key: '/', label: 'nav.home', icon: 'home' },
+  {
+    key: 'appearance',
+    label: '外观设置',
+    icon: 'palette',
+    children: [
+      { key: '/theme', label: '主题管理' },
+      { key: '/size', label: '尺寸管理' },
+    ],
+  },
+  {
+    key: 'system',
+    label: '系统功能',
+    icon: 'smartphone',
+    children: [
+      { key: '/http', label: 'HTTP 请求' },
+      { key: '/device', label: '设备信息' },
+      { key: '/cache', label: '缓存管理' },
+      { key: '/crypto', label: '加密功能' },
+    ],
+  },
+  {
+    key: 'data',
+    label: '数据管理',
+    icon: 'database',
+    children: [
+      { key: '/store', label: '状态管理' },
+      { key: '/logger', label: '日志系统' },
+      { key: '/notification', label: '通知系统' },
+    ],
+  },
+  { key: '/layout', label: '布局系统', icon: 'layoutDashboard' },
+  { key: '/dependencies', label: '依赖管理', icon: 'package' },
 ]
+
+/** 当前选中的菜单项 key */
+const selectedMenuKey = computed(() => route.path)
+
+/**
+ * 根据路由路径查找父级菜单 key
+ * @param path - 当前路由路径
+ * @returns 父级菜单 key 数组
+ */
+function findParentKeys(path: string): string[] {
+  const parentKeys: string[] = []
+
+  for (const item of menuItems) {
+    if (item.children) {
+      const hasChild = item.children.some(child => child.key === path)
+      if (hasChild) {
+        parentKeys.push(item.key)
+      }
+    }
+  }
+
+  return parentKeys
+}
+
+/**
+ * 当前展开的菜单项 key 列表
+ * 在组件创建时立即根据当前路由初始化展开状态
+ */
+const openKeys = ref<string[]>(findParentKeys(route.path))
+
+/**
+ * 监听路由变化，自动展开当前路由对应的父级菜单
+ * 这确保了页面刷新后父菜单能正确展开
+ */
+watch(
+  () => route.path,
+  (newPath) => {
+    const parentKeys = findParentKeys(newPath)
+    // 合并新的父级 key，避免关闭用户手动展开的其他菜单
+    for (const key of parentKeys) {
+      if (!openKeys.value.includes(key)) {
+        openKeys.value.push(key)
+      }
+    }
+  },
+  { immediate: true }
+)
+
+/**
+ * 处理菜单选择事件
+ */
+function handleMenuSelect(params: MenuSelectEventParams) {
+  router.push(params.key)
+}
+
+/**
+ * 处理菜单展开/收起变化
+ */
+function handleOpenChange(keys: string[]) {
+  openKeys.value = keys
+}
+
+/**
+ * 获取菜单项显示文本
+ */
+function getMenuLabel(label: string): string {
+  return label.startsWith('nav.') ? t(label) : label
+}
 
 /** 跳转到登录页 */
 function goToLogin() {
@@ -163,18 +270,29 @@ function goToLogin() {
       </div>
     </template>
 
-    <!-- 侧边栏菜单 -->
+    <!-- 侧边栏菜单 - 使用 @ldesign/menu-vue 组件，深色主题 -->
     <template #sider="{ collapsed }">
-      <nav class="sider-menu">
-        <router-link v-for="item in menuItems" :key="item.path" :to="item.path" class="menu-item"
-          :title="collapsed ? (item.label.startsWith('nav.') ? t(item.label) : item.label) : undefined">
-          <!-- 使用动态组件渲染 Lucide 图标 -->
-          <component :is="item.icon" class="menu-icon" :size="20" />
-          <span v-if="!collapsed" class="menu-label">
-            {{ item.label.startsWith('nav.') ? t(item.label) : item.label }}
-          </span>
-        </router-link>
-      </nav>
+      <LMenu theme="dark" :collapsed="collapsed" :selected-key="selectedMenuKey" :open-keys="openKeys"
+        @select="handleMenuSelect" @open-change="handleOpenChange">
+        <template v-for="item in menuItems" :key="item.key">
+          <!-- 有子菜单的项 -->
+          <LSubMenu v-if="item.children" :item-key="item.key" :label="getMenuLabel(item.label)">
+            <template #icon>
+              <component v-if="item.icon" :is="iconMap[item.icon as keyof typeof iconMap]" :size="20" />
+            </template>
+            <LMenuItem v-for="child in item.children" :key="child.key" :item-key="child.key" :disabled="child.disabled">
+              {{ getMenuLabel(child.label) }}
+            </LMenuItem>
+          </LSubMenu>
+          <!-- 无子菜单的项 -->
+          <LMenuItem v-else :item-key="item.key" :disabled="item.disabled">
+            <template #icon>
+              <component v-if="item.icon" :is="iconMap[item.icon as keyof typeof iconMap]" :size="20" />
+            </template>
+            {{ getMenuLabel(item.label) }}
+          </LMenuItem>
+        </template>
+      </LMenu>
     </template>
 
     <!-- 顶栏右侧操作区 -->
@@ -187,7 +305,7 @@ function goToLogin() {
 
         <!-- 模板选择器触发按钮 -->
         <div class="template-selector-wrapper">
-          <button class="template-btn" :class="{ active: showTemplateSelector }" title="选择布局模板"
+          <button class="template-btn" :class="{ active: showTemplateSelector }" :title="t('template.selectLayout')"
             @click="toggleTemplateSelector">
             <component :is="TemplateIcon" :size="18" />
           </button>
@@ -196,7 +314,7 @@ function goToLogin() {
           <Transition name="dropdown">
             <div v-if="showTemplateSelector" class="template-dropdown">
               <div class="dropdown-header">
-                <span>选择布局模板</span>
+                <span>{{ t('template.selectLayout') }}</span>
                 <button class="close-btn" @click="showTemplateSelector = false">×</button>
               </div>
               <div class="dropdown-content">
@@ -272,48 +390,6 @@ body {
 .app-logo .logo-text {
   font-size: 1.25rem;
   white-space: nowrap;
-}
-
-.sider-menu {
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-}
-
-.sider-menu .menu-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  color: var(--color-text-secondary, #6b7280);
-  text-decoration: none;
-  border-radius: 8px;
-  transition: all 0.2s;
-  margin-bottom: 4px;
-}
-
-.sider-menu .menu-item:hover {
-  color: var(--color-primary-hover, #3b82f6);
-  background: var(--color-bg-hover, #f3f4f6);
-}
-
-.sider-menu .menu-item.router-link-active {
-  color: var(--color-primary, #3b82f6);
-  background: var(--color-primary-bg, #eff6ff);
-  font-weight: 500;
-}
-
-/* 菜单图标样式 - 适配 Lucide SVG 图标 */
-.sider-menu .menu-icon {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-}
-
-.sider-menu .menu-label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .header-actions {
