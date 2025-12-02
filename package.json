@@ -33,6 +33,7 @@
     "@ldesign/auth-core": "workspace:*",
     "@ldesign/auth-vue": "workspace:*",
     "@ldesign/bookmark-vue": "workspace:*",
+    "@ldesign/breadcrumb-vue": "workspace:*",
     "@ldesign/cache": "workspace:*",
     "@ldesign/color-vue": "workspace:*",
     "@ldesign/crypto-vue": "workspace:*",

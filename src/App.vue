@@ -17,6 +17,8 @@ import '@ldesign/menu-vue/styles'
 import { SizeSwitcher } from '@ldesign/size-vue'
 import { TemplateSelector, useTemplate } from '@ldesign/template-vue'
 import { ChromeTabs, useRouteTabs } from '@ldesign/bookmark-vue'
+import { LBreadcrumb } from '@ldesign/breadcrumb-vue'
+import '@ldesign/breadcrumb-vue/styles'
 
 // 导入 Lucide 图标组件
 import {
@@ -195,6 +197,7 @@ const menuItems: AppMenuItem[] = [
     ],
   },
   { key: '/layout', label: '布局系统', icon: 'layoutDashboard' },
+  { key: '/breadcrumb', label: '面包屑组件', icon: 'fileText' },
   { key: '/dependencies', label: '依赖管理', icon: 'package' },
 ]
 
@@ -220,6 +223,60 @@ function findParentKeys(path: string): string[] {
 
   return parentKeys
 }
+
+/**
+ * 根据当前路由生成面包屑数据
+ * @returns 面包屑项数组
+ */
+function buildBreadcrumbItems(currentPath: string) {
+  const items: Array<{ key: string, label: string, path?: string }> = []
+
+  // 首页始终显示
+  items.push({ key: '/', label: t('nav.home'), path: '/' })
+
+  // 如果当前就是首页，直接返回
+  if (currentPath === '/') {
+    return items
+  }
+
+  // 查找当前路由对应的菜单项
+  for (const item of menuItems) {
+    if (item.children) {
+      const child = item.children.find(c => c.key === currentPath)
+      if (child) {
+        // 添加父级菜单
+        items.push({ key: item.key, label: getMenuLabel(item.label) })
+        // 添加当前页
+        items.push({ key: child.key, label: getMenuLabel(child.label), path: child.key })
+        return items
+      }
+    }
+    else if (item.key === currentPath) {
+      // 一级菜单
+      items.push({ key: item.key, label: getMenuLabel(item.label), path: item.key })
+      return items
+    }
+  }
+
+  // 如果没找到匹配的菜单，显示路由的 meta.title
+  if (route.meta?.title) {
+    items.push({ key: currentPath, label: String(route.meta.title), path: currentPath })
+  }
+
+  return items
+}
+
+/** 面包屑项列表（响应路由变化） */
+const breadcrumbItems = ref(buildBreadcrumbItems(route.path))
+
+// 监听路由变化更新面包屑
+watch(
+  () => route.path,
+  (newPath) => {
+    breadcrumbItems.value = buildBreadcrumbItems(newPath)
+  },
+  { immediate: true },
+)
 
 /**
  * 当前展开的菜单项 key 列表
@@ -269,6 +326,15 @@ function getMenuLabel(label: string): string {
 /** 跳转到登录页 */
 function goToLogin() {
   router.push('/login')
+}
+
+/**
+ * 处理面包屑点击事件
+ */
+function handleBreadcrumbClick(item: { key: string, path?: string }) {
+  if (item.path) {
+    router.push(item.path)
+  }
 }
 </script>
 
@@ -365,6 +431,16 @@ function goToLogin() {
 
     <!-- 主内容区 -->
     <template #default>
+      <!-- 面包屑导航 -->
+      <div class="page-breadcrumb">
+        <LBreadcrumb
+          :items="breadcrumbItems"
+          separator="/"
+          :show-home="false"
+          @click="handleBreadcrumbClick"
+        />
+      </div>
+      <!-- 页面内容 -->
       <router-view :key="`${route.fullPath}-${refreshKey}`" />
     </template>
   </component>
@@ -545,5 +621,13 @@ body {
 .dropdown-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+/* 面包屑导航样式 */
+.page-breadcrumb {
+  padding: 12px 16px;
+  background: var(--color-bg-container, #fff);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  margin-bottom: 0;
 }
 </style>

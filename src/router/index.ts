@@ -49,7 +49,7 @@ export const routes = [
     path: '/cache',
     name: 'cache',
     component: () => import('../views/Cache.vue'),
-    meta: { title: '缂撳瓨绠＄悊' },
+    meta: { title: '缓存管理' },
   },
   {
     path: '/crypto',
@@ -92,5 +92,11 @@ export const routes = [
     name: 'bookmark',
     component: () => import('../views/BookmarkDemo.vue'),
     meta: { title: '书签系统' },
+  },
+  {
+    path: '/breadcrumb',
+    name: 'breadcrumb',
+    component: () => import('../views/BreadcrumbDemo.vue'),
+    meta: { title: '面包屑组件' },
   },
 ]
