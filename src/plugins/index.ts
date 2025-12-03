@@ -17,6 +17,7 @@
  * - auth.ts       - 认证插件
  * - permission.ts - 权限插件
  * - bookmark.ts   - 书签插件
+ * - websocket.ts  - WebSocket 实时通信插件
  */
 import { createI18nPlugin } from './i18n'
 import { createRouterPlugin } from './router'
@@ -33,6 +34,7 @@ import { createTemplatePlugin } from './template'
 import { createAuthEnginePlugin } from './auth'
 import { createPermissionPlugin } from './permission'
 import { setupBookmark } from './bookmark'
+import { createWebSocketPlugin } from './websocket'
 
 /**
  * 创建所有引擎插件
@@ -52,6 +54,7 @@ import { setupBookmark } from './bookmark'
  * 12. template - 模板（可能依赖其他插件）
  * 13. auth - 认证（依赖 router 进行守卫）
  * 14. permission - 权限（依赖 auth 获取用户权限）
+ * 15. websocket - WebSocket 实时通信（依赖 http 插件）
  */
 export function createEnginePlugins() {
   return [
@@ -69,6 +72,12 @@ export function createEnginePlugins() {
     createTemplatePlugin(),
     createAuthEnginePlugin(),
     createPermissionPlugin(),
+    createWebSocketPlugin({
+      autoCleanup: true,
+      cleanupInterval: 60000, // 1 分钟
+      maxConnections: 10,
+      debug: import.meta.env.DEV,
+    }),
   ]
 }
 
@@ -88,6 +97,7 @@ export {
   createTemplatePlugin,
   createAuthEnginePlugin,
   createPermissionPlugin,
+  createWebSocketPlugin,
   setupBookmark,
 }
 
@@ -96,3 +106,6 @@ export { ErrorBoundary, useErrorHandler } from './error'
 
 // 导出追踪 composables 和指令
 export { useTracker, vTrack } from './tracker'
+
+// 导出 WebSocket 相关
+export { injectWebSocketManager } from './websocket'

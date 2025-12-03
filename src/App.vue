@@ -198,7 +198,6 @@ const menuItems: AppMenuItem[] = [
   },
   { key: '/layout', label: '布局系统', icon: 'layoutDashboard' },
   { key: '/breadcrumb', label: '面包屑组件', icon: 'fileText' },
-  { key: '/dependencies', label: '依赖管理', icon: 'package' },
 ]
 
 /** 当前选中的菜单项 key */

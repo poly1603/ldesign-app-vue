@@ -195,5 +195,65 @@ export default {
     selectLayout: '选择布局模板',
     loading: '加载模板中...',
     empty: '暂无可用模板',
+    selector: {
+      loading: '加载中...',
+      empty: '暂无模板',
+      selectTemplate: '选择模板',
+      currentTemplate: '当前模板',
+      switchTemplate: '切换模板',
+      preview: '预览',
+      apply: '应用',
+      cancel: '取消',
+    },
+    device: {
+      desktop: '桌面端',
+      tablet: '平板端',
+      mobile: '移动端',
+      notSupported: '当前设备不支持此功能',
+    },
+    categories: {
+      layout: '布局',
+      login: '登录',
+      dashboard: '仪表盘',
+      form: '表单',
+      list: '列表',
+      detail: '详情',
+    },
+    templates: {
+      // Layout templates - 布局模板
+      'sidebar': {
+        displayName: '经典侧边栏布局',
+        description: '左侧边栏 + 顶栏 + 内容区，适合大多数后台管理系统',
+      },
+      'mix': {
+        displayName: '混合布局',
+        description: '顶部一级导航 + 左侧二级导航，适合大型后台系统',
+      },
+      'dual-column': {
+        displayName: '双栏布局',
+        description: '图标栏 + 菜单栏 + 内容区，VS Code 风格',
+      },
+      'top-menu': {
+        displayName: '顶部菜单布局',
+        description: '顶部水平导航 + 内容区，适合菜单项较少的系统',
+      },
+      'drawer': {
+        displayName: '抽屉式布局',
+        description: '抽屉式侧边栏 + 顶栏，点击触发滑出',
+      },
+      'tab-bar': {
+        displayName: '底部导航布局',
+        description: '顶栏 + 内容区 + 底部 Tab 栏，iOS/Android 风格',
+      },
+      // Login templates - 登录模板
+      'default': {
+        displayName: '经典卡片',
+        description: '居中卡片式布局，紫色渐变背景',
+      },
+      'minimal': {
+        displayName: '简约分栏',
+        description: '左右分栏布局，暗色品牌展示区',
+      },
+    },
   },
 }

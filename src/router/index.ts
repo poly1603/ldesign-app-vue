@@ -64,12 +64,6 @@ export const routes = [
     meta: { title: '状态管理' },
   },
   {
-    path: '/dependencies',
-    name: 'dependencies',
-    component: () => import('../views/DependencyManagement.vue'),
-    meta: { title: '依赖管理' },
-  },
-  {
     path: '/logger',
     name: 'logger',
     component: () => import('../views/Logger.vue'),

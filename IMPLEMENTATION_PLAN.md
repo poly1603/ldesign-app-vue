@@ -335,38 +335,50 @@ packages/tabs/
 
 ---
 
-### 第三阶段：实时通信与状态同步
+### 第三阶段：实时通信与状态同步 ✅
 
-#### 3.1 WebSocket/实时通信 ⭐⭐⭐
+#### 3.1 WebSocket/实时通信 ⭐⭐⭐ ✅
 
-**状态**: ⚠️ `@ldesign/http-vue` 已有 `useWebSocket`、`useSSE`
+**状态**: ✅ 已完成
 
-**需要做的**:
-- [ ] 创建全局 WebSocket 管理器
-- [ ] 实现消息订阅/发布
-- [ ] 支持断线重连
-- [ ] 集成到 app-vue
+**已实现功能**:
+- ✅ 创建全局 WebSocket 管理器 (`useWebSocketManager`)
+- ✅ 实现消息订阅/发布机制
+- ✅ 支持断线重连（复用 `useWebSocket` 功能）
+- ✅ 集成到 app-vue（通过 Engine 插件）
+- ✅ 连接池管理（最多 10 个并发连接）
+- ✅ 引用计数和自动清理
+- ✅ 性能监控和统计
 
-**工作量**: 8-10 小时（集成+增强）
+**实现文件**:
+- `packages/http/packages/vue/src/composables/useWebSocketManager.ts` - WebSocket 管理器
+- `apps/app-vue/src/plugins/websocket.ts` - Engine 插件集成
+- `apps/app-vue/docs/PHASE3_USAGE.md` - 使用文档
+
+**工作量**: 已完成（约 10 小时）
 
 ---
 
-#### 3.2 状态持久化 ⭐⭐⭐
+#### 3.2 状态持久化 ⭐⭐⭐ ✅
 
-**状态**: ⚠️ 有 `@ldesign/cache`，但缺少与 store 的深度集成
+**状态**: ✅ 已完成
 
-**核心功能**:
-- 用户偏好自动持久化（主题、语言、布局）
-- 状态恢复
-- 多标签页状态同步
-- 跨浏览器同步（可选）
+**已实现功能**:
+- ✅ 创建 `usePersistedState` composable
+- ✅ 与 store 深度集成（增强版持久化插件）
+- ✅ 支持选择性持久化（paths 和 excludePaths）
+- ✅ 多标签页状态同步（通过 storage 事件）
+- ✅ 过期时间控制（TTL）
+- ✅ 性能优化（防抖、批量更新）
+- ✅ 自动恢复和保存
 
-**需要做的**:
-- [ ] 创建 `usePersistedState` composable
-- [ ] 与 store 集成
-- [ ] 支持选择性持久化
+**实现文件**:
+- `packages/store/packages/vue/src/composables/usePersistedState.ts` - 持久化 composable
+- `packages/store/packages/vue/src/plugins/enhanced-persist-plugin.ts` - 增强版 Pinia 插件
+- `apps/app-vue/src/plugins/store.ts` - 应用集成
+- `apps/app-vue/docs/PHASE3_USAGE.md` - 使用文档
 
-**工作量**: 10-12 小时
+**工作量**: 已完成（约 12 小时）
 
 ---
 

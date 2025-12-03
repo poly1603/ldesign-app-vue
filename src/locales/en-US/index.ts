@@ -195,5 +195,65 @@ export default {
     selectLayout: 'Select Layout Template',
     loading: 'Loading templates...',
     empty: 'No templates available',
+    selector: {
+      loading: 'Loading...',
+      empty: 'No templates available',
+      selectTemplate: 'Select Template',
+      currentTemplate: 'Current Template',
+      switchTemplate: 'Switch Template',
+      preview: 'Preview',
+      apply: 'Apply',
+      cancel: 'Cancel',
+    },
+    device: {
+      desktop: 'Desktop',
+      tablet: 'Tablet',
+      mobile: 'Mobile',
+      notSupported: 'This feature is not supported on current device',
+    },
+    categories: {
+      layout: 'Layout',
+      login: 'Login',
+      dashboard: 'Dashboard',
+      form: 'Form',
+      list: 'List',
+      detail: 'Detail',
+    },
+    templates: {
+      // Layout templates
+      'sidebar': {
+        displayName: 'Classic Sidebar Layout',
+        description: 'Left sidebar + top bar + content area, suitable for most admin systems',
+      },
+      'mix': {
+        displayName: 'Mix Layout',
+        description: 'Top primary nav + left secondary nav, suitable for large admin systems',
+      },
+      'dual-column': {
+        displayName: 'Dual Column Layout',
+        description: 'Icon bar + menu bar + content area, VS Code style',
+      },
+      'top-menu': {
+        displayName: 'Top Menu Layout',
+        description: 'Top horizontal nav + content area, suitable for systems with fewer menu items',
+      },
+      'drawer': {
+        displayName: 'Drawer Layout',
+        description: 'Drawer sidebar + top bar, slide out on click',
+      },
+      'tab-bar': {
+        displayName: 'Tab Bar Layout',
+        description: 'Top bar + content area + bottom tab bar, iOS/Android style',
+      },
+      // Login templates
+      'default': {
+        displayName: 'Classic Card',
+        description: 'Centered card layout with gradient background',
+      },
+      'minimal': {
+        displayName: 'Minimal Split',
+        description: 'Left-right split layout with dark brand showcase',
+      },
+    },
   },
 }

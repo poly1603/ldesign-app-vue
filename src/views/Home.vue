@@ -162,11 +162,6 @@ if (import.meta.hot) {
             📱 {{ $t('home.device.deviceInfo') }}
           </button>
         </router-link>
-        <router-link to="/dependencies" style="margin-left: 1rem;">
-          <button class="btn btn-secondary">
-            📦 依赖管理 / Dependencies
-          </button>
-        </router-link>
       </div>
 
       <!-- i18n 演示区：快速验证切换是否生效 -->
