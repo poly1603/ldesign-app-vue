@@ -226,9 +226,11 @@ function findParentKeys(path: string): string[] {
 
 /**
  * 根据当前路由生成面包屑数据
+ * @param currentPath - 当前路由路径
+ * @param currentRoute - 当前路由对象（用于获取 meta 信息）
  * @returns 面包屑项数组
  */
-function buildBreadcrumbItems(currentPath: string) {
+function buildBreadcrumbItems(currentPath: string, currentRoute: typeof route) {
   const items: Array<{ key: string, label: string, path?: string }> = []
 
   // 首页始终显示
@@ -259,21 +261,21 @@ function buildBreadcrumbItems(currentPath: string) {
   }
 
   // 如果没找到匹配的菜单，显示路由的 meta.title
-  if (route.meta?.title) {
-    items.push({ key: currentPath, label: String(route.meta.title), path: currentPath })
+  if (currentRoute.meta?.title) {
+    items.push({ key: currentPath, label: String(currentRoute.meta.title), path: currentPath })
   }
 
   return items
 }
 
 /** 面包屑项列表（响应路由变化） */
-const breadcrumbItems = ref(buildBreadcrumbItems(route.path))
+const breadcrumbItems = ref(buildBreadcrumbItems(route.path, route))
 
 // 监听路由变化更新面包屑
 watch(
   () => route.path,
   (newPath) => {
-    breadcrumbItems.value = buildBreadcrumbItems(newPath)
+    breadcrumbItems.value = buildBreadcrumbItems(newPath, route)
   },
   { immediate: true },
 )

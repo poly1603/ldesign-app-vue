@@ -10,7 +10,7 @@ import { routes } from '../router'
 export function createRouterPlugin() {
   return createRouterEnginePlugin({
     routes,
-    mode: 'history',
+    mode: 'hash',
   })
 }
 
