@@ -133,26 +133,26 @@ function toggleSelector(): void {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  font-size: 16px;
-  color: #666;
+  font-size: var(--size-font-lg);
+  color: var(--color-text-secondary);
 }
 
 /* 模板选择器触发按钮 */
 .template-trigger {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: var(--size-space-lg);
+  right: var(--size-space-lg);
   z-index: 1001;
-  width: 48px;
-  height: 48px;
+  width: var(--size-size-6);
+  height: var(--size-size-6);
   border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-size: 20px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-active) 100%);
+  color: var(--color-text-inverse);
+  font-size: var(--size-font-xl);
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  transition: all 0.3s ease;
+  box-shadow: 0 var(--size-space-xxs) var(--size-space-md) var(--color-shadow-medium);
+  transition: all var(--size-duration-fast) ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,26 +160,26 @@ function toggleSelector(): void {
 
 .template-trigger:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 var(--size-space-xs) var(--size-space-lg) var(--color-shadow-large);
 }
 
 .template-trigger.active {
   transform: rotate(45deg);
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-active) 100%);
 }
 
 /* 模板选择器面板 */
 .template-panel {
   position: fixed;
   top: 80px;
-  right: 20px;
+  right: var(--size-space-lg);
   z-index: 1000;
   width: 400px;
-  max-width: calc(100vw - 40px);
+  max-width: calc(100vw - var(--size-size-5));
   max-height: calc(100vh - 120px);
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 var(--size-space-sm) var(--size-size-5) var(--color-shadow-large);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -189,31 +189,31 @@ function toggleSelector(): void {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #eee;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  padding: var(--size-space-md) var(--size-space-lg);
+  border-bottom: var(--size-border-width-thin) solid var(--color-border);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-active) 100%);
+  color: var(--color-text-inverse);
 }
 
 .panel-header h3 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--size-font-lg);
+  font-weight: var(--size-font-weight-semibold);
 }
 
 .close-btn {
-  width: 28px;
-  height: 28px;
+  width: var(--size-space-xl);
+  height: var(--size-space-xl);
   border: none;
   background: rgba(255, 255, 255, 0.2);
-  color: white;
-  font-size: 20px;
+  color: var(--color-text-inverse);
+  font-size: var(--size-font-xl);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  transition: background var(--size-duration-fast);
 }
 
 .close-btn:hover {
@@ -223,7 +223,7 @@ function toggleSelector(): void {
 .panel-content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: var(--size-space-md);
 }
 
 
@@ -236,24 +236,24 @@ function toggleSelector(): void {
   right: 0;
   bottom: 0;
   z-index: 999;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--color-bg-mask);
 }
 
 /* 动画 */
 .slide-enter-active,
 .slide-leave-active {
-  transition: all 0.3s ease;
+  transition: all var(--size-duration-fast) ease;
 }
 
 .slide-enter-from,
 .slide-leave-to {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateX(var(--size-space-lg));
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity var(--size-duration-fast) ease;
 }
 
 .fade-enter-from,
@@ -271,12 +271,12 @@ function toggleSelector(): void {
     width: 100%;
     max-width: 100%;
     max-height: 70vh;
-    border-radius: 16px 16px 0 0;
+    border-radius: var(--size-radius-lg) var(--size-radius-lg) 0 0;
   }
 
   .template-trigger {
     top: auto;
-    bottom: 20px;
+    bottom: var(--size-space-lg);
   }
 }
 </style>

@@ -169,12 +169,8 @@ onUnmounted(() => {
 
     <!-- 标签页切换 -->
     <div class="tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab.id"
-        class="tab" :class="[{ active: activeTab === tab.id }]"
-        @click="activeTab = tab.id"
-      >
+      <button v-for="tab in tabs" :key="tab.id" class="tab" :class="[{ active: activeTab === tab.id }]"
+        @click="activeTab = tab.id">
         {{ tab.label }}
       </button>
     </div>
@@ -309,60 +305,61 @@ onUnmounted(() => {
 
 <style scoped>
 .http-demo {
-  max-width: 1200px;
+  max-width: var(--size-size-64);
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--size-space-xl);
 }
 
 h1 {
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-xs);
 }
 
 .description {
-  color: #666;
-  margin-bottom: 2rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--size-space-xl);
 }
 
 /* 标签页 */
 .tabs {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #e0e0e0;
+  gap: var(--size-space-xs);
+  margin-bottom: var(--size-space-xl);
+  border-bottom: var(--size-border-width-default) solid var(--color-border);
 }
 
 .tab {
-  padding: 0.75rem 1.5rem;
+  padding: var(--size-comp-paddingTB-s) var(--size-comp-paddingLR-m);
   background: none;
   border: none;
-  border-bottom: 3px solid transparent;
+  border-bottom: var(--size-border-width-thick) solid transparent;
   cursor: pointer;
-  font-size: 1rem;
-  color: #666;
-  transition: all 0.3s;
+  font-size: var(--size-font-md);
+  color: var(--color-text-secondary);
+  transition: all var(--size-duration-normal);
 }
 
 .tab:hover {
-  color: #2c3e50;
-  background: #f5f5f5;
+  color: var(--color-text-primary);
+  background: var(--color-bg-hover);
 }
 
 .tab.active {
-  color: #ff6b6b;
-  border-bottom-color: #ff6b6b;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 /* 内容区域 */
 .tab-content {
-  animation: fadeIn 0.3s;
+  animation: fadeIn var(--size-duration-normal);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(var(--size-space-xs));
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -370,58 +367,58 @@ h1 {
 }
 
 h2 {
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-xs);
 }
 
-.tab-content > p {
-  color: #666;
-  margin-bottom: 1.5rem;
+.tab-content>p {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--size-space-lg);
 }
 
 /* 演示区域 */
 .demo-section {
-  background: #f9f9f9;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 2rem;
+  background: var(--color-bg-container-secondary);
+  padding: var(--size-space-lg);
+  border-radius: var(--size-radius-md);
+  margin-bottom: var(--size-space-xl);
 }
 
 /* 按钮 */
 button {
-  padding: 0.75rem 1.5rem;
-  background: #ff6b6b;
-  color: white;
+  padding: var(--size-comp-paddingTB-s) var(--size-comp-paddingLR-m);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--size-radius-xs);
   cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s;
+  font-size: var(--size-font-md);
+  transition: all var(--size-duration-normal);
 }
 
 button:hover:not(:disabled) {
-  background: #ff5252;
+  background: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+  box-shadow: var(--color-shadow-medium);
 }
 
 button:disabled {
-  background: #ccc;
+  background: var(--color-border-light);
   cursor: not-allowed;
 }
 
 /* 加载状态 */
 .loading {
   text-align: center;
-  padding: 2rem;
+  padding: var(--size-space-xl);
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 1rem;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #ff6b6b;
+  width: var(--size-size-5);
+  height: var(--size-size-5);
+  margin: 0 auto var(--size-space-md);
+  border: var(--size-border-width-thick) solid var(--color-border-light);
+  border-top: var(--size-border-width-thick) solid var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -430,6 +427,7 @@ button:disabled {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -437,134 +435,134 @@ button:disabled {
 
 /* 错误状态 */
 .error {
-  background: #ffebee;
-  border: 1px solid #ef5350;
-  border-radius: 4px;
-  padding: 1rem;
-  margin-top: 1rem;
-  color: #c62828;
+  background: var(--color-danger-bg);
+  border: var(--size-border-width-thin) solid var(--color-danger);
+  border-radius: var(--size-radius-xs);
+  padding: var(--size-space-md);
+  margin-top: var(--size-space-md);
+  color: var(--color-danger);
 }
 
 /* 成功状态 */
 .success {
-  margin-top: 1rem;
+  margin-top: var(--size-space-md);
 }
 
 /* 用户列表 */
 .user-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: var(--size-space-md);
+  margin-top: var(--size-space-md);
 }
 
 .user-card {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--color-bg-container);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-md);
+  box-shadow: var(--color-shadow-small);
 }
 
 .user-card h3 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-  font-size: 1.1rem;
+  margin: 0 0 var(--size-space-xs) 0;
+  color: var(--color-text-primary);
+  font-size: var(--size-font-lg);
 }
 
 .user-card p {
-  margin: 0.25rem 0;
-  color: #666;
-  font-size: 0.9rem;
+  margin: var(--size-space-xxs) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
 }
 
 /* 表单 */
 .form {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  background: var(--color-bg-container);
+  padding: var(--size-space-lg);
+  border-radius: var(--size-radius-md);
+  margin-bottom: var(--size-space-md);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: var(--size-space-md);
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
-  color: #2c3e50;
-  font-weight: 500;
+  margin-bottom: var(--size-space-xs);
+  color: var(--color-text-primary);
+  font-weight: var(--size-font-weight-medium);
 }
 
 .form-group input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: var(--size-comp-paddingTB-s);
+  border: var(--size-border-width-thin) solid var(--color-border);
+  border-radius: var(--size-radius-xs);
+  font-size: var(--size-font-md);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #ff6b6b;
+  border-color: var(--color-primary);
 }
 
 pre {
-  background: white;
-  padding: 1rem;
-  border-radius: 4px;
+  background: var(--color-bg-container);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-xs);
   overflow-x: auto;
-  font-size: 0.9rem;
+  font-size: var(--size-font-sm);
 }
 
 /* 文章列表 */
 .post-list {
   display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: var(--size-space-md);
+  margin-top: var(--size-space-md);
 }
 
 .post-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--color-bg-container);
+  padding: var(--size-space-lg);
+  border-radius: var(--size-radius-md);
+  box-shadow: var(--color-shadow-small);
 }
 
 .post-card h3 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
+  margin: 0 0 var(--size-space-xs) 0;
+  color: var(--color-text-primary);
 }
 
 .post-card p {
   margin: 0;
-  color: #666;
-  line-height: 1.6;
+  color: var(--color-text-secondary);
+  line-height: var(--size-line-relaxed);
 }
 
 /* 分页控制 */
 .pagination-controls {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--size-space-md);
+  margin-bottom: var(--size-space-md);
 }
 
 .pagination-controls span {
-  color: #666;
-  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-weight: var(--size-font-weight-medium);
 }
 
 /* 轮询控制 */
 .polling-controls {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--size-space-md);
+  margin-bottom: var(--size-space-md);
 }
 
 .polling-controls span {
-  color: #ff6b6b;
-  font-weight: 500;
+  color: var(--color-primary);
+  font-weight: var(--size-font-weight-medium);
 }
 </style>

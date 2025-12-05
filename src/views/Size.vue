@@ -77,38 +77,38 @@ const currentPreset = computed(() => {
 
 <style scoped>
 .size-page {
-  padding: 24px;
-  max-width: 1200px;
+  padding: var(--size-space-lg, 24px);
+  max-width: var(--size-size-64, 1200px);
   margin: 0 auto;
 }
 
 h1 {
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: 32px;
-  color: #333;
+  font-size: var(--size-font-xxl, 32px);
+  font-weight: var(--size-font-weight-bold, 700);
+  margin-bottom: var(--size-comp-margin-xxxl, 32px);
+  color: var(--color-text-primary, #333);
 }
 
 h2 {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #555;
+  font-size: var(--size-font-lg, 20px);
+  font-weight: var(--size-font-weight-semibold, 600);
+  margin-bottom: var(--size-comp-margin-l, 16px);
+  color: var(--color-text-secondary, #555);
 }
 
 .size-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: var(--size-space-lg, 24px);
 }
 
 .current-state,
 .preset-selector,
 .example-text {
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--color-bg-container, #ffffff);
+  padding: var(--size-space-lg, 24px);
+  border-radius: var(--size-radius-lg, 12px);
+  box-shadow: var(--size-shadow-2, 0 2px 8px rgba(0, 0, 0, 0.08));
 }
 
 .example-text {
@@ -118,70 +118,70 @@ h2 {
 .state-info {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--size-space-s, 12px);
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  background: #f5f5f5;
-  border-radius: 6px;
+  padding: var(--size-space-s, 12px);
+  background: var(--color-bg-component, #f5f5f5);
+  border-radius: var(--size-radius-md, 6px);
 }
 
 .info-item .label {
-  font-weight: 600;
-  color: #666;
+  font-weight: var(--size-font-weight-semibold, 600);
+  color: var(--color-text-secondary, #666);
 }
 
 .info-item .value {
-  font-family: 'Courier New', monospace;
-  color: #1890ff;
-  font-weight: 600;
+  font-family: var(--size-font-family-mono, 'Courier New', monospace);
+  color: var(--color-primary, #1890ff);
+  font-weight: var(--size-font-weight-semibold, 600);
 }
 
 .no-preset {
-  padding: 24px;
+  padding: var(--size-space-lg, 24px);
   text-align: center;
-  color: #999;
+  color: var(--color-text-disabled, #999);
   font-style: italic;
 }
 
 .text-samples {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--size-space-md, 16px);
 }
 
 .sample-h1 {
-  font-size: 2em;
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: var(--size-font-xxl, 2em);
+  font-weight: var(--size-font-weight-bold, 700);
+  line-height: var(--size-line-tight, 1.2);
 }
 
 .sample-h2 {
-  font-size: 1.5em;
-  font-weight: 600;
-  line-height: 1.3;
+  font-size: var(--size-font-xl, 1.5em);
+  font-weight: var(--size-font-weight-semibold, 600);
+  line-height: var(--size-line-snug, 1.3);
 }
 
 .sample-h3 {
-  font-size: 1.25em;
-  font-weight: 600;
-  line-height: 1.4;
+  font-size: var(--size-font-lg, 1.25em);
+  font-weight: var(--size-font-weight-semibold, 600);
+  line-height: var(--size-line-normal, 1.4);
 }
 
 .sample-body {
-  font-size: 1em;
-  line-height: 1.6;
-  color: #333;
+  font-size: var(--size-font-md, 1em);
+  line-height: var(--size-line-relaxed, 1.6);
+  color: var(--color-text-primary, #333);
 }
 
 .sample-small {
-  font-size: 0.875em;
-  line-height: 1.5;
-  color: #666;
+  font-size: var(--size-font-sm, 0.875em);
+  line-height: var(--size-line-normal, 1.5);
+  color: var(--color-text-secondary, #666);
 }
 
 @media (max-width: 768px) {

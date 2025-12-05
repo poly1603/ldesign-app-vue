@@ -7,7 +7,7 @@
  * - 集成 TemplateSelector 组件，支持用户手动选择布局模板
  * - 与 Login.vue 使用相同的模板管理方式
  */
-import { computed, markRaw, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, markRaw, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
 import { LanguageSwitcher, useI18n } from '@ldesign/i18n-vue'
@@ -15,7 +15,7 @@ import type { MenuSelectEventParams } from '@ldesign/menu-vue'
 import { LMenu, LMenuItem, LSubMenu } from '@ldesign/menu-vue'
 import '@ldesign/menu-vue/styles'
 import { SizeSwitcher } from '@ldesign/size-vue'
-import { TemplateSelector, useTemplate } from '@ldesign/template-vue'
+import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
 import { ChromeTabs, useRouteTabs } from '@ldesign/bookmark-vue'
 import { LBreadcrumb } from '@ldesign/breadcrumb-vue'
 import '@ldesign/breadcrumb-vue/styles'
@@ -30,7 +30,6 @@ import {
   Home,
   KeyRound, // 用于登录按钮图标
   LayoutDashboard as LayoutDashboardIcon,
-  LayoutTemplate, // 用于模板选择器图标
   Lock,
   Package,
   Palette,
@@ -40,8 +39,6 @@ import {
 
 /** 登录按钮图标组件 */
 const LoginIcon = markRaw(KeyRound)
-/** 模板选择器图标组件 */
-const TemplateIcon = markRaw(LayoutTemplate)
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -73,9 +70,6 @@ const {
 /** 判断是否为全屏页面 */
 const isFullscreenPage = computed(() => route.path === '/login')
 
-/** 是否显示模板选择器面板 */
-const showTemplateSelector = ref(false)
-
 /**
  * 使用 useTemplate 动态加载布局模板组件
  *
@@ -87,7 +81,6 @@ const showTemplateSelector = ref(false)
 const {
   component: LayoutComponent,
   loading: layoutLoading,
-  load: loadTemplate,
   template: currentTemplateMeta,
   deviceType,
 } = useTemplate('layout', {
@@ -95,44 +88,6 @@ const {
   onChange: (info) => {
     console.log('[App] 模板切换:', info)
   },
-})
-
-/** 获取当前模板 ID（用于选择器高亮） */
-const currentTemplateId = computed(() => currentTemplateMeta.value?.id)
-
-/**
- * 处理用户手动选择模板
- * 使用 'user' 来源标记，这样会写入缓存
- */
-function handleTemplateChange(templateId: string): void {
-  loadTemplate(templateId, 'user')
-  showTemplateSelector.value = false
-}
-
-/** 切换模板选择器显示状态 */
-function toggleTemplateSelector(): void {
-  showTemplateSelector.value = !showTemplateSelector.value
-}
-
-/**
- * 处理点击外部关闭模板选择器
- * 使用事件委托方式监听文档点击
- */
-function handleDocumentClick(event: MouseEvent): void {
-  const target = event.target as HTMLElement
-  // 如果点击的不是模板选择器区域，则关闭
-  if (!target.closest('.template-selector-wrapper')) {
-    showTemplateSelector.value = false
-  }
-}
-
-// 监听文档点击事件（关闭模板选择器）
-onMounted(() => {
-  document.addEventListener('click', handleDocumentClick)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick)
 })
 
 /** 图标组件映射 */
@@ -400,28 +355,7 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
         <ThemeColorPicker :translate="t" />
         <ThemeModeSwitcher :translate="t" />
         <SizeSwitcher :translate="t" :locale="locale" />
-
-        <!-- 模板选择器触发按钮 -->
-        <div class="template-selector-wrapper">
-          <button class="template-btn" :class="{ active: showTemplateSelector }" :title="t('template.selectLayout')"
-            @click="toggleTemplateSelector">
-            <component :is="TemplateIcon" :size="18" />
-          </button>
-
-          <!-- 模板选择器下拉面板 -->
-          <Transition name="dropdown">
-            <div v-if="showTemplateSelector" class="template-dropdown">
-              <div class="dropdown-header">
-                <span>{{ t('template.selectLayout') }}</span>
-                <button class="close-btn" @click="showTemplateSelector = false">×</button>
-              </div>
-              <div class="dropdown-content">
-                <TemplateSelector category="layout" :model-value="currentTemplateId" :show-preview="false"
-                  :show-description="true" @update:model-value="handleTemplateChange" />
-              </div>
-            </div>
-          </Transition>
-        </div>
+        <TemplateSwitcher category="layout" :translate="t" />
 
         <button class="login-btn" @click="goToLogin">
           <component :is="LoginIcon" :size="16" />
@@ -434,12 +368,7 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
     <template #default>
       <!-- 面包屑导航 -->
       <div class="page-breadcrumb">
-        <LBreadcrumb
-          :items="breadcrumbItems"
-          separator="/"
-          :show-home="false"
-          @click="handleBreadcrumbClick"
-        />
+        <LBreadcrumb :items="breadcrumbItems" separator="/" :show-home="false" @click="handleBreadcrumbClick" />
       </div>
       <!-- 页面内容 -->
       <router-view :key="`${route.fullPath}-${refreshKey}`" />
@@ -455,8 +384,8 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.6;
+  font-family: var(--size-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  line-height: var(--size-line-relaxed, 1.6);
   background: var(--color-bg-page, #f5f7fa);
   color: var(--color-text-primary, #1f2937);
 }
@@ -476,16 +405,16 @@ body {
   justify-content: center;
   min-height: 100vh;
   color: var(--color-text-secondary, #6b7280);
-  font-size: 14px;
+  font-size: var(--size-font-sm, 14px);
 }
 
 .app-logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0 16px;
-  height: 64px;
-  font-weight: 700;
+  gap: var(--size-space-xs, 0.5rem);
+  padding: 0 var(--size-space-md, 16px);
+  height: var(--size-size-15, 64px);
+  font-weight: var(--size-font-weight-bold, 700);
   color: var(--color-text-primary, #2c3e50);
 }
 
@@ -496,139 +425,52 @@ body {
 }
 
 .app-logo .logo-text {
-  font-size: 1.25rem;
+  font-size: var(--size-font-lg, 1.25rem);
   white-space: nowrap;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--size-space-md, 1rem);
 }
 
 .login-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 8px 16px;
+  gap: var(--size-space-xs, 0.5rem);
+  padding: var(--size-comp-paddingTB-xs, 8px) var(--size-comp-paddingLR-l, 16px);
   background: var(--color-primary, #3b82f6);
   color: #fff;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: var(--size-radius-md, 6px);
+  font-size: var(--size-font-sm, 14px);
+  font-weight: var(--size-font-weight-medium, 500);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--size-duration-fast, 0.2s);
 }
 
 .login-btn:hover {
   background: var(--color-primary-hover, #2563eb);
 }
 
-/* 模板选择器样式 */
-.template-selector-wrapper {
-  position: relative;
-}
-
-.template-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  background: transparent;
-  color: var(--color-text-secondary, #6b7280);
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.template-btn:hover {
-  color: var(--color-primary, #3b82f6);
-  border-color: var(--color-primary, #3b82f6);
-  background: var(--color-primary-bg, #eff6ff);
-}
-
-.template-btn.active {
-  color: var(--color-primary, #3b82f6);
-  border-color: var(--color-primary, #3b82f6);
-  background: var(--color-primary-bg, #eff6ff);
-}
-
-.template-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 320px;
-  background: var(--color-bg-container, #fff);
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  overflow: hidden;
-}
-
-.dropdown-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
-  font-weight: 500;
-  color: var(--color-text-primary, #1f2937);
-}
-
-.dropdown-header .close-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 4px;
-  font-size: 18px;
-  color: var(--color-text-tertiary, #9ca3af);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.dropdown-header .close-btn:hover {
-  background: var(--color-bg-hover, #f3f4f6);
-  color: var(--color-text-secondary, #6b7280);
-}
-
-.dropdown-content {
-  padding: 12px;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-/* 模板选择器容器 */
-.template-selector-wrapper {
-  position: relative;
-}
-
 /* 下拉面板动画 */
 .dropdown-enter-active,
 .dropdown-leave-active {
-  transition: all 0.2s ease;
+  transition: all var(--size-duration-fast, 0.2s) ease;
 }
 
 .dropdown-enter-from,
 .dropdown-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(calc(-1 * var(--size-space-xs, 8px)));
 }
 
 /* 面包屑导航样式 */
 .page-breadcrumb {
-  padding: 12px 16px;
+  padding: var(--size-space-s, 12px) var(--size-space-md, 16px);
   background: var(--color-bg-container, #fff);
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  border-bottom: var(--size-border-width-thin, 1px) solid var(--color-border, #e5e7eb);
   margin-bottom: 0;
 }
 </style>

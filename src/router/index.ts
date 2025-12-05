@@ -93,4 +93,10 @@ export const routes = [
     component: () => import('../views/BreadcrumbDemo.vue'),
     meta: { title: '面包屑组件' },
   },
+  {
+    path: '/menu',
+    name: 'menu',
+    component: () => import('../views/MenuDemo.vue'),
+    meta: { title: '菜单组件' },
+  },
 ]

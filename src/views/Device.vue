@@ -395,132 +395,132 @@ onUnmounted(() => {
 
 <style scoped>
 .device-page {
-  max-width: 1200px;
+  max-width: var(--size-size-64);
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--size-space-xl);
 }
 
 h1 {
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  color: #2c3e50;
+  font-size: var(--size-font-xxl);
+  margin-bottom: var(--size-space-xl);
+  color: var(--color-text-primary);
   text-align: center;
 }
 
 h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: #34495e;
+  font-size: var(--size-font-xl);
+  margin-bottom: var(--size-space-md);
+  color: var(--color-text-secondary);
 }
 
 h3 {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
-  color: #34495e;
+  font-size: var(--size-font-lg);
+  margin-bottom: var(--size-space-md);
+  color: var(--color-text-secondary);
 }
 
 .info-section {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-md);
+  padding: var(--size-space-lg);
+  margin-bottom: var(--size-space-lg);
+  box-shadow: var(--color-shadow-small);
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  gap: var(--size-space-md);
 }
 
 .info-card {
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 1rem;
-  border-left: 4px solid #4facfe;
+  background: var(--color-bg-container-secondary);
+  border-radius: var(--size-radius-sm);
+  padding: var(--size-space-md);
+  border-left: var(--size-border-width-thick) solid var(--color-primary);
 }
 
 .info-label {
-  font-size: 0.875rem;
-  color: #6c757d;
-  margin-bottom: 0.5rem;
+  font-size: var(--size-font-sm);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--size-space-xs);
 }
 
 .info-value {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #2c3e50;
+  font-size: var(--size-font-lg);
+  font-weight: var(--size-font-weight-semibold);
+  color: var(--color-text-primary);
 }
 
 .device-type {
-  font-size: 1.5rem;
-  color: #4facfe;
+  font-size: var(--size-font-xl);
+  color: var(--color-primary);
 }
 
 .tip-section {
-  background: #fff3cd;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border-left: 4px solid #ffc107;
+  background: var(--color-warning-bg);
+  border-radius: var(--size-radius-md);
+  padding: var(--size-space-lg);
+  margin-bottom: var(--size-space-lg);
+  border-left: var(--size-border-width-thick) solid var(--color-warning);
 }
 
 .tip-section ul {
   margin: 0;
-  padding-left: 1.5rem;
+  padding-left: var(--size-space-lg);
 }
 
 .tip-section li {
-  margin-bottom: 0.5rem;
-  line-height: 1.6;
+  margin-bottom: var(--size-space-xs);
+  line-height: var(--size-line-relaxed);
 }
 
 .actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--size-space-md);
   justify-content: center;
-  margin-top: 2rem;
+  margin-top: var(--size-space-xl);
 }
 
 .btn {
-  padding: 0.75rem 1.5rem;
+  padding: var(--size-comp-paddingTB-m) var(--size-comp-paddingLR-m);
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: var(--size-radius-sm);
+  font-size: var(--size-font-md);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--size-duration-normal) ease;
 }
 
 .btn-primary {
-  background: #4facfe;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
 .btn-primary:hover {
-  background: #2d9cdb;
+  background: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+  box-shadow: var(--color-shadow-medium);
 }
 
 .btn-secondary {
-  background: #6c757d;
-  color: white;
+  background: var(--color-text-tertiary);
+  color: var(--color-text-inverse);
 }
 
 .btn-secondary:hover {
-  background: #545b62;
+  background: var(--color-text-secondary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+  box-shadow: var(--color-shadow-medium);
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .device-page {
-    padding: 1rem;
+    padding: var(--size-space-md);
   }
 
   h1 {
-    font-size: 2rem;
+    font-size: var(--size-font-xl);
   }
 
   .info-grid {

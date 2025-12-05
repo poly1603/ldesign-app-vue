@@ -96,10 +96,7 @@ onMounted(() => {
         <p><strong>{{ $t('theme.name') }}:</strong> {{ currentTheme.themeName }}</p>
         <p>
           <strong>{{ $t('theme.primaryColor') }}:</strong>
-          <span
-            class="color-box"
-            :style="{ backgroundColor: currentTheme.primaryColor }"
-          />
+          <span class="color-box" :style="{ backgroundColor: currentTheme.primaryColor }" />
           {{ currentTheme.primaryColor }}
         </p>
         <p>
@@ -117,11 +114,7 @@ onMounted(() => {
       <div class="actions">
         <div class="action-group">
           <label>{{ $t('theme.customColor') }}:</label>
-          <input
-            v-model="customColor"
-            type="color"
-            @change="applyCustomTheme"
-          >
+          <input v-model="customColor" type="color" @change="applyCustomTheme">
           <button :disabled="isLoading" @click="applyCustomTheme">
             {{ $t('theme.apply') }}
           </button>
@@ -161,14 +154,14 @@ onMounted(() => {
 
 <style scoped>
 .theme-page {
-  padding: 2rem;
-  max-width: 800px;
+  padding: var(--size-space-xl, 2rem);
+  max-width: var(--size-size-48, 800px);
   margin: 0 auto;
 }
 
 h1 {
   color: var(--color-primary-default, #667eea);
-  margin-bottom: 2rem;
+  margin-bottom: var(--size-space-xl, 2rem);
 }
 
 h2 {
@@ -177,16 +170,16 @@ h2 {
 
 .theme-section {
   background: var(--color-bg-container-secondary, #f5f5f5);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--color-border, #e5e7eb);
+  padding: var(--size-space-lg, 1.5rem);
+  margin-bottom: var(--size-space-lg, 1.5rem);
+  border-radius: var(--size-radius-md, 8px);
+  border: var(--size-border-width-thin, 1px) solid var(--color-border, #e5e7eb);
 }
 
 .theme-info {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--size-space-s, 0.75rem);
   color: var(--color-text-primary, #374151);
 }
 
@@ -200,11 +193,11 @@ h2 {
 
 .color-box {
   display: inline-block;
-  width: 40px;
-  height: 20px;
-  border: 1px solid var(--color-border, #ccc);
-  border-radius: 4px;
-  margin: 0 8px;
+  width: var(--size-size-12, 40px);
+  height: var(--size-size-7, 20px);
+  border: var(--size-border-width-thin, 1px) solid var(--color-border, #ccc);
+  border-radius: var(--size-radius-sm, 4px);
+  margin: 0 var(--size-space-xs, 8px);
   vertical-align: middle;
 }
 
@@ -216,39 +209,39 @@ h2 {
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--size-space-md, 1rem);
 }
 
 .action-group {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--size-space-md, 1rem);
 }
 
 .action-group label {
-  font-weight: 600;
-  min-width: 120px;
+  font-weight: var(--size-font-weight-semibold, 600);
+  min-width: var(--size-size-18, 120px);
   color: var(--color-text-primary, #374151);
 }
 
 .action-group input[type='color'] {
-  width: 60px;
-  height: 40px;
-  border: 1px solid var(--color-border, #d1d5db);
-  border-radius: 4px;
+  width: var(--size-size-14, 60px);
+  height: var(--size-size-12, 40px);
+  border: var(--size-border-width-thin, 1px) solid var(--color-border, #d1d5db);
+  border-radius: var(--size-radius-sm, 4px);
   cursor: pointer;
   background: var(--color-bg-component, #ffffff);
 }
 
 .action-group select {
   flex: 1;
-  padding: 0.5rem;
-  border: 1px solid var(--color-border, #ddd);
-  border-radius: 4px;
-  font-size: 14px;
+  padding: var(--size-comp-paddingTB-xs, 0.5rem);
+  border: var(--size-border-width-thin, 1px) solid var(--color-border, #ddd);
+  border-radius: var(--size-radius-sm, 4px);
+  font-size: var(--size-font-sm, 14px);
   background: var(--color-bg-component, #ffffff);
   color: var(--color-text-primary, #374151);
-  transition: border-color 0.2s;
+  transition: border-color var(--size-duration-fast, 0.2s);
 }
 
 .action-group select:hover {
@@ -261,19 +254,19 @@ h2 {
 }
 
 .action-group button {
-  padding: 0.5rem 1rem;
+  padding: var(--size-comp-paddingTB-xs, 0.5rem) var(--size-comp-paddingLR-m, 1rem);
   background: var(--color-primary-default, #667eea);
   color: var(--color-text-inverse, #ffffff);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--size-radius-sm, 4px);
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-size: var(--size-font-sm, 14px);
+  transition: all var(--size-duration-fast, 0.2s);
 }
 
 .action-group button:hover:not(:disabled) {
   background: var(--color-primary-hover, #5568d3);
-  transform: translateY(-1px);
+  transform: translateY(calc(-1 * var(--size-size-1, 1px)));
 }
 
 .action-group button:active:not(:disabled) {
@@ -290,7 +283,7 @@ h2 {
 .loading {
   text-align: center;
   color: var(--color-primary-default, #667eea);
-  font-weight: 600;
-  margin-top: 1rem;
+  font-weight: var(--size-font-weight-semibold, 600);
+  margin-top: var(--size-space-md, 1rem);
 }
 </style>
