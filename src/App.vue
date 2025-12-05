@@ -377,17 +377,21 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
 </template>
 
 <style>
+/* ==================== 全局重置 ==================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ==================== Body 样式 ==================== */
 body {
-  font-family: var(--size-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  font-family: var(--size-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif);
   line-height: var(--size-line-relaxed, 1.6);
-  background: var(--color-bg-page, #f5f7fa);
-  color: var(--color-text-primary, #1f2937);
+  background: var(--color-gray-50, #f9fafb);
+  color: var(--color-gray-900, #111827);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #app {
@@ -398,79 +402,272 @@ body {
   min-height: 100vh;
 }
 
-/* 布局加载中状态 */
+/* ==================== 布局加载状态 ==================== */
 .layout-loading {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  color: var(--color-text-secondary, #6b7280);
+  gap: var(--size-space-m, 16px);
+  color: var(--color-gray-500, #6b7280);
   font-size: var(--size-font-sm, 14px);
 }
 
+.layout-loading::before {
+  content: '';
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-gray-200, #e5e7eb);
+  border-top-color: var(--color-primary-500, #3b82f6);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== Logo 样式 ==================== */
 .app-logo {
   display: flex;
   align-items: center;
-  gap: var(--size-space-xs, 0.5rem);
-  padding: 0 var(--size-space-md, 16px);
-  height: var(--size-size-15, 64px);
-  font-weight: var(--size-font-weight-bold, 700);
-  color: var(--color-text-primary, #2c3e50);
+  gap: var(--size-space-s, 10px);
+  padding: 0 var(--size-space-m, 16px);
+  height: var(--size-15, 64px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-/* Lucide 图标样式 */
+/* 侧边栏中的 Logo - 白色主题 */
+.layout-sider .app-logo,
+[class*="layout-sider"] .app-logo {
+  color: #ffffff;
+}
+
+.layout-sider .app-logo .logo-icon,
+[class*="layout-sider"] .app-logo .logo-icon {
+  color: #ffffff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.layout-sider .app-logo .logo-text,
+[class*="layout-sider"] .app-logo .logo-text {
+  color: #ffffff;
+  background: none;
+  -webkit-text-fill-color: #ffffff;
+}
+
+/* 头部中的 Logo - 保持原样式 */
 .app-logo .logo-icon {
   flex-shrink: 0;
-  color: var(--color-primary, #3b82f6);
+  color: var(--color-primary-500, #3b82f6);
+  filter: drop-shadow(0 1px 2px rgba(59, 130, 246, 0.2));
 }
 
 .app-logo .logo-text {
   font-size: var(--size-font-lg, 1.25rem);
   white-space: nowrap;
+  background: linear-gradient(135deg, var(--color-gray-900, #111827) 0%, var(--color-gray-600, #4b5563) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+/* ==================== 头部操作区 ==================== */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: var(--size-space-md, 1rem);
+  gap: var(--size-space-xs, 6px);
 }
 
+/* 统一的头部按钮样式 */
+.header-actions .color-button,
+.header-actions .mode-button,
+.header-actions .size-button,
+.header-actions .language-button,
+.header-actions .template-button,
+.header-actions button[class*="-button"] {
+  width: 36px;
+  height: 36px;
+  border: none !important;
+  background: transparent !important;
+  border-radius: 8px;
+  color: var(--color-gray-500, #6b7280);
+  transition: all 0.15s ease;
+}
+
+.header-actions .color-button:hover,
+.header-actions .mode-button:hover,
+.header-actions .size-button:hover,
+.header-actions .language-button:hover,
+.header-actions .template-button:hover,
+.header-actions button[class*="-button"]:hover {
+  background: var(--color-gray-100, #f3f4f6) !important;
+  color: var(--color-gray-700, #374151);
+}
+
+/* ==================== 登录按钮 ==================== */
 .login-btn {
   display: flex;
   align-items: center;
-  gap: var(--size-space-xs, 0.5rem);
-  padding: var(--size-comp-paddingTB-xs, 8px) var(--size-comp-paddingLR-l, 16px);
-  background: var(--color-primary, #3b82f6);
+  gap: var(--size-space-xs, 6px);
+  padding: var(--size-space-xs, 8px) var(--size-space-m, 16px);
+  background: linear-gradient(135deg, var(--color-primary-500, #3b82f6) 0%, var(--color-primary-600, #2563eb) 100%);
   color: #fff;
   border: none;
-  border-radius: var(--size-radius-md, 6px);
+  border-radius: var(--size-radius-lg, 10px);
   font-size: var(--size-font-sm, 14px);
-  font-weight: var(--size-font-weight-medium, 500);
+  font-weight: 500;
   cursor: pointer;
-  transition: all var(--size-duration-fast, 0.2s);
+  transition: all var(--size-duration-fast, 150ms) cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 1px 2px rgba(59, 130, 246, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .login-btn:hover {
-  background: var(--color-primary-hover, #2563eb);
+  background: linear-gradient(135deg, var(--color-primary-600, #2563eb) 0%, var(--color-primary-700, #1d4ed8) 100%);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 6px rgba(59, 130, 246, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 下拉面板动画 */
-.dropdown-enter-active,
+.login-btn:active {
+  transform: translateY(0);
+}
+
+/* ==================== 下拉动画 ==================== */
+.dropdown-enter-active {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .dropdown-leave-active {
-  transition: all var(--size-duration-fast, 0.2s) ease;
+  transition: all 0.15s cubic-bezier(0.4, 0, 1, 1);
 }
 
-.dropdown-enter-from,
+.dropdown-enter-from {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.96);
+}
+
 .dropdown-leave-to {
   opacity: 0;
-  transform: translateY(calc(-1 * var(--size-space-xs, 8px)));
+  transform: translateY(-4px) scale(0.98);
 }
 
-/* 面包屑导航样式 */
+/* ==================== 面包屑导航 ==================== */
 .page-breadcrumb {
-  padding: var(--size-space-s, 12px) var(--size-space-md, 16px);
-  background: var(--color-bg-container, #fff);
-  border-bottom: var(--size-border-width-thin, 1px) solid var(--color-border, #e5e7eb);
-  margin-bottom: 0;
+  padding: var(--size-space-s, 12px) var(--size-space-l, 20px);
+  background: var(--color-bg-container, #ffffff);
+  border-bottom: 1px solid var(--color-gray-100, #f3f4f6);
+}
+
+/* ==================== 暗色主题支持 ==================== */
+[data-theme-mode="dark"],
+[data-theme="dark"] {
+  body {
+    background: var(--color-gray-900, #111827);
+    color: var(--color-gray-100, #f3f4f6);
+  }
+
+  .app-logo {
+    color: var(--color-gray-100, #f3f4f6);
+  }
+
+  .app-logo .logo-text {
+    background: linear-gradient(135deg, var(--color-gray-100, #f3f4f6) 0%, var(--color-gray-400, #9ca3af) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-breadcrumb {
+    background: var(--color-gray-800, #1f2937);
+    border-bottom-color: var(--color-gray-700, #374151);
+  }
+
+  /* 暗色模式头部按钮 */
+  .header-actions .color-button:hover,
+  .header-actions .mode-button:hover,
+  .header-actions .size-button:hover,
+  .header-actions .language-button:hover,
+  .header-actions .template-button:hover,
+  .header-actions button[class*="-button"]:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff;
+  }
+}
+
+/* ==================== 侧边栏主题色背景 ==================== */
+.layout-sider,
+.l-layout__sider,
+[class*="layout-sider"] {
+  /* 使用主题色的深色渐变 */
+  background: linear-gradient(
+    180deg, 
+    color-mix(in srgb, var(--color-primary-900, #1e3a5f) 90%, #000) 0%, 
+    color-mix(in srgb, var(--color-primary-950, #0f172a) 95%, #000) 100%
+  ) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 
+    1px 0 0 rgba(255, 255, 255, 0.02),
+    4px 0 16px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* 侧边栏 Logo 区域 */
+.layout-sider__logo {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 菜单在侧边栏中的样式增强 */
+.layout-sider .l-menu--dark,
+.l-layout__sider .l-menu--dark {
+  padding: 6px 8px;
+}
+
+.layout-sider .l-menu--dark .l-menu-item,
+.layout-sider .l-menu--dark .l-submenu {
+  margin-bottom: 2px;
+}
+
+.layout-sider .l-menu--dark .l-menu-item__content,
+.layout-sider .l-menu--dark .l-submenu__title {
+  border-radius: 6px;
+  font-size: 14px;
+  height: 40px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 菜单选中项高亮 - 使用主题色 */
+.layout-sider .l-menu--dark .l-menu-item--selected .l-menu-item__content,
+.layout-sider .l-menu--dark .l-submenu--active > .l-submenu__title {
+  background: var(--color-primary-500, rgba(59, 130, 246, 0.25)) !important;
+}
+
+/* 菜单图标样式 - 统一粗细 */
+.layout-sider .l-menu-item__icon,
+.layout-sider .l-submenu__icon {
+  opacity: 0.85;
+  stroke-width: 1.5px;
+}
+
+.layout-sider .l-menu-item:hover .l-menu-item__icon,
+.layout-sider .l-submenu:hover .l-submenu__icon,
+.layout-sider .l-menu-item--selected .l-menu-item__icon {
+  opacity: 1;
+}
+
+/* 折叠状态时图标居中 */
+.layout-sider--collapsed .l-menu--dark .l-menu-item__content,
+.layout-sider--collapsed .l-menu--dark .l-submenu__title {
+  justify-content: center;
+  padding: 0 !important;
+}
+
+.layout-sider--collapsed .l-menu-item__icon,
+.layout-sider--collapsed .l-submenu__icon {
+  margin: 0 !important;
 }
 </style>
