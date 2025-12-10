@@ -352,8 +352,8 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
     <template #header-right>
       <div class="header-actions">
         <LanguageSwitcher />
-        <ThemeColorPicker :translate="t" />
-        <ThemeModeSwitcher :translate="t" />
+        <ThemeColorPicker :translate="t" :locale="locale" />
+        <ThemeModeSwitcher :translate="t" :locale="locale" />
         <SizeSwitcher :translate="t" :locale="locale" />
         <TemplateSwitcher category="layout" :translate="t" />
 
@@ -425,7 +425,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ==================== Logo 样式 ==================== */
@@ -521,7 +523,7 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all var(--size-duration-fast, 150ms) cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
+  box-shadow:
     0 1px 2px rgba(59, 130, 246, 0.2),
     0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -529,7 +531,7 @@ body {
 .login-btn:hover {
   background: linear-gradient(135deg, var(--color-primary-600, #2563eb) 0%, var(--color-primary-700, #1d4ed8) 100%);
   transform: translateY(-1px);
-  box-shadow: 
+  box-shadow:
     0 4px 6px rgba(59, 130, 246, 0.25),
     0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -605,13 +607,11 @@ body {
 .l-layout__sider,
 [class*="layout-sider"] {
   /* 使用主题色的深色渐变 */
-  background: linear-gradient(
-    180deg, 
-    color-mix(in srgb, var(--color-primary-900, #1e3a5f) 90%, #000) 0%, 
-    color-mix(in srgb, var(--color-primary-950, #0f172a) 95%, #000) 100%
-  ) !important;
+  background: linear-gradient(180deg,
+      color-mix(in srgb, var(--color-primary-900, #1e3a5f) 90%, #000) 0%,
+      color-mix(in srgb, var(--color-primary-950, #0f172a) 95%, #000) 100%) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
-  box-shadow: 
+  box-shadow:
     1px 0 0 rgba(255, 255, 255, 0.02),
     4px 0 16px rgba(0, 0, 0, 0.25) !important;
 }
@@ -642,7 +642,7 @@ body {
 
 /* 菜单选中项高亮 - 使用主题色 */
 .layout-sider .l-menu--dark .l-menu-item--selected .l-menu-item__content,
-.layout-sider .l-menu--dark .l-submenu--active > .l-submenu__title {
+.layout-sider .l-menu--dark .l-submenu--active>.l-submenu__title {
   background: var(--color-primary-500, rgba(59, 130, 246, 0.25)) !important;
 }
 

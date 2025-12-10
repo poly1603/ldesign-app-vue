@@ -1,5 +1,11 @@
 /**
  * Template 模板插件配置
+ * 
+ * 支持的功能：
+ * - 多模板预设切换和持久化
+ * - 模板变化回调 (onTemplateChange)
+ * - 初始化完成钩子 (onReady)
+ * - 模板选择器配置 (selector)
  */
 import { createTemplateEnginePlugin } from '@ldesign/template-vue/plugins'
 import type { DeviceType, TemplateMetadata } from '@ldesign/template-vue'
@@ -18,11 +24,8 @@ export function createTemplatePlugin() {
         defaults: {
           desktop: 'default',
           tablet: 'default',
-          mobile: false,
+          mobile: 'default',
         },
-        disabledMessage: (device: DeviceType, category: string) =>
-          `${category} 功能暂不支持在${device === 'mobile' ? '移动设备' : '平板设备'}上使用，请使用桌面浏览器访问`,
-        disabledIcon: '🖥️',
       },
       dashboard: {
         defaults: {
@@ -72,7 +75,7 @@ export function createTemplatePlugin() {
 
     // 模板切换回调
     onTemplateChange: async (info) => {
-      console.log('[App] 模板切换:', {
+      console.log('[Template Plugin] 模板切换:', {
         category: info.category,
         device: info.device,
         templateName: info.templateName,
@@ -88,6 +91,20 @@ export function createTemplatePlugin() {
       //     device: info.device,
       //     templateName: info.templateName,
       //   })
+      // }
+    },
+
+    // 初始化完成回调
+    onReady: (context) => {
+      console.log('[Template Plugin] 初始化完成')
+      console.log('[Template Plugin] 已注册模板数量:', context.getTemplateCount())
+      console.log('[Template Plugin] layout 模板:', context.getTemplatesByCategory('layout').map(t => t.id))
+      console.log('[Template Plugin] login 模板:', context.getTemplatesByCategory('login').map(t => t.id))
+
+      // 示例: 从服务器加载用户模板偏好
+      // const userPreferences = await api.getUserTemplatePreferences()
+      // if (userPreferences?.layout) {
+      //   // 应用用户保存的布局模板
       // }
     },
   })

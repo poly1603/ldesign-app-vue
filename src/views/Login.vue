@@ -5,29 +5,27 @@
  * 使用模板系统实现多设备适配的登录页面
  * - 自动检测设备类型（desktop/tablet/mobile）
  * - 当浏览器窗口大小变化时自动切换到对应设备的模板
- * - 集成 TemplateSelector 组件，支持用户手动选择模板
- *
- * 简化后的实现：
- * - 无需手动使用 useWindowSize 监听窗口大小
- * - 无需手动计算设备类型
- * - 无需手动 watch 设备变化
- * - useTemplate 和 TemplateSelector 会自动处理设备检测
+ * - 工具栏 slot 支持语言/主题/尺寸切换
  */
 import { useEngine, useRouterService } from '@ldesign/engine-vue3'
-import { TemplateSelector, useTemplate } from '@ldesign/template-vue'
-import { computed, ref } from 'vue'
+import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
+import { useI18n, LanguageSwitcher } from '@ldesign/i18n-vue'
+import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
+import { SizeSwitcher } from '@ldesign/size-vue'
 
 /** 登录数据类型 */
 interface LoginData {
-  username: string
-  password: string
+  loginType: 'username' | 'phone'
+  username?: string
+  phone?: string
+  password?: string
+  smsCode?: string
+  captcha: string
 }
 
 const engine = useEngine()
 const router = useRouterService()
-
-// 是否显示模板选择器面板
-const showSelector = ref(false)
+const { t } = useI18n()
 
 /**
  * 使用 useTemplate 动态加载模板组件
@@ -40,83 +38,68 @@ const showSelector = ref(false)
 const {
   component: currentTemplate,
   loading: templateLoading,
-  load: loadTemplate,
-  template: currentTemplateMeta,
-  disabled: templateDisabled,
   disabledMessage,
   deviceType,
 } = useTemplate('login', { immediate: true })
 
 /**
- * 获取当前模板ID（用于选择器高亮）
- */
-const currentTemplateId = computed(() => currentTemplateMeta.value?.id)
-
-/**
- * 处理用户手动选择模板
- * 使用 'user' 来源标记，这样会写入缓存
- */
-function handleTemplateChange(templateId: string): void {
-  // 用户手动选择，传入 'user' 来源，会写入缓存
-  loadTemplate(templateId, 'user')
-  // 选择后关闭面板
-  showSelector.value = false
-}
-
-/**
  * 处理登录提交
  */
 function handleLogin(data: LoginData): void {
-  console.log('[Login]', data.username, data.password)
+  console.log('[Login]', data)
 
   // 模拟登录成功
-  engine.events.emit('user:login', { username: data.username })
+  engine.events.emit('user:login', { username: data.username || data.phone })
 
   // 跳转到首页
   router.push('/')
 }
 
 /**
- * 切换模板选择器面板显示
+ * 处理忘记密码
  */
-function toggleSelector(): void {
-  showSelector.value = !showSelector.value
+function handleForgotPassword(): void {
+  console.log('[ForgotPassword]')
+  // 跳转到忘记密码页面
+  // router.push('/forgot-password')
+}
+
+/**
+ * 处理注册
+ */
+function handleRegister(): void {
+  console.log('[Register]')
+  // 跳转到注册页面
+  // router.push('/register')
+}
+
+/**
+ * 处理第三方登录
+ */
+function handleSocialLogin(provider: string): void {
+  console.log('[SocialLogin]', provider)
+  // 跳转到第三方登录
 }
 </script>
 
 <template>
   <div class="login-page">
-    <!-- 模板选择器触发按钮 -->
-    <button class="template-trigger" :class="{ active: showSelector }" title="选择登录模板" @click="toggleSelector">
-      🎨
-    </button>
-
-    <!-- 模板选择器面板 -->
-    <Transition name="slide">
-      <div v-if="showSelector" class="template-panel">
-        <div class="panel-header">
-          <h3>选择模板</h3>
-          <button class="close-btn" @click="showSelector = false">×</button>
-        </div>
-        <div class="panel-content">
-          <!-- 简化：不再需要传递 device，TemplateSelector 会自动检测设备类型 -->
-          <TemplateSelector category="login" :model-value="currentTemplateId" :show-preview="true"
-            :show-description="true" @update:model-value="handleTemplateChange" />
-        </div>
-      </div>
-    </Transition>
-
-    <!-- 遮罩层 -->
-    <Transition name="fade">
-      <div v-if="showSelector" class="overlay" @click="showSelector = false" />
-    </Transition>
-
     <!-- 动态渲染登录模板 -->
     <div v-if="templateLoading" class="template-loading">
       <span>加载模板中...</span>
     </div>
-    <component v-else-if="currentTemplate" :is="currentTemplate" title="登录" :on-submit="handleLogin" :category="'login'"
-      :device="deviceType" :message="disabledMessage" />
+    <component v-else-if="currentTemplate" :is="currentTemplate" title="登录" :on-submit="handleLogin"
+      :on-forgot-password="handleForgotPassword" :on-register="handleRegister" :on-social-login="handleSocialLogin"
+      :category="'login'" :device="deviceType" :message="disabledMessage">
+      <!-- 工具栏 slot：语言/主题/尺寸切换 -->
+      <template #toolbar>
+        <LanguageSwitcher />
+        <ThemeModeSwitcher />
+        <ThemeColorPicker />
+        <SizeSwitcher />
+        <TemplateSwitcher category="login" :translate="t" />
+      </template>
+    </component>
   </div>
 </template>
 
@@ -135,148 +118,5 @@ function toggleSelector(): void {
   height: 100vh;
   font-size: var(--size-font-lg);
   color: var(--color-text-secondary);
-}
-
-/* 模板选择器触发按钮 */
-.template-trigger {
-  position: fixed;
-  top: var(--size-space-lg);
-  right: var(--size-space-lg);
-  z-index: 1001;
-  width: var(--size-size-6);
-  height: var(--size-size-6);
-  border-radius: 50%;
-  border: none;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-active) 100%);
-  color: var(--color-text-inverse);
-  font-size: var(--size-font-xl);
-  cursor: pointer;
-  box-shadow: 0 var(--size-space-xxs) var(--size-space-md) var(--color-shadow-medium);
-  transition: all var(--size-duration-fast) ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.template-trigger:hover {
-  transform: scale(1.1);
-  box-shadow: 0 var(--size-space-xs) var(--size-space-lg) var(--color-shadow-large);
-}
-
-.template-trigger.active {
-  transform: rotate(45deg);
-  background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-active) 100%);
-}
-
-/* 模板选择器面板 */
-.template-panel {
-  position: fixed;
-  top: 80px;
-  right: var(--size-space-lg);
-  z-index: 1000;
-  width: 400px;
-  max-width: calc(100vw - var(--size-size-5));
-  max-height: calc(100vh - 120px);
-  background: var(--color-bg-container);
-  border-radius: var(--size-radius-lg);
-  box-shadow: 0 var(--size-space-sm) var(--size-size-5) var(--color-shadow-large);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--size-space-md) var(--size-space-lg);
-  border-bottom: var(--size-border-width-thin) solid var(--color-border);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-active) 100%);
-  color: var(--color-text-inverse);
-}
-
-.panel-header h3 {
-  margin: 0;
-  font-size: var(--size-font-lg);
-  font-weight: var(--size-font-weight-semibold);
-}
-
-.close-btn {
-  width: var(--size-space-xl);
-  height: var(--size-space-xl);
-  border: none;
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--color-text-inverse);
-  font-size: var(--size-font-xl);
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--size-duration-fast);
-}
-
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.panel-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--size-space-md);
-}
-
-
-
-/* 遮罩层 */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999;
-  background: var(--color-bg-mask);
-}
-
-/* 动画 */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all var(--size-duration-fast) ease;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  transform: translateX(var(--size-space-lg));
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity var(--size-duration-fast) ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* 移动端适配 */
-@media (max-width: 480px) {
-  .template-panel {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-width: 100%;
-    max-height: 70vh;
-    border-radius: var(--size-radius-lg) var(--size-radius-lg) 0 0;
-  }
-
-  .template-trigger {
-    top: auto;
-    bottom: var(--size-space-lg);
-  }
 }
 </style>

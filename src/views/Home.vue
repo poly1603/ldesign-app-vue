@@ -1,730 +1,679 @@
 <script setup lang="ts">
 import { useEngine } from '@ldesign/engine-vue3'
 import { useI18n } from '@ldesign/i18n-vue'
-import { useAppConfig, useLauncherConfig } from '@ldesign/launcher/client/vue'
 import { computed, onMounted, ref } from 'vue'
 
 const engine = useEngine()
-console.log('[Home] Engine:', engine)
+const { locale, setLocale } = useI18n()
 
-// 设备信息实时获取演示
+// 设备信息
 const deviceInfo = ref<any>(null)
-const deviceUpdateCount = ref(0)
+const mounted = ref(false)
 
 onMounted(() => {
+  setTimeout(() => mounted.value = true, 100)
   if (engine) {
-    // 从 engine API 获取设备信息
     const deviceService = engine.api.get('device')
     if (deviceService) {
       deviceInfo.value = deviceService.getDeviceInfo()
-      console.log('📱 [Home] 初始设备信息:', deviceInfo.value)
     }
-
-    // 监听设备变化事件
     engine.events.on('device:change', (info: any) => {
-      console.log('📱 [Home] 设备信息已更新:', info)
       deviceInfo.value = info
-      deviceUpdateCount.value++
-    })
-
-    engine.events.on('device:orientation-change', (orientation: any) => {
-      console.log('📱 [Home] 屏幕方向已更新:', orientation)
-      deviceUpdateCount.value++
     })
   }
 })
 
-function refreshDeviceInfo() {
-  if (engine) {
-    const deviceService = engine.api.get('device')
-    if (deviceService) {
-      deviceInfo.value = deviceService.refresh()
-      console.log('🔄 [Home] 设备信息已刷新:', deviceInfo.value)
-    }
-  }
-}
-
-function logDeviceInfo() {
-  console.log('📋 [Home] 当前设备信息:', deviceInfo.value)
-  console.log('📋 [Home] 更新次数:', deviceUpdateCount.value)
-  if (engine) {
-    const deviceService = engine.api.get('device')
-    console.log('📋 [Home] Device Service:', deviceService)
-  }
-}
-
-// i18n composable
-const { t, locale, setLocale } = useI18n()
 function toggleLocale() {
   setLocale(locale.value === 'zh-CN' ? 'en-US' : 'zh-CN')
 }
 
-// 使用 launcher 提供的 useAppConfig composable（支持热更新）
-const { config: appConfig, environment } = useAppConfig()
+// 快捷入口
+const quickLinks = [
+  { icon: 'palette', title: '主题定制', desc: '自定义主题色和样式', route: '/theme', color: '#6366f1' },
+  { icon: 'smartphone', title: '设备信息', desc: '查看设备和屏幕信息', route: '/device', color: '#06b6d4' },
+  { icon: 'database', title: '数据管理', desc: '本地存储和缓存管理', route: '/store', color: '#10b981' },
+  { icon: 'layout', title: '布局系统', desc: '多设备响应式布局', route: '/layout', color: '#f59e0b' },
+]
 
-// 使用 launcher 提供的 useLauncherConfig composable（支持热更新）
-const { config: launcherConfig, environment: launcherEnv } = useLauncherConfig()
+// 功能特性
+const features = [
+  { icon: 'zap', title: '高性能', desc: '基于 Vue3 + Vite 构建' },
+  { icon: 'shield', title: '类型安全', desc: '完整的 TypeScript 支持' },
+  { icon: 'layers', title: '模块化', desc: '插件化架构设计' },
+  { icon: 'globe', title: '国际化', desc: '内置多语言支持' },
+]
 
-// 当前环境
-const currentEnv = computed(() => {
-  return appConfig.value?.app?.environment || environment.value.mode || 'development'
+// 当前时间
+const currentTime = computed(() => {
+  const now = new Date()
+  return now.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })
 })
 
-// 环境徽章样式
-const envBadgeClass = computed(() => {
-  const env = currentEnv.value
-  if (env === 'development')
-    return 'badge-success'
-  if (env === 'production')
-    return 'badge-danger'
-  if (env === 'staging')
-    return 'badge-warning'
-  return 'badge-info'
+const currentDate = computed(() => {
+  const now = new Date()
+  return now.toLocaleDateString(locale.value, { weekday: 'long', month: 'long', day: 'numeric' })
 })
 
-// 环境信息
-const envInfo = {
-  MODE: import.meta.env.MODE,
-  DEV: import.meta.env.DEV,
-  PROD: import.meta.env.PROD,
-}
-
-// Launcher 模式
-const launcherMode = computed(() => {
-  return import.meta.env.MODE || 'development'
+// 问候语
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 6) return '夜深了'
+  if (hour < 12) return '早上好'
+  if (hour < 14) return '中午好'
+  if (hour < 18) return '下午好'
+  return '晚上好'
 })
-
-// 环境变量（只显示 VITE_ 开头的）
-const envVars = computed(() => {
-  const env = import.meta.env
-  const vars: Record<string, any> = {}
-
-  Object.keys(env).forEach((key) => {
-    if (key.startsWith('VITE_')) {
-      vars[key] = env[key]
-    }
-  })
-
-  return vars
-})
-
-// 全局常量
-const globalConstants = {
-  __DEV__: typeof __DEV__ !== 'undefined' ? __DEV__ : 'undefined',
-  __PROD__: typeof __PROD__ !== 'undefined' ? __PROD__ : 'undefined',
-  __BUILD_TIME__: typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'undefined',
-  __APP_VERSION__: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'undefined',
-}
-
-// 格式化值
-function formatValue(value: any): string {
-  if (typeof value === 'object' && value !== null) {
-    return JSON.stringify(value, null, 2)
-  }
-  return String(value)
-}
-
-// HMR 已由 useAppConfig 和 useLauncherConfig 自动处理
-// 这里只需要监听以便在控制台输出日志
-if (import.meta.hot) {
-  import.meta.hot.on('app-config-updated', (newConfig) => {
-    console.log('🔥 [HMR] 应用配置已更新:', newConfig)
-  })
-
-  import.meta.hot.on('launcher-config-updated', (data) => {
-    console.log('🔥 [HMR] Launcher 配置已更新:', data)
-  })
-
-  console.log('✅ 配置热更新监听已启用')
-}
 </script>
 
 <template>
-  <div class="container">
-    <!-- 欢迎卡片 -->
-    <div class="card welcome-card">
-      <h1>{{ $t('home.title') }}</h1>
-      <p>{{ $t('home.subtitle') }}</p>
+  <div class="home-page" :class="{ 'is-mounted': mounted }">
+    <!-- 顶部欢迎区 -->
+    <section class="hero-section">
+      <div class="hero-bg">
+        <div class="hero-gradient" />
+        <div class="hero-pattern" />
+        <div class="hero-orbs">
+          <div class="orb orb-1" />
+          <div class="orb orb-2" />
+          <div class="orb orb-3" />
+        </div>
+      </div>
 
-      <div style="margin-top: 2rem;">
-        <router-link to="/login">
-          <button class="btn btn-primary">
-            {{ $t('home.goToLogin') }}
+      <div class="hero-content">
+        <div class="hero-text">
+          <span class="hero-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+            </svg>
+            LDesign Engine
+          </span>
+          <h1 class="hero-title">{{ greeting }}，欢迎使用</h1>
+          <p class="hero-subtitle">构建优雅的企业级设计系统</p>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-value">{{ currentTime }}</div>
+            <div class="stat-label">{{ currentDate }}</div>
+          </div>
+          <div class="stat-divider" />
+          <div class="stat-item">
+            <div class="stat-value">{{ deviceInfo?.type || 'desktop' }}</div>
+            <div class="stat-label">当前设备</div>
+          </div>
+          <div class="stat-divider" />
+          <div class="stat-item">
+            <div class="stat-value">{{ locale }}</div>
+            <div class="stat-label">语言</div>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <router-link to="/login" class="action-btn primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+            前往登录
+          </router-link>
+          <button class="action-btn secondary" @click="toggleLocale">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            切换语言
           </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 快捷入口 -->
+    <section class="quick-section">
+      <h2 class="section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="7" x="3" y="3" rx="1" />
+          <rect width="7" height="7" x="14" y="3" rx="1" />
+          <rect width="7" height="7" x="14" y="14" rx="1" />
+          <rect width="7" height="7" x="3" y="14" rx="1" />
+        </svg>
+        快捷入口
+      </h2>
+      <div class="quick-grid">
+        <router-link v-for="link in quickLinks" :key="link.route" :to="link.route" class="quick-card">
+          <div class="quick-icon" :style="{ '--icon-color': link.color }">
+            <!-- Palette -->
+            <svg v-if="link.icon === 'palette'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="13.5" cy="6.5" r=".5" />
+              <circle cx="17.5" cy="10.5" r=".5" />
+              <circle cx="8.5" cy="7.5" r=".5" />
+              <circle cx="6.5" cy="12.5" r=".5" />
+              <path
+                d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z" />
+            </svg>
+            <!-- Smartphone -->
+            <svg v-else-if="link.icon === 'smartphone'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+              <path d="M12 18h.01" />
+            </svg>
+            <!-- Database -->
+            <svg v-else-if="link.icon === 'database'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3" />
+              <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+              <path d="M3 12A9 3 0 0 0 21 12" />
+            </svg>
+            <!-- Layout -->
+            <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="9" y1="21" x2="9" y2="9" />
+            </svg>
+          </div>
+          <div class="quick-info">
+            <h3 class="quick-title">{{ link.title }}</h3>
+            <p class="quick-desc">{{ link.desc }}</p>
+          </div>
+          <svg class="quick-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </router-link>
-        <router-link to="/theme" style="margin-left: 1rem;">
-          <button class="btn btn-secondary">
-            {{ $t('theme.title') }}
-          </button>
-        </router-link>
-        <router-link to="/device" style="margin-left: 1rem;">
-          <button class="btn btn-secondary">
-            📱 {{ $t('home.device.deviceInfo') }}
-          </button>
-        </router-link>
       </div>
+    </section>
 
-      <!-- i18n 演示区：快速验证切换是否生效 -->
-      <div class="i18n-demo">
-        <p>{{ t('home.demo.greeting', { name: 'Developer' }) }}</p>
-        <p>{{ t('home.demo.today', { date: new Date().toLocaleDateString() }) }}</p>
-        <div class="demo-actions">
-          <button class="btn" @click="toggleLocale">
-            {{ t('home.demo.switch') }} ({{ locale }})
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 设备信息实时获取演示 -->
-    <div class="card device-demo-card">
-      <div class="card-header">
-        <h2>📱 {{ $t('home.device.title') }}</h2>
-        <span class="badge badge-success">{{ $t('home.device.realtimeUpdate') }}</span>
-      </div>
-      <div class="card-body">
-        <p class="description">
-          {{ $t('home.device.description') }}
-        </p>
-        <div v-if="deviceInfo" class="device-info-grid">
-          <div class="info-item">
-            <span class="label">{{ $t('home.device.deviceType') }}:</span>
-            <span class="value">{{ deviceInfo.type }}</span>
+    <!-- 功能特性 -->
+    <section class="features-section">
+      <h2 class="section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polygon
+            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+        核心特性
+      </h2>
+      <div class="features-grid">
+        <div v-for="feature in features" :key="feature.title" class="feature-card">
+          <div class="feature-icon">
+            <!-- Zap -->
+            <svg v-if="feature.icon === 'zap'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+            <!-- Shield -->
+            <svg v-else-if="feature.icon === 'shield'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <!-- Layers -->
+            <svg v-else-if="feature.icon === 'layers'" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+            <!-- Globe -->
+            <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
           </div>
-          <div class="info-item">
-            <span class="label">{{ $t('home.device.os') }}:</span>
-            <span class="value">{{ deviceInfo.os }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">{{ $t('home.device.browser') }}:</span>
-            <span class="value">{{ deviceInfo.browser }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">{{ $t('home.device.orientation') }}:</span>
-            <span class="value">{{ deviceInfo.orientation }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">{{ $t('home.device.screenSize') }}:</span>
-            <span class="value">{{ deviceInfo.screenWidth }} x {{ deviceInfo.screenHeight }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">{{ $t('home.device.updateCount') }}:</span>
-            <span class="value badge badge-info">{{ deviceUpdateCount }}</span>
-          </div>
-        </div>
-        <div v-else class="empty-state">
-          <p>{{ $t('home.device.notLoaded') }}</p>
-        </div>
-        <div class="demo-actions" style="margin-top: 1rem;">
-          <button class="btn btn-primary" @click="refreshDeviceInfo">
-            🔄 {{ $t('home.device.refresh') }}
-          </button>
-          <button class="btn btn-secondary" @click="logDeviceInfo">
-            📋 {{ $t('home.device.printToConsole') }}
-          </button>
+          <h3 class="feature-title">{{ feature.title }}</h3>
+          <p class="feature-desc">{{ feature.desc }}</p>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 配置展示面板 -->
-    <div class="config-panels">
-      <!-- 应用配置面板 -->
-      <div class="card config-card">
-        <div class="card-header">
-          <h2>📱 {{ $t('home.appConfig') }}</h2>
-          <span class="badge" :class="envBadgeClass">{{ currentEnv }}</span>
+    <!-- 设备信息 -->
+    <section v-if="deviceInfo" class="device-section">
+      <h2 class="section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+          <path d="M12 18h.01" />
+        </svg>
+        设备信息
+      </h2>
+      <div class="device-grid">
+        <div class="device-item">
+          <span class="device-label">设备类型</span>
+          <span class="device-value">{{ deviceInfo.type }}</span>
         </div>
-        <div class="card-body">
-          <div v-if="appConfig" class="config-content">
-            <div v-for="(value, key) in appConfig" :key="key" class="config-item">
-              <div class="config-key">
-                {{ key }}
-              </div>
-              <div class="config-value">
-                <pre>{{ formatValue(value) }}</pre>
-              </div>
-            </div>
-          </div>
-          <div v-else class="empty-state">
-            <p>⚠️ {{ $t('home.noConfigFound') }}</p>
-            <p class="hint">
-              {{ $t('home.ensureConfigExists') }}
-            </p>
-          </div>
+        <div class="device-item">
+          <span class="device-label">操作系统</span>
+          <span class="device-value">{{ deviceInfo.os?.name }} {{ deviceInfo.os?.version }}</span>
         </div>
-      </div>
-
-      <!-- Launcher 配置面板 -->
-      <div class="card config-card">
-        <div class="card-header">
-          <h2>🚀 {{ $t('home.launcherConfig') }}</h2>
-          <span class="badge badge-info">{{ launcherMode }}</span>
+        <div class="device-item">
+          <span class="device-label">浏览器</span>
+          <span class="device-value">{{ deviceInfo.browser?.name }} {{ deviceInfo.browser?.version }}</span>
         </div>
-        <div class="card-body">
-          <div class="config-content">
-            <!-- Launcher 配置内容 -->
-            <div v-if="launcherConfig" class="config-section">
-              <h3>📋 {{ $t('home.launcherConfig') }}</h3>
-              <div v-for="(value, key) in launcherConfig" :key="key" class="config-item">
-                <div class="config-key">
-                  {{ key }}
-                </div>
-                <div class="config-value">
-                  <code>{{ formatValue(value) }}</code>
-                </div>
-              </div>
-            </div>
-
-            <!-- 环境信息 -->
-            <div class="config-section">
-              <h3>🌍 {{ $t('home.envInfo') }}</h3>
-              <div class="config-item">
-                <div class="config-key">
-                  NODE_ENV
-                </div>
-                <div class="config-value">
-                  <code>{{ envInfo.MODE }}</code>
-                </div>
-              </div>
-              <div class="config-item">
-                <div class="config-key">
-                  DEV
-                </div>
-                <div class="config-value">
-                  <code>{{ envInfo.DEV }}</code>
-                </div>
-              </div>
-              <div class="config-item">
-                <div class="config-key">
-                  PROD
-                </div>
-                <div class="config-value">
-                  <code>{{ envInfo.PROD }}</code>
-                </div>
-              </div>
-            </div>
-
-            <!-- 环境变量 -->
-            <div class="config-section">
-              <h3>{{ $t('home.envVars') }}</h3>
-              <div v-for="(value, key) in envVars" :key="key" class="config-item">
-                <div class="config-key">
-                  {{ key }}
-                </div>
-                <div class="config-value">
-                  <code>{{ value }}</code>
-                </div>
-              </div>
-            </div>
-
-            <!-- 全局常量 -->
-            <div class="config-section">
-              <h3>{{ $t('home.globalConstants') }}</h3>
-              <div class="config-item">
-                <div class="config-key">
-                  __DEV__
-                </div>
-                <div class="config-value">
-                  <code>{{ globalConstants.__DEV__ }}</code>
-                </div>
-              </div>
-              <div class="config-item">
-                <div class="config-key">
-                  __PROD__
-                </div>
-                <div class="config-value">
-                  <code>{{ globalConstants.__PROD__ }}</code>
-                </div>
-              </div>
-              <div class="config-item">
-                <div class="config-key">
-                  __BUILD_TIME__
-                </div>
-                <div class="config-value">
-                  <code>{{ globalConstants.__BUILD_TIME__ }}</code>
-                </div>
-              </div>
-              <div class="config-item">
-                <div class="config-key">
-                  __APP_VERSION__
-                </div>
-                <div class="config-value">
-                  <code>{{ globalConstants.__APP_VERSION__ }}</code>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="device-item">
+          <span class="device-label">屏幕尺寸</span>
+          <span class="device-value">{{ deviceInfo.screenWidth }} × {{ deviceInfo.screenHeight }}</span>
+        </div>
+        <div class="device-item">
+          <span class="device-label">屏幕方向</span>
+          <span class="device-value">{{ deviceInfo.orientation }}</span>
+        </div>
+        <div class="device-item">
+          <span class="device-label">设备像素比</span>
+          <span class="device-value">{{ deviceInfo.pixelRatio }}x</span>
         </div>
       </div>
-    </div>
-
-    <!-- 配置说明 -->
-    <div class="card info-card">
-      <div class="card-header">
-        <h2>💡 {{ $t('home.configInfo') }}</h2>
-      </div>
-      <div class="card-body">
-        <div class="info-grid">
-          <div class="info-item">
-            <h3>📁 {{ $t('home.configFileLocation') }}</h3>
-            <ul>
-              <li><code>.ldesign/app.config.ts</code> - {{ $t('home.appConfigFile') }}</li>
-              <li><code>.ldesign/app.config.{{ currentEnv }}.ts</code> - {{ $t('home.currentEnvConfigFile') }}</li>
-              <li><code>.ldesign/launcher.config.ts</code> - {{ $t('home.launcherConfigFile') }}</li>
-              <li>
-                <code>.ldesign/launcher.config.{{ currentEnv }}.ts</code> - {{ $t('home.launcherEnvConfigFile') }}
-              </li>
-            </ul>
-          </div>
-          <div class="info-item">
-            <h3>🔄 {{ $t('home.switchEnv') }}</h3>
-            <ul>
-              <li><code>pnpm dev</code> - {{ $t('home.devEnv') }}</li>
-              <li><code>pnpm dev:staging</code> - {{ $t('home.stagingEnv') }}</li>
-              <li><code>pnpm dev:prod</code> - {{ $t('home.prodEnv') }}</li>
-            </ul>
-          </div>
-          <div class="info-item">
-            <h3>📝 {{ $t('home.configMergeRules') }}</h3>
-            <p>{{ $t('home.configMergeDesc') }}</p>
-          </div>
-          <div class="info-item">
-            <h3>🔥 {{ $t('home.hotReload') }}</h3>
-            <ul>
-              <li><strong>{{ $t('home.appConfig') }}</strong>：{{ $t('home.appConfigHotReload') }}</li>
-              <li><strong>{{ $t('home.launcherConfig') }}</strong>：{{ $t('home.launcherConfigHotReload') }}</li>
-              <li>{{ $t('home.canHotReload') }}</li>
-              <li>{{ $t('home.needRestart') }}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <style scoped>
-.container {
+.home-page {
+  padding: var(--size-space-lg, 24px);
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 欢迎卡片 */
-.welcome-card {
-  text-align: center;
-  margin-bottom: 2rem;
-  background: linear-gradient(135deg, var(--color-primary-500, #667eea) 0%, var(--color-primary-700, #764ba2) 100%);
-  color: var(--color-text-inverse, #ffffff);
-  border: none;
+.home-page.is-mounted {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.welcome-card h1 {
-  color: var(--color-text-inverse, #ffffff);
-  margin-bottom: 1rem;
-  font-size: 2rem;
+/* Hero Section */
+.hero-section {
+  position: relative;
+  padding: 48px 40px;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 32px;
 }
 
-.welcome-card p {
-  color: var(--color-text-inverse-secondary, rgba(255, 255, 255, 0.9));
-  font-size: 1.1rem;
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--color-primary-600, #4f46e5) 0%, var(--color-primary-800, #3730a3) 100%);
 }
 
-/* i18n 演示区样式 */
-.i18n-demo {
-  margin-top: 1.5rem;
+.hero-gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
 }
 
-.demo-actions {
-  margin-top: 0.75rem;
+.hero-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* 配置面板网格 */
-.config-panels {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
+.hero-orbs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
-/* 配置卡片 */
-.config-card {
-  height: fit-content;
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: orb-float 15s ease-in-out infinite;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
+.orb-1 {
+  width: 200px;
+  height: 200px;
+  top: -50px;
+  right: 10%;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 150px;
+  height: 150px;
+  bottom: -30px;
+  left: 20%;
+  animation-delay: -5s;
+}
+
+.orb-3 {
+  width: 100px;
+  height: 100px;
+  top: 30%;
+  right: 30%;
+  animation-delay: -10s;
+}
+
+@keyframes orb-float {
+
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translateY(-20px) scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+}
+
+.hero-badge {
+  display: inline-flex;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 2px solid var(--color-border, #f0f0f0);
-  background: linear-gradient(to right,
-      var(--color-bg-container-secondary, #f8f9fa),
-      var(--color-bg-container, #ffffff));
-}
-
-.card-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--color-text-primary, #2c3e50);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.card-body {
-  padding: 1.5rem;
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-/* 徽章 */
-.badge {
-  padding: 0.4rem 0.8rem;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
 }
 
-.badge-success {
-  background: var(--color-success-default, #10b981);
-  color: var(--color-text-inverse, #ffffff);
+.hero-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
 }
 
-.badge-danger {
-  background: var(--color-danger-default, #ef4444);
-  color: var(--color-text-inverse, #ffffff);
+.hero-subtitle {
+  font-size: 18px;
+  opacity: 0.85;
+  margin: 0 0 28px;
 }
 
-.badge-warning {
-  background: var(--color-warning-default, #f59e0b);
-  color: var(--color-text-inverse, #ffffff);
-}
-
-.badge-info {
-  background: var(--color-primary-default, #3b82f6);
-  color: var(--color-text-inverse, #ffffff);
-}
-
-/* 配置内容 */
-.config-content {
+.hero-stats {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 28px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  width: fit-content;
 }
 
-.config-section {
-  margin-bottom: 1.5rem;
+.stat-item {
+  text-align: center;
 }
 
-.config-section h3 {
-  font-size: 1.1rem;
-  color: var(--color-text-secondary, #4b5563);
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--color-border, #e5e7eb);
+.stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
-.config-item {
+.stat-label {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.action-btn.primary {
+  background: #fff;
+  color: var(--color-primary-700, #4338ca);
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.3);
+}
+
+.action-btn.secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  backdrop-filter: blur(10px);
+}
+
+.action-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Section Title */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 20px;
+}
+
+.section-title svg {
+  color: var(--color-primary-default, #6366f1);
+}
+
+/* Quick Section */
+.quick-section {
+  margin-bottom: 32px;
+}
+
+.quick-grid {
   display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 1rem;
-  padding: 0.75rem;
-  background: var(--color-bg-container-secondary, #f9fafb);
-  border-radius: 8px;
-  border-left: 3px solid var(--color-primary-default, #3b82f6);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.quick-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--color-bg-container, #fff);
+  border: 1px solid var(--color-border-secondary, #e5e7eb);
+  border-radius: 16px;
+  text-decoration: none;
   transition: all 0.2s;
 }
 
-.config-item:hover {
-  background: var(--color-bg-container-tertiary, #f3f4f6);
-  border-left-color: var(--color-primary-hover, #2563eb);
-  transform: translateX(4px);
+.quick-card:hover {
+  border-color: var(--color-primary-200, #c7d2fe);
+  box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
 }
 
-.config-key {
+.quick-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: color-mix(in srgb, var(--icon-color) 10%, transparent);
+  border-radius: 14px;
+  color: var(--icon-color);
+}
+
+.quick-info {
+  flex: 1;
+}
+
+.quick-title {
+  font-size: 16px;
   font-weight: 600;
-  color: var(--color-text-primary, #374151);
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 4px;
 }
 
-.config-value {
-  color: var(--color-text-secondary, #6b7280);
-  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-  font-size: 0.85rem;
-}
-
-.config-value pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-all;
-  background: var(--color-bg-component, #ffffff);
-  padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid var(--color-border, #e5e7eb);
-}
-
-.config-value code {
-  background: var(--color-bg-component, #ffffff);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  color: var(--color-success-default, #059669);
-  font-weight: 500;
-}
-
-/* 空状态 */
-.empty-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: var(--color-text-tertiary, #9ca3af);
-}
-
-.empty-state p {
-  margin: 0.5rem 0;
-}
-
-.empty-state .hint {
-  font-size: 0.9rem;
-  color: var(--color-text-disabled, #d1d5db);
-}
-
-/* 信息卡片 */
-.info-card {
-  background: linear-gradient(135deg,
-      var(--color-bg-container-secondary) 0%,
-      var(--color-bg-container) 100%);
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--size-space-lg);
-}
-
-.info-item h3 {
-  font-size: var(--size-font-lg);
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-sm);
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-xs);
-}
-
-.info-item ul {
-  list-style: none;
-  padding: 0;
+.quick-desc {
+  font-size: 13px;
+  color: var(--color-text-tertiary, #6b7280);
   margin: 0;
 }
 
-.info-item li {
-  padding: var(--size-space-xs) 0;
-  color: var(--color-text-secondary);
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-xs);
+.quick-arrow {
+  flex-shrink: 0;
+  color: var(--color-text-quaternary, #9ca3af);
+  transition: transform 0.2s;
 }
 
-.info-item li::before {
-  content: '▸';
-  color: var(--color-primary-default);
-  font-weight: bold;
+.quick-card:hover .quick-arrow {
+  transform: translateX(4px);
+  color: var(--color-primary-default, #6366f1);
 }
 
-.info-item code {
-  background: var(--color-bg-container-tertiary);
-  padding: var(--size-space-xxs) var(--size-space-xs);
-  border-radius: var(--size-radius-xs);
+/* Features Section */
+.features-section {
+  margin-bottom: 32px;
 }
 
-/* 设备信息演示卡片 */
-.device-demo-card {
-  margin-top: var(--size-space-xl);
-}
-
-.device-info-grid {
+.features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--size-space-md);
-  margin-top: var(--size-space-md);
+  gap: 16px;
 }
 
-.device-info-grid .info-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-space-xs);
-  padding: var(--size-space-md);
-  background: var(--color-bg-container-secondary);
-  border-radius: var(--size-radius-md);
-  border: var(--size-border-width-thin) solid var(--color-border-default);
+.feature-card {
+  padding: 24px;
+  background: var(--color-bg-container, #fff);
+  border: 1px solid var(--color-border-secondary, #e5e7eb);
+  border-radius: 16px;
+  text-align: center;
+  transition: all 0.2s;
 }
 
-.device-info-grid .label {
-  font-size: var(--size-font-sm);
-  color: var(--color-text-secondary);
-  font-weight: var(--size-font-weight-medium);
+.feature-card:hover {
+  border-color: var(--color-primary-200, #c7d2fe);
+  box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.1);
 }
 
-.device-info-grid .value {
-  font-size: var(--size-font-md);
-  color: var(--color-text-primary);
-  font-weight: var(--size-font-weight-semibold);
+.feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--color-primary-50, #eef2ff);
+  border-radius: 12px;
+  color: var(--color-primary-default, #6366f1);
+  margin-bottom: 14px;
 }
 
-.badge-success {
-  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-hover) 100%);
+.feature-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+  margin: 0 0 6px;
 }
 
-.badge-info {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
-  padding: var(--size-space-xxs) var(--size-space-sm);
-  border-radius: var(--size-radius-lg);
-  color: var(--color-text-inverse);
-  font-size: var(--size-font-sm);
-  font-weight: var(--size-font-weight-semibold);
-}
-
-.info-item p {
-  color: var(--color-text-secondary);
-  line-height: var(--size-line-relaxed);
+.feature-desc {
+  font-size: 13px;
+  color: var(--color-text-tertiary, #6b7280);
   margin: 0;
 }
 
-/* 滚动条样式 */
-.card-body::-webkit-scrollbar {
-  width: var(--size-space-xs);
+/* Device Section */
+.device-section {
+  background: var(--color-bg-container, #fff);
+  border: 1px solid var(--color-border-secondary, #e5e7eb);
+  border-radius: 16px;
+  padding: 24px;
 }
 
-.card-body::-webkit-scrollbar-track {
-  background: var(--color-bg-container-secondary);
-  border-radius: var(--size-radius-xs);
+.device-section .section-title {
+  margin-bottom: 16px;
 }
 
-.card-body::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--size-radius-xs);
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
 }
 
-.card-body::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-dark);
+.device-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--color-fill-quaternary, #f9fafb);
+  border-radius: 12px;
 }
 
-/* 响应式 */
+.device-label {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #6b7280);
+}
+
+.device-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .config-panels {
-    grid-template-columns: 1fr;
+  .home-page {
+    padding: 16px;
   }
 
-  .config-item {
-    grid-template-columns: 1fr;
+  .hero-section {
+    padding: 32px 24px;
   }
 
-  .info-grid {
-    grid-template-columns: 1fr;
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .hero-stats {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .stat-divider {
+    display: none;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    justify-content: center;
   }
 }
 </style>
