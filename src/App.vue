@@ -18,7 +18,7 @@ import { SizeSwitcher } from '@ldesign/size-vue'
 import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
 import { ChromeTabs, useRouteTabs } from '@ldesign/bookmark-vue'
 import { LBreadcrumb } from '@ldesign/breadcrumb-vue'
-import '@ldesign/breadcrumb-vue/styles'
+// import '@ldesign/breadcrumb-vue/styles'
 
 // 导入 Lucide 图标组件
 import {

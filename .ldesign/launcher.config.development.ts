@@ -24,14 +24,34 @@ export default defineConfig({
 
     // 代理配置 - 开发环境 API 代理
     proxy: {
+      // RESTful API 代理
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, ''),
       },
+      // WebSocket 代理
       '/ws': {
         target: 'ws://localhost:8080',
         ws: true,
+      },
+      // LPOM LEAP 系统代理（办公自动化）
+      '/LPOM': {
+        target: 'https://pm.longrise.cn',
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          'Origin': 'https://pm.longrise.cn',
+        },
+      },
+      // LROA LEAP 系统代理（审批系统）
+      '/LROA': {
+        target: 'https://pm.longrise.cn',
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          'Origin': 'https://pm.longrise.cn',
+        },
       },
     },
 

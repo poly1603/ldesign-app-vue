@@ -23,11 +23,30 @@ export default defineConfig({
 
     // 代理配置 - 预发布环境 API 代理
     proxy: {
+      // RESTful API 代理
       '/api': {
         target: 'https://staging-api.example.com',
         changeOrigin: true,
         secure: true,
         rewrite: path => path.replace(/^\/api/, ''),
+      },
+      // LPOM LEAP 系统代理（办公自动化）
+      '/LPOM': {
+        target: 'https://pm.longrise.cn',
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          'Origin': 'https://pm.longrise.cn',
+        },
+      },
+      // LROA LEAP 系统代理（审批系统）
+      '/LROA': {
+        target: 'https://pm.longrise.cn',
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          'Origin': 'https://pm.longrise.cn',
+        },
       },
     },
   },

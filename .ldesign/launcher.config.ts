@@ -92,6 +92,8 @@ export default defineConfig({
       '@ldesign/error-vue',
       '@ldesign/tracker-core',
       '@ldesign/tracker-vue',
+      '@ldesign/api-core',
+      '@ldesign/api-vue',
       '@ldesign/permission-core',
       '@ldesign/permission-vue',
     ],
@@ -224,6 +226,12 @@ export default defineConfig({
       { find: '@ldesign/template-core', replacement: `${monorepoRoot}/packages/template/packages/core/src/index.ts`, stage: 'dev' as const },
       { find: /^@ldesign\/template-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/template/packages/vue/src/$1`, stage: 'dev' as const },
       { find: '@ldesign/template-vue', replacement: `${monorepoRoot}/packages/template/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // API 接口管理包
+      { find: /^@ldesign\/api-core\/(.+)$/, replacement: `${monorepoRoot}/packages/api/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/api-core', replacement: `${monorepoRoot}/packages/api/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/api-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/api/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/api-vue', replacement: `${monorepoRoot}/packages/api/packages/vue/src/index.ts`, stage: 'dev' as const },
     ] satisfies AliasConfig[]) as any,
   },
 })

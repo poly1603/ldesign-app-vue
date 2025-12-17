@@ -1,69 +1,197 @@
 {
+
   "name": "@ldesign/app-vue",
+
   "type": "module",
+
   "version": "1.0.0",
+
   "private": true,
+
   "description": "LDesign Vue3 示例应用 - 展示 LDesign 设计系统和引擎的完整功能",
+
   "keywords": [
-    "ldesign",
-    "vue3",
-    "design-system",
-    "i18n",
-    "theme",
-    "router",
-    "typescript"
+
+  
+  "ldesign",
+
+  
+  "vue3",
+
+  
+  "design-system",
+
+  
+  "i18n",
+
+  
+  "theme",
+
+  
+  "router",
+
+  
+  "typescript"
+
   ],
+
   "scripts": {
-    "dev": "launcher dev --environment development",
-    "dev:prod": "launcher dev --environment production",
-    "dev:staging": "launcher dev --environment staging",
-    "build": "launcher build --environment production",
-    "build:dev": "launcher build --environment development",
-    "build:staging": "launcher build --environment staging",
-    "preview": "launcher preview --environment production",
-    "preview:dev": "launcher preview --environment development",
-    "preview:staging": "launcher preview --environment staging",
-    "type-check": "vue-tsc --noEmit",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.{js,ts,vue,json,css,scss,md}\"",
-    "clean": "rimraf dist node_modules/.vite .ldesign/.cache"
+
+  
+  "dev": "launcher dev --environment development",
+
+  
+  "dev:prod": "launcher dev --environment production",
+
+  
+  "dev:staging": "launcher dev --environment staging",
+
+  
+  "build": "launcher build --environment production",
+
+  
+  "build:dev": "launcher build --environment development",
+
+  
+  "build:staging": "launcher build --environment staging",
+
+  
+  "preview": "launcher preview --environment production",
+
+  
+  "preview:dev": "launcher preview --environment development",
+
+  
+  "preview:staging": "launcher preview --environment staging",
+
+  
+  "type-check": "vue-tsc --noEmit",
+
+  
+  "lint": "eslint .",
+
+  
+  "lint:fix": "eslint . --fix",
+
+  
+  "format": "prettier --write \"src/**/*.{js,ts,vue,json,css,scss,md}\"",
+
+  
+  "clean": "rimraf dist node_modules/.vite .ldesign/.cache"
+
   },
+
   "dependencies": {
-    "@ldesign/auth-core": "workspace:*",
-    "@ldesign/auth-vue": "workspace:*",
-    "@ldesign/bookmark-vue": "workspace:*",
-    "@ldesign/breadcrumb-vue": "workspace:*",
-    "@ldesign/cache": "workspace:*",
-    "@ldesign/color-vue": "workspace:*",
-    "@ldesign/crypto-vue": "workspace:*",
-    "@ldesign/device-vue": "workspace:*",
-    "@ldesign/engine-vue3": "workspace:*",
-    "@ldesign/error-vue": "workspace:*",
-    "@ldesign/http-vue": "workspace:*",
-    "@ldesign/i18n-vue": "workspace:*",
-    "@ldesign/logger-vue": "workspace:^",
-    "@ldesign/menu-vue": "workspace:*",
-    "@ldesign/notification-vue": "workspace:*",
-    "@ldesign/permission-core": "workspace:*",
-    "@ldesign/permission-vue": "workspace:*",
-    "@ldesign/router-vue": "workspace:*",
-    "@ldesign/size-vue": "workspace:*",
-    "@ldesign/store-vue": "workspace:*",
-    "@ldesign/template-core": "workspace:*",
-    "@ldesign/template-vue": "workspace:*",
-    "@ldesign/tracker-vue": "workspace:*",
-    "lucide-vue-next": "^0.468.0",
-    "pinia": "^2.1.0",
-    "vue": "^3.4.0"
+
+  
+  "@ldesign/auth-core": "workspace:*",
+
+  
+  "@ldesign/auth-vue": "workspace:*",
+
+  
+  "@ldesign/bookmark-vue": "workspace:*",
+
+  
+  "@ldesign/breadcrumb-vue": "workspace:*",
+
+  
+  "@ldesign/cache-vue": "workspace:*",
+
+  
+  "@ldesign/color-vue": "workspace:*",
+
+  
+  "@ldesign/crypto-vue": "workspace:*",
+
+  
+  "@ldesign/device-vue": "workspace:*",
+
+  
+  "@ldesign/engine-vue3": "workspace:*",
+
+  
+  "@ldesign/error-vue": "workspace:*",
+
+  
+  "@ldesign/http-vue": "workspace:*",
+
+  
+  "@ldesign/i18n-vue": "workspace:*",
+
+  
+  "@ldesign/logger-vue": "workspace:^",
+
+  
+  "@ldesign/menu-vue": "workspace:*",
+
+  
+  "@ldesign/notification-vue": "workspace:*",
+
+  
+  "@ldesign/permission-core": "workspace:*",
+
+  
+  "@ldesign/permission-vue": "workspace:*",
+
+  
+  "@ldesign/router-vue": "workspace:*",
+
+  
+  "@ldesign/size-vue": "workspace:*",
+
+  
+  "@ldesign/store-vue": "workspace:*",
+
+  
+  "@ldesign/template-core": "workspace:*",
+
+  
+  "@ldesign/template-vue": "workspace:*",
+
+  
+  "@ldesign/tracker-vue": "workspace:*",
+
+  
+  "lucide-vue-next": "^0.468.0",
+
+  
+  "pinia": "^2.1.0",
+
+  
+  "vue": "^3.4.0"
+
   },
+
   "devDependencies": {
-    "@ldesign/launcher": "workspace:*",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "@vitejs/plugin-vue-jsx": "^5.1.1",
-    "@vue/compiler-sfc": "^3.5.25",
-    "typescript": "^5.7.0",
-    "vite": "^7.2.2",
-    "vue-tsc": "^2.0.0"
+
+  
+  "@ldesign/launcher": "workspace:*",
+
+  
+  "@vitejs/plugin-vue": "^6.0.1",
+
+  
+  "@vitejs/plugin-vue-jsx": "^5.1.1",
+
+  
+  "@vue/compiler-sfc": "^3.5.25",
+
+  
+  "typescript": "^5.7.0",
+
+  
+  "vite": "^7.2.2",
+
+  
+  "vue-tsc": "^2.0.0"
+
+  },
+
+  "volta": {
+
+  
+  "node": "22.12.0"
+
   }
 }
