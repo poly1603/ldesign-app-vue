@@ -5,7 +5,7 @@
  * 展示 @ldesign/cache 的使用方法
  */
 import { computed, ref } from 'vue'
-import { useCache } from '@ldesign/cache/vue'
+import { useCache } from '@ldesign/cache-vue'
 
 // 使用缓存组合式函数
 const { set, get, clear, stats, size, keys } = useCache({
