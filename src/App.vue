@@ -349,13 +349,13 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
     </template>
 
     <!-- 顶栏右侧操作区 -->
-    <template #header-right>
-      <div class="header-actions">
-        <LanguageSwitcher />
-        <ThemeColorPicker :translate="t" :locale="locale" />
-        <ThemeModeSwitcher :translate="t" :locale="locale" />
-        <SizeSwitcher :translate="t" :locale="locale" />
-        <TemplateSwitcher category="layout" :translate="t" />
+    <template #header-right="{ variant }">
+      <div class="header-actions" :data-variant="variant">
+        <LanguageSwitcher :variant="variant" />
+        <ThemeColorPicker :variant="variant" :translate="t" :locale="locale" />
+        <ThemeModeSwitcher :variant="variant" :translate="t" :locale="locale" />
+        <SizeSwitcher :variant="variant" :translate="t" :locale="locale" />
+        <TemplateSwitcher :variant="variant" category="layout" :translate="t" />
 
         <button class="login-btn" @click="goToLogin">
           <component :is="LoginIcon" :size="16" />
@@ -396,5 +396,11 @@ body {
 
 #app {
   min-height: 100vh;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--size-spacing-large);
 }
 </style>

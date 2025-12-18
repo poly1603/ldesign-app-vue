@@ -20,11 +20,11 @@ function toggleCollapse() {
 </script>
 
 <template>
-  <div class="menu-demo">
-    <h1>Menu 组件演示</h1>
-    
-    <div class="demo-controls">
-      <button @click="toggleCollapse" class="toggle-btn">
+  <div class="menu-demo page-container">
+    <h1 class="page-title">Menu 组件演示</h1>
+
+    <div class="controls-card">
+      <button @click="toggleCollapse" class="action-btn primary">
         <MenuIcon :size="16" />
         {{ collapsed ? '展开菜单' : '折叠菜单' }}
       </button>
@@ -39,24 +39,17 @@ function toggleCollapse() {
     <div class="demo-container">
       <!-- 侧边栏菜单 -->
       <div class="sidebar">
-        <LMenu
-          v-model:selectedKey="selectedKey"
-          v-model:collapsed="collapsed"
-          :default-open-keys="defaultOpenKeys"
-          mode="vertical"
-          theme="light"
-          :collapsed-width="64"
-          :expanded-width="240"
-        >
+        <LMenu v-model:selectedKey="selectedKey" v-model:collapsed="collapsed" :default-open-keys="defaultOpenKeys"
+          mode="vertical" theme="light" :collapsed-width="64" :expanded-width="240">
           <!-- 一级菜单项 -->
           <LMenuItem itemKey="home" label="首页" :icon="Home" />
           <LMenuItem itemKey="dashboard" label="仪表盘" :icon="BarChart" />
-          
+
           <!-- 子菜单 -->
           <LSubMenu itemKey="users" label="用户管理" :icon="Users">
             <LMenuItem itemKey="user-list" label="用户列表" :icon="FileText" />
             <LMenuItem itemKey="user-roles" label="角色管理" :icon="Folder" />
-            
+
             <!-- 多级子菜单 -->
             <LSubMenu itemKey="user-settings" label="用户设置" :icon="Settings">
               <LMenuItem itemKey="user-profile" label="个人资料" />
@@ -78,8 +71,8 @@ function toggleCollapse() {
       <!-- 内容区域 -->
       <div class="content">
         <div class="content-card">
-          <h2>功能说明</h2>
-          <ul>
+          <h2 class="card-title">功能说明</h2>
+          <ul class="feature-list">
             <li><strong>折叠模式</strong>：点击按钮切换菜单的折叠/展开状态</li>
             <li><strong>图标居中</strong>：折叠时只显示图标，图标水平居中</li>
             <li><strong>Tooltip 提示</strong>：鼠标悬停在折叠的菜单项上时，右侧显示完整文本</li>
@@ -91,11 +84,13 @@ function toggleCollapse() {
         </div>
 
         <div class="content-card">
-          <h2>使用的 CSS 变量</h2>
+          <h2 class="card-title">使用的 CSS 变量</h2>
           <p>所有颜色和尺寸都使用了 <code>@ldesign/color</code> 和 <code>@ldesign/size</code> 包提供的 CSS 变量：</p>
-          <ul>
-            <li><strong>颜色</strong>: <code>--color-primary-default</code>, <code>--color-bg-component-hover</code>, <code>--color-text-primary</code> 等</li>
-            <li><strong>尺寸</strong>: <code>--size-spacing-md</code>, <code>--size-4</code>, <code>--size-font-base</code> 等</li>
+          <ul class="feature-list">
+            <li><strong>颜色</strong>: <code>--color-primary-default</code>, <code>--color-bg-component-hover</code>,
+              <code>--color-text-primary</code> 等</li>
+            <li><strong>尺寸</strong>: <code>--size-spacing-md</code>, <code>--size-4</code>,
+              <code>--size-font-base</code> 等</li>
           </ul>
         </div>
       </div>
@@ -105,108 +100,116 @@ function toggleCollapse() {
 
 <style scoped>
 .menu-demo {
-  padding: 24px;
+  padding: var(--size-space-lg);
   min-height: 100vh;
-  background: var(--color-bg-page, #f5f5f5);
+  background: var(--color-bg-page);
 }
 
-h1 {
-  margin: 0 0 24px 0;
-  font-size: 28px;
-  color: var(--color-text-primary, #000);
+.page-title {
+  margin: 0 0 var(--size-space-xl) 0;
+  font-size: var(--size-font-2xl);
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
-.demo-controls {
+.controls-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding: 16px;
-  background: var(--color-bg-container, #fff);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  gap: var(--size-space-lg);
+  margin-bottom: var(--size-space-lg);
+  padding: var(--size-space-md);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.toggle-btn {
+.action-btn {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: var(--color-primary-default, #1890ff);
-  color: white;
-  border: none;
-  border-radius: 4px;
+  border-radius: var(--size-radius-md);
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
+  font-size: var(--size-font-sm);
+  transition: all 0.2s;
+  border: none;
+  font-weight: 500;
 }
 
-.toggle-btn:hover {
-  background: var(--color-primary-hover, #40a9ff);
+.action-btn.primary {
+  background: var(--color-primary-500);
+  color: white;
+}
+
+.action-btn.primary:hover {
+  background: var(--color-primary-600);
 }
 
 .status {
-  font-size: 14px;
-  color: var(--color-text-secondary, #666);
+  font-size: var(--size-font-sm);
+  color: var(--color-text-secondary);
 }
 
 .status strong {
-  color: var(--color-primary-default, #1890ff);
+  color: var(--color-primary-500);
 }
 
 .demo-container {
   display: flex;
-  gap: 24px;
+  gap: var(--size-space-lg);
   min-height: 600px;
 }
 
 .sidebar {
   flex-shrink: 0;
-  background: var(--color-bg-container, #fff);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  border: 1px solid var(--color-border-secondary);
 }
 
 .content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--size-space-lg);
 }
 
 .content-card {
-  padding: 24px;
-  background: var(--color-bg-container, #fff);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: var(--size-space-lg);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.content-card h2 {
-  margin: 0 0 16px 0;
-  font-size: 20px;
-  color: var(--color-text-primary, #000);
+.card-title {
+  margin: 0 0 var(--size-space-md) 0;
+  font-size: var(--size-font-lg);
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
-.content-card ul {
+.feature-list {
   margin: 0;
   padding-left: 20px;
 }
 
-.content-card li {
-  margin-bottom: 12px;
+.feature-list li {
+  margin-bottom: 8px;
   line-height: 1.6;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
 }
 
 .content-card code {
   padding: 2px 6px;
-  background: var(--color-bg-component, #f5f5f5);
-  border-radius: 3px;
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
-  color: var(--color-primary-default, #1890ff);
+  background: var(--color-bg-page);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: var(--size-font-xs);
+  color: var(--color-primary-500);
+  border: 1px solid var(--color-border);
 }
 </style>
-
-

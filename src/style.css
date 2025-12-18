@@ -1,3 +1,5 @@
+@import './styles/view-shell.css';
+
 /* 全局样式 - 使用 Color 和 Size 插件生成的 CSS 变量 */
 
 .container {
@@ -14,39 +16,7 @@
   border: var(--size-border-width-thin, 1px) solid var(--color-border, #e5e7eb);
 }
 
-.btn {
-  padding: var(--size-comp-paddingTB-s, 0.75rem) var(--size-comp-paddingLR-xl, 2rem);
-  border: none;
-  border-radius: var(--size-radius-sm, 4px);
-  font-size: var(--size-font-md, 1rem);
-  cursor: pointer;
-  transition: all var(--size-duration-normal, 0.3s);
-}
-
-.btn-primary {
-  background: var(--color-primary-default, #1890ff);
-  color: var(--color-text-inverse, #ffffff);
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-hover, #40a9ff);
-  transform: translateY(calc(-1 * var(--size-size-1, 1px)));
-}
-
-.btn-primary:active {
-  background: var(--color-primary-active, #096dd9);
-}
-
-.btn-secondary {
-  background: var(--color-gray-500, #6b7280);
-  color: var(--color-text-inverse, #ffffff);
-}
-
-.btn-secondary:hover {
-  background: var(--color-gray-600, #4b5563);
-  transform: translateY(calc(-1 * var(--size-size-1, 1px)));
-}
-
+/* 基础表单 + 按钮工具类（保留现有命名避免破坏代码） */
 .form-group {
   margin-bottom: var(--size-space-lg, 1.5rem);
 }
@@ -77,4 +47,52 @@
   outline: none;
   border-color: var(--color-primary-default, #1890ff);
   box-shadow: 0 0 0 var(--size-size-2, 3px) var(--color-primary-lighter, rgba(24, 144, 255, 0.1));
+}
+
+/* 新增布局工具类 */
+.page-shell {
+  max-width: var(--size-size-64, 1200px);
+  margin: 0 auto;
+  padding: var(--size-space-xl, 2rem) var(--size-space-md, 1rem);
+}
+
+.section-card {
+  background: var(--color-bg-container, #ffffff);
+  border-radius: var(--size-radius-md, 8px);
+  padding: var(--size-space-xl, 2rem);
+  box-shadow: var(--color-shadow-small, 0 2px 4px rgba(0, 0, 0, 0.1));
+  border: var(--size-border-width-thin, 1px) solid var(--color-border, #e5e7eb);
+}
+
+.action-button {
+  padding: var(--size-comp-paddingTB-s, 0.75rem) var(--size-comp-paddingLR-xl, 2rem);
+  border: none;
+  border-radius: var(--size-radius-sm, 4px);
+  font-size: var(--size-font-md, 1rem);
+  cursor: pointer;
+  transition: all var(--size-duration-normal, 0.3s);
+}
+
+.action-button-primary {
+  background: var(--color-primary-default, #1890ff);
+  color: var(--color-text-inverse, #ffffff);
+}
+
+.action-button-primary:hover {
+  background: var(--color-primary-hover, #40a9ff);
+  transform: translateY(calc(-1 * var(--size-size-1, 1px)));
+}
+
+.action-button-primary:active {
+  background: var(--color-primary-active, #096dd9);
+}
+
+.action-button-secondary {
+  background: var(--color-gray-500, #6b7280);
+  color: var(--color-text-inverse, #ffffff);
+}
+
+.action-button-secondary:hover {
+  background: var(--color-gray-600, #4b5563);
+  transform: translateY(calc(-1 * var(--size-size-1, 1px)));
 }

@@ -5,7 +5,12 @@
  * 展示 @ldesign/template-vue 中的布局组件使用
  */
 import { ref } from 'vue'
-import type { TabItem } from '@ldesign/template-vue'
+
+interface TabItem {
+  key: string
+  title: string
+  pinned?: boolean
+}
 
 // 布局模式选择
 const layoutModes = ['admin', 'portal', 'dashboard', 'blank'] as const
@@ -60,11 +65,11 @@ function handleTabClose(key: string) {
 </script>
 
 <template>
-  <div class="layout-demo">
+  <div class="layout-demo page-container">
     <!-- 布局模式选择器 -->
-    <div class="mode-selector">
-      <h2>🎨 布局系统演示</h2>
-      <p>选择布局模式查看不同布局效果：</p>
+    <div class="section-card">
+      <h2 class="section-title">🎨 布局系统演示</h2>
+      <p class="section-desc">选择布局模式查看不同布局效果：</p>
       <div class="mode-buttons">
         <button v-for="mode in layoutModes" :key="mode" :class="['mode-btn', { active: currentMode === mode }]"
           @click="switchMode(mode)">
@@ -74,7 +79,7 @@ function handleTabClose(key: string) {
     </div>
 
     <!-- 布局预览区域 -->
-    <div class="layout-preview">
+    <div class="preview-card">
       <!-- Admin 布局 -->
       <div v-if="currentMode === 'admin'" class="preview-frame">
         <div class="admin-layout">
@@ -116,8 +121,8 @@ function handleTabClose(key: string) {
                 <h3>内容区域</h3>
                 <p>这是 Admin 布局的内容区域，包含侧边栏、顶栏、标签栏和页脚。</p>
                 <div class="controls">
-                  <label><input v-model="showTabs" type="checkbox"> 显示标签栏</label>
-                  <label><input v-model="showFooter" type="checkbox"> 显示页脚</label>
+                  <label class="checkbox-label"><input v-model="showTabs" type="checkbox"> 显示标签栏</label>
+                  <label class="checkbox-label"><input v-model="showFooter" type="checkbox"> 显示页脚</label>
                 </div>
               </div>
             </main>
@@ -180,9 +185,9 @@ function handleTabClose(key: string) {
             <p>无任何装饰的空白布局，适合登录页、错误页等。</p>
             <div class="login-card">
               <h4>登录</h4>
-              <input type="text" placeholder="用户名">
-              <input type="password" placeholder="密码">
-              <button>登录</button>
+              <input type="text" placeholder="用户名" class="input">
+              <input type="password" placeholder="密码" class="input">
+              <button class="login-btn">登录</button>
             </div>
           </div>
         </div>
@@ -193,59 +198,71 @@ function handleTabClose(key: string) {
 
 <style scoped>
 .layout-demo {
-  padding: 24px;
+  padding: var(--size-space-lg);
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.mode-selector {
-  margin-bottom: 24px;
+.section-card {
+  margin-bottom: var(--size-space-lg);
+  padding: var(--size-space-lg);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.mode-selector h2 {
-  margin: 0 0 8px;
-  font-size: 20px;
+.section-title {
+  margin: 0 0 var(--size-space-sm);
+  font-size: var(--size-font-lg);
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
-.mode-selector p {
-  margin: 0 0 12px;
-  color: #666;
+.section-desc {
+  margin: 0 0 var(--size-space-md);
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
 }
 
 .mode-buttons {
   display: flex;
-  gap: 8px;
+  gap: var(--size-space-md);
 }
 
 .mode-btn {
   padding: 8px 20px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-radius-md);
+  background: var(--color-bg-container);
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 14px;
+  font-size: var(--size-font-sm);
+  color: var(--color-text-primary);
 }
 
 .mode-btn:hover {
-  border-color: #1890ff;
-  color: #1890ff;
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-500);
 }
 
 .mode-btn.active {
-  background: #1890ff;
-  border-color: #1890ff;
-  color: #fff;
+  background: var(--color-primary-500);
+  border-color: var(--color-primary-500);
+  color: white;
 }
 
 /* 预览框架 */
-.layout-preview {
-  border: 2px solid #e8e8e8;
-  border-radius: 8px;
+.preview-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-radius-lg);
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--color-bg-page);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .preview-frame {
-  height: 500px;
+  height: 600px;
   overflow: hidden;
 }
 
@@ -253,7 +270,7 @@ function handleTabClose(key: string) {
 .admin-layout {
   display: flex;
   height: 100%;
-  background: #f0f2f5;
+  background: var(--color-bg-layout);
 }
 
 .admin-sider {
@@ -319,12 +336,13 @@ function handleTabClose(key: string) {
 
 .admin-header {
   height: 48px;
-  background: #fff;
+  background: var(--color-bg-container);
   display: flex;
   align-items: center;
   padding: 0 16px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   gap: 16px;
+  color: var(--color-text-primary);
 }
 
 .toggle-btn {
@@ -333,6 +351,7 @@ function handleTabClose(key: string) {
   font-size: 18px;
   cursor: pointer;
   padding: 4px 8px;
+  color: var(--color-text-primary);
 }
 
 .header-title {
@@ -345,11 +364,11 @@ function handleTabClose(key: string) {
 
 .admin-tabs {
   height: 36px;
-  background: #fff;
+  background: var(--color-bg-container);
   display: flex;
   align-items: center;
   padding: 0 8px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--color-border);
   gap: 4px;
 }
 
@@ -358,15 +377,16 @@ function handleTabClose(key: string) {
   align-items: center;
   gap: 4px;
   padding: 6px 12px;
-  background: #f5f5f5;
+  background: var(--color-bg-page);
   border-radius: 4px 4px 0 0;
   cursor: pointer;
   font-size: 13px;
+  color: var(--color-text-secondary);
 }
 
 .tab-item.active {
-  background: #e6f7ff;
-  color: #1890ff;
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
 }
 
 .tab-item .pin {
@@ -381,7 +401,7 @@ function handleTabClose(key: string) {
 
 .tab-item .close:hover {
   opacity: 1;
-  color: #ff4d4f;
+  color: var(--color-error-500);
 }
 
 .admin-content {
@@ -391,9 +411,10 @@ function handleTabClose(key: string) {
 }
 
 .content-card {
-  background: #fff;
+  background: var(--color-bg-container);
   padding: 24px;
   border-radius: 8px;
+  color: var(--color-text-primary);
 }
 
 .content-card h3 {
@@ -402,7 +423,7 @@ function handleTabClose(key: string) {
 
 .content-card p {
   margin: 0 0 16px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .controls {
@@ -410,22 +431,23 @@ function handleTabClose(key: string) {
   gap: 16px;
 }
 
-.controls label {
+.checkbox-label {
   display: flex;
   align-items: center;
   gap: 4px;
   cursor: pointer;
+  color: var(--color-text-primary);
 }
 
 .admin-footer {
   height: 40px;
-  background: #fff;
+  background: var(--color-bg-container);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 13px;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid var(--color-border);
 }
 
 /* ==================== Portal 布局 ==================== */
@@ -433,7 +455,7 @@ function handleTabClose(key: string) {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--color-bg-layout);
 }
 
 .portal-header {
@@ -442,7 +464,9 @@ function handleTabClose(key: string) {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
 }
 
 .portal-logo {
@@ -457,15 +481,15 @@ function handleTabClose(key: string) {
 
 .portal-nav span {
   cursor: pointer;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .portal-nav span:hover {
-  color: #1890ff;
+  color: var(--color-primary-500);
 }
 
 .portal-login {
-  color: #1890ff;
+  color: var(--color-primary-500);
   cursor: pointer;
 }
 
@@ -482,11 +506,12 @@ function handleTabClose(key: string) {
 .portal-content h3 {
   margin: 0 0 16px;
   font-size: 24px;
+  color: var(--color-text-primary);
 }
 
 .portal-content p {
   margin: 0;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .portal-footer {
@@ -545,7 +570,7 @@ function handleTabClose(key: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-800) 100%);
 }
 
 .blank-content {
@@ -576,7 +601,7 @@ function handleTabClose(key: string) {
   text-align: center;
 }
 
-.login-card input {
+.input {
   width: 100%;
   padding: 10px 12px;
   margin-bottom: 12px;
@@ -585,10 +610,10 @@ function handleTabClose(key: string) {
   box-sizing: border-box;
 }
 
-.login-card button {
+.login-btn {
   width: 100%;
   padding: 10px;
-  background: #1890ff;
+  background: var(--color-primary-500);
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -596,7 +621,7 @@ function handleTabClose(key: string) {
   font-size: 14px;
 }
 
-.login-card button:hover {
-  background: #40a9ff;
+.login-btn:hover {
+  background: var(--color-primary-600);
 }
 </style>

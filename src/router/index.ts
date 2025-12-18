@@ -40,6 +40,12 @@ export const routes = [
     meta: { title: 'HTTP 请求' },
   },
   {
+    path: '/leap',
+    name: 'leap',
+    component: () => import('../views/LeapDemo.vue'),
+    meta: { title: 'LEAP 接口' },
+  },
+  {
     path: '/device',
     name: 'device',
     component: () => import('../views/Device.vue'),

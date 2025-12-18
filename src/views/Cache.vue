@@ -124,81 +124,83 @@ function incrementCounter() {
 </script>
 
 <template>
-  <div class="cache-demo">
-    <h1>缓存功能演示</h1>
+  <div class="cache-demo page-container">
+    <h1 class="page-title">缓存功能演示</h1>
 
     <!-- 缓存统计 -->
-    <section class="stats-section">
-      <h2>缓存统计</h2>
+    <section class="section-card">
+      <h2 class="section-title">缓存统计</h2>
       <div v-if="stats" class="stats-grid">
         <div class="stat-item">
-          <span class="label">总键数:</span>
+          <span class="label">总键数</span>
           <span class="value">{{ stats.totalKeys }}</span>
         </div>
         <div class="stat-item">
-          <span class="label">命中次数:</span>
+          <span class="label">命中次数</span>
           <span class="value">{{ stats.hits }}</span>
         </div>
         <div class="stat-item">
-          <span class="label">未命中次数:</span>
+          <span class="label">未命中次数</span>
           <span class="value">{{ stats.misses }}</span>
         </div>
         <div class="stat-item">
-          <span class="label">命中率:</span>
-          <span class="value">{{ hitRatePercent }}</span>
+          <span class="label">命中率</span>
+          <span class="value">{{ hitRatePercent }}%</span>
         </div>
       </div>
     </section>
 
     <!-- 基础操作 -->
-    <section class="basic-section">
-      <h2>基础操作</h2>
+    <section class="section-card">
+      <h2 class="section-title">基础操作</h2>
       <div class="form-group">
         <input v-model="formData.key" placeholder="缓存键" class="input">
         <input v-model="formData.value" placeholder="缓存值" class="input">
       </div>
       <div class="button-group">
-        <button class="btn" @click="handleSet">
+        <button class="btn primary" @click="handleSet">
           设置
         </button>
         <button class="btn" @click="handleGet">
           获取
         </button>
-        <button class="btn btn-danger" @click="handleClear">
+        <button class="btn danger" @click="handleClear">
           清空
         </button>
       </div>
-      <div v-if="result" class="result">
+      <div v-if="result" class="result-box">
         {{ result }}
       </div>
     </section>
 
     <!-- 用户缓存示例 -->
-    <section class="user-section">
-      <h2>用户缓存示例</h2>
-      <div v-if="userCache.name" class="user-info">
-        <p>
-          <strong>姓名:</strong> {{ userCache.name }}
-        </p>
-        <p>
-          <strong>年龄:</strong> {{ userCache.age }}
-        </p>
+    <section class="section-card">
+      <h2 class="section-title">用户缓存示例</h2>
+      <div class="info-card">
+        <template v-if="userCache.name">
+          <p>
+            <strong>姓名:</strong> {{ userCache.name }}
+          </p>
+          <p>
+            <strong>年龄:</strong> {{ userCache.age }}
+          </p>
+        </template>
+        <template v-else>
+          <p class="empty-text">暂无用户数据</p>
+        </template>
       </div>
-      <div v-else class="user-info">
-        <p>暂无用户数据</p>
-      </div>
-      <button class="btn" @click="updateUser">
+      <button class="btn primary" @click="updateUser">
         随机更新用户
       </button>
     </section>
 
     <!-- 计数器示例 -->
-    <section class="counter-section">
-      <h2>计数器示例</h2>
+    <section class="section-card">
+      <h2 class="section-title">计数器示例</h2>
       <div class="counter-display">
         <span class="counter-value">{{ counter ?? 0 }}</span>
       </div>
-      <button class="btn" @click="incrementCounter">
+      <button class="btn primary block-btn" @click="incrementCounter">
         +1
       </button>
     </section>
@@ -209,117 +211,160 @@ function incrementCounter() {
 .cache-demo {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding: var(--size-space-lg);
 }
 
-h1 {
-  color: #333;
-  margin-bottom: 30px;
+.page-title {
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-xl);
 }
 
-h2 {
-  color: #666;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
+.section-card {
+  margin-bottom: var(--size-space-lg);
+  padding: var(--size-space-lg);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-section {
-  margin-bottom: 30px;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
+.section-title {
+  font-size: var(--size-font-lg);
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
+  font-weight: 600;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+  gap: var(--size-space-md);
 }
 
 .stat-item {
   display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background: white;
-  border-radius: 4px;
+  flex-direction: column;
+  padding: var(--size-space-md);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
+  text-align: center;
 }
 
 .stat-item .label {
-  color: #666;
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
+  margin-bottom: var(--size-space-xs);
 }
 
 .stat-item .value {
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: var(--color-primary-500);
+  font-size: var(--size-font-xl);
 }
 
 .form-group {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: var(--size-space-md);
+  margin-bottom: var(--size-space-md);
 }
 
 .input {
   flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-radius-md);
+  font-size: var(--size-font-sm);
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
 }
 
 .button-group {
   display: flex;
-  gap: 10px;
+  gap: var(--size-space-md);
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: 8px 16px;
   border: none;
-  border-radius: 4px;
-  background: #4a90d9;
-  color: white;
+  border-radius: var(--size-radius-md);
+  background: var(--color-bg-component);
+  color: var(--color-text-primary);
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
+  font-size: var(--size-font-sm);
+  transition: all 0.2s;
+  font-weight: 500;
 }
 
 .btn:hover {
-  background: #357abd;
+  background: var(--color-bg-component-hover);
 }
 
-.btn-danger {
-  background: #d94a4a;
+.btn.primary {
+  background: var(--color-primary-500);
+  color: white;
 }
 
-.btn-danger:hover {
-  background: #bd3535;
+.btn.primary:hover {
+  background: var(--color-primary-600);
 }
 
-.result {
-  margin-top: 15px;
-  padding: 10px;
-  background: #e8f4fd;
-  border-radius: 4px;
-  color: #333;
+.btn.danger {
+  background: var(--color-error-500);
+  color: white;
 }
 
-.user-info {
-  margin-bottom: 15px;
+.btn.danger:hover {
+  background: var(--color-error-600);
 }
 
-.user-info p {
-  margin: 5px 0;
+.block-btn {
+  display: block;
+  width: 100%;
+}
+
+.result-box {
+  margin-top: var(--size-space-md);
+  padding: var(--size-space-md);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--size-font-sm);
+  border: 1px solid var(--color-border);
+}
+
+.info-card {
+  margin-bottom: var(--size-space-md);
+  padding: var(--size-space-md);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
+}
+
+.info-card p {
+  margin: 4px 0;
+  color: var(--color-text-primary);
+}
+
+.empty-text {
+  color: var(--color-text-tertiary);
+  text-align: center;
+  font-style: italic;
 }
 
 .counter-display {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: var(--size-space-md);
+  padding: var(--size-space-lg);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
 }
 
 .counter-value {
   font-size: 48px;
   font-weight: bold;
-  color: #4a90d9;
+  color: var(--color-primary-500);
 }
 </style>

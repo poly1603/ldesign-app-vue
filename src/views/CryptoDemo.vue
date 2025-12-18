@@ -1,86 +1,88 @@
 <template>
-  <div class="crypto-demo">
-    <h1>🔐 加密功能演示</h1>
-    
-    <div class="demo-section">
-      <h2>1. 基础加密/解密</h2>
+  <div class="crypto-demo page-container">
+    <h1 class="page-title">🔐 加密功能演示</h1>
+
+    <section class="section-card">
+      <h2 class="section-title">1. 基础加密/解密</h2>
       <div class="form-group">
-        <label>原始数据：</label>
-        <input v-model="plainText" type="text" placeholder="输入要加密的文本" />
+        <label class="form-label">原始数据：</label>
+        <input v-model="plainText" type="text" placeholder="输入要加密的文本" class="input" />
       </div>
-      
+
       <div class="form-group">
-        <label>密钥：</label>
-        <input v-model="secretKey" type="password" placeholder="输入密钥" />
+        <label class="form-label">密钥：</label>
+        <input v-model="secretKey" type="password" placeholder="输入密钥" class="input" />
       </div>
-      
+
       <div class="button-group">
-        <button @click="handleEncrypt" :disabled="loading">
+        <button class="btn primary" @click="handleEncrypt" :disabled="loading">
           {{ loading ? '加密中...' : '加密' }}
         </button>
-        <button @click="handleDecrypt" :disabled="loading || !encryptedText">
+        <button class="btn" @click="handleDecrypt" :disabled="loading || !encryptedText">
           {{ loading ? '解密中...' : '解密' }}
         </button>
       </div>
-      
-      <div v-if="encryptedText" class="result">
+
+      <div v-if="encryptedText" class="result-box">
         <h3>加密结果：</h3>
-        <code>{{ encryptedText }}</code>
+        <code class="code-block">{{ encryptedText }}</code>
       </div>
-      
-      <div v-if="decryptedText" class="result">
+
+      <div v-if="decryptedText" class="result-box success">
         <h3>解密结果：</h3>
-        <code>{{ decryptedText }}</code>
+        <code class="code-block">{{ decryptedText }}</code>
       </div>
-      
-      <div v-if="error" class="error">
-        ❌ 错误：{{ error }}
-        <button @click="clearError">清除</button>
-      </div>
-    </div>
 
-    <div class="demo-section">
-      <h2>2. 哈希功能</h2>
+      <div v-if="error" class="result-box error">
+        <div class="flex-between">
+          <span>❌ 错误：{{ error }}</span>
+          <button class="btn small danger" @click="clearError">清除</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <h2 class="section-title">2. 哈希功能</h2>
       <div class="form-group">
-        <label>输入文本：</label>
-        <input v-model="hashInput" type="text" placeholder="输入要哈希的文本" />
+        <label class="form-label">输入文本：</label>
+        <input v-model="hashInput" type="text" placeholder="输入要哈希的文本" class="input" />
       </div>
-      
+
       <div class="button-group">
-        <button @click="handleHash('md5')">MD5</button>
-        <button @click="handleHash('sha256')">SHA-256</button>
-        <button @click="handleHash('sha512')">SHA-512</button>
+        <button class="btn" @click="handleHash('md5')">MD5</button>
+        <button class="btn" @click="handleHash('sha256')">SHA-256</button>
+        <button class="btn" @click="handleHash('sha512')">SHA-512</button>
       </div>
-      
-      <div v-if="hashResult" class="result">
+
+      <div v-if="hashResult" class="result-box">
         <h3>哈希结果 ({{ hashAlgorithm }})：</h3>
-        <code>{{ hashResult }}</code>
+        <code class="code-block">{{ hashResult }}</code>
       </div>
-    </div>
+    </section>
 
-    <div class="demo-section">
-      <h2>3. 本地存储加密</h2>
+    <section class="section-card">
+      <h2 class="section-title">3. 本地存储加密</h2>
       <div class="form-group">
-        <label>存储键名：</label>
-        <input v-model="storageKey" type="text" placeholder="输入键名" />
+        <label class="form-label">存储键名：</label>
+        <input v-model="storageKey" type="text" placeholder="输入键名" class="input" />
       </div>
-      
+
       <div class="form-group">
-        <label>存储值：</label>
-        <input v-model="storageValue" type="text" placeholder="输入要存储的值" />
+        <label class="form-label">存储值：</label>
+        <input v-model="storageValue" type="text" placeholder="输入要存储的值" class="input" />
       </div>
-      
+
       <div class="button-group">
-        <button @click="handleSaveEncrypted">加密并保存</button>
-        <button @click="handleLoadEncrypted">读取并解密</button>
-        <button @click="handleClearStorage">清除</button>
+        <button class="btn primary" @click="handleSaveEncrypted">加密并保存</button>
+        <button class="btn" @click="handleLoadEncrypted">读取并解密</button>
+        <button class="btn danger" @click="handleClearStorage">清除</button>
       </div>
-      
-      <div v-if="loadedValue" class="result">
+
+      <div v-if="loadedValue" class="result-box success">
         <h3>读取的值：</h3>
-        <code>{{ loadedValue }}</code>
+        <code class="code-block">{{ loadedValue }}</code>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -165,113 +167,146 @@ function handleClearStorage() {
 .crypto-demo {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding: var(--size-space-lg);
 }
 
-h1 {
-  color: #2c3e50;
-  margin-bottom: 30px;
+.page-title {
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-xl);
 }
 
-.demo-section {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
+.section-card {
+  margin-bottom: var(--size-space-lg);
+  padding: var(--size-space-lg);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.demo-section h2 {
-  color: #34495e;
-  margin-bottom: 15px;
-  font-size: 1.2em;
+.section-title {
+  font-size: var(--size-font-lg);
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
+  font-weight: 600;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: var(--size-space-md);
 }
 
-.form-group label {
+.form-label {
   display: block;
-  margin-bottom: 5px;
-  color: #555;
+  margin-bottom: var(--size-space-xs);
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
   font-weight: 500;
 }
 
-.form-group input {
+.input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-radius-md);
+  font-size: var(--size-font-sm);
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
 }
 
 .button-group {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: var(--size-space-md);
+  margin-bottom: var(--size-space-md);
+  flex-wrap: wrap;
 }
 
-button {
-  padding: 10px 20px;
-  background: #3498db;
-  color: white;
+.btn {
+  padding: 8px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--size-radius-md);
+  background: var(--color-bg-component);
+  color: var(--color-text-primary);
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
+  font-size: var(--size-font-sm);
+  transition: all 0.2s;
+  font-weight: 500;
 }
 
-button:hover:not(:disabled) {
-  background: #2980b9;
+.btn:hover:not(:disabled) {
+  background: var(--color-bg-component-hover);
 }
 
-button:disabled {
-  background: #95a5a6;
+.btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.result {
-  background: white;
-  padding: 15px;
-  border-radius: 4px;
-  margin-top: 15px;
+.btn.primary {
+  background: var(--color-primary-500);
+  color: white;
 }
 
-.result h3 {
-  margin: 0 0 10px 0;
-  color: #27ae60;
-  font-size: 1em;
+.btn.primary:hover:not(:disabled) {
+  background: var(--color-primary-600);
 }
 
-.result code {
+.btn.danger {
+  background: var(--color-error-500);
+  color: white;
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: var(--color-error-600);
+}
+
+.btn.small {
+  padding: 4px 8px;
+  font-size: var(--size-font-xs);
+}
+
+.result-box {
+  margin-top: var(--size-space-md);
+  padding: var(--size-space-md);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.result-box.success {
+  background: var(--color-success-bg);
+  border-color: var(--color-success-border);
+}
+
+.result-box.error {
+  background: var(--color-error-bg);
+  border-color: var(--color-error-border);
+}
+
+.result-box h3 {
+  margin: 0 0 8px 0;
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
+}
+
+.code-block {
   display: block;
-  background: #ecf0f1;
-  padding: 10px;
-  border-radius: 4px;
+  background: var(--color-bg-layout);
+  padding: var(--size-space-sm);
+  border-radius: var(--size-radius-sm);
   word-break: break-all;
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
+  font-family: monospace;
+  font-size: var(--size-font-xs);
+  color: var(--color-text-primary);
 }
 
-.error {
-  background: #fee;
-  color: #c33;
-  padding: 15px;
-  border-radius: 4px;
-  margin-top: 15px;
+.flex-between {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.error button {
-  background: #e74c3c;
-  padding: 5px 15px;
-}
-
-.error button:hover {
-  background: #c0392b;
+  color: var(--color-error-500);
 }
 </style>
-

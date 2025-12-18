@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Post, User } from '../api/users'
-import { onMounted, onUnmounted, ref } from 'vue'
-import { PostService, UserService } from '../api/users'
+import { ref, onMounted, onUnmounted } from 'vue'
+import type { User, Post } from '../api'
+import { userApis, postApis, useRestfulApi } from '../api'
 
 // 标签页状态
 const activeTab = ref('basic')
@@ -13,23 +13,12 @@ const tabs = [
 ]
 
 // ==================== 1. 基础请求示例 ====================
-const users = ref<User[] | null>(null)
-const isLoadingUsers = ref(false)
-const usersError = ref<Error | null>(null)
-
-async function refetchUsers() {
-  isLoadingUsers.value = true
-  usersError.value = null
-  try {
-    users.value = await UserService.getUsers()
-  }
-  catch (error) {
-    usersError.value = error as Error
-  }
-  finally {
-    isLoadingUsers.value = false
-  }
-}
+const {
+  data: users,
+  loading: isLoadingUsers,
+  error: usersError,
+  execute: refetchUsers,
+} = useRestfulApi<User[]>(userApis.list)
 
 // ==================== 2. 变更请求示例 ====================
 const newUser = ref({
@@ -38,54 +27,51 @@ const newUser = ref({
   username: '',
 })
 
-const isCreating = ref(false)
-const createError = ref<Error | null>(null)
-const createdUser = ref<User | null>(null)
+const {
+  data: createdUser,
+  loading: isCreating,
+  error: createError,
+  execute: createUser,
+} = useRestfulApi<User, Partial<User>>(userApis.create)
 
 async function handleCreateUser() {
-  isCreating.value = true
-  createError.value = null
   try {
-    const user = await UserService.createUser(newUser.value)
-    createdUser.value = user
-    console.log('✅ 用户创建成功:', user)
+    await createUser({
+      body: newUser.value,
+    })
+    console.log('✅ 用户创建成功')
     // 重置表单
     newUser.value = { name: '', email: '', username: '' }
   }
   catch (error) {
-    createError.value = error as Error
     console.error('❌ 用户创建失败:', error)
-  }
-  finally {
-    isCreating.value = false
   }
 }
 
 // ==================== 3. 分页请求示例 ====================
-const posts = ref<Post[] | null>(null)
-const isLoadingPosts = ref(false)
-const postsError = ref<Error | null>(null)
+const {
+  data: posts,
+  loading: isLoadingPosts,
+  error: postsError,
+  execute: fetchPosts,
+} = useRestfulApi<Post[]>(postApis.list)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const hasNextPage = ref(true)
 const hasPrevPage = ref(false)
 
 async function loadPosts() {
-  isLoadingPosts.value = true
-  postsError.value = null
-  try {
-    const data = await PostService.getPosts({ _page: currentPage.value, _limit: pageSize.value })
-    posts.value = data
-    // 简单判断：如果返回的数据少于 pageSize，说明没有下一页了
-    hasNextPage.value = data.length >= pageSize.value
-    hasPrevPage.value = currentPage.value > 1
-  }
-  catch (error) {
-    postsError.value = error as Error
-  }
-  finally {
-    isLoadingPosts.value = false
-  }
+  await fetchPosts({
+    query: {
+      _page: currentPage.value,
+      _limit: pageSize.value,
+    },
+  })
+
+  const data = posts.value ?? []
+  // 简单判断：如果返回的数据少于 pageSize，说明没有下一页了
+  hasNextPage.value = data.length >= pageSize.value
+  hasPrevPage.value = currentPage.value > 1
 }
 
 function nextPage() {
@@ -103,14 +89,20 @@ function prevPage() {
 }
 
 // ==================== 4. 轮询请求示例 ====================
-const pollingData = ref<User | null>(null)
+const {
+  data: pollingData,
+  execute: fetchPollingUser,
+} = useRestfulApi<User, { id: number }>(userApis.get, {
+  pathParams: {
+    id: 1,
+  },
+})
 const isPolling = ref(false)
 let pollingTimer: ReturnType<typeof setInterval> | null = null
 
 async function pollData() {
   try {
-    const data = await UserService.getUserById(1)
-    pollingData.value = data
+    await fetchPollingUser()
   }
   catch (error) {
     console.error('轮询错误:', error)
@@ -161,144 +153,154 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="http-demo">
-    <h1>HTTP 请求示例</h1>
-    <p class="description">
+  <div class="http-demo page-container">
+    <h1 class="page-title">HTTP 请求示例</h1>
+    <p class="page-desc">
       演示 @ldesign/http-vue 的各种功能，包括基础请求、查询、变更、分页等
     </p>
 
     <!-- 标签页切换 -->
-    <div class="tabs">
-      <button v-for="tab in tabs" :key="tab.id" class="tab" :class="[{ active: activeTab === tab.id }]"
-        @click="activeTab = tab.id">
-        {{ tab.label }}
-      </button>
+    <div class="tabs-container">
+      <div class="tabs">
+        <button v-for="tab in tabs" :key="tab.id" class="tab" :class="[{ active: activeTab === tab.id }]"
+          @click="activeTab = tab.id">
+          {{ tab.label }}
+        </button>
+      </div>
     </div>
 
     <!-- 基础请求示例 -->
     <div v-if="activeTab === 'basic'" class="tab-content">
-      <h2>1. 基础请求 (useQuery)</h2>
-      <p>使用 useQuery 获取用户列表，支持自动缓存和重试</p>
+      <section class="section-card">
+        <h2 class="section-title">1. 基础请求 (useQuery)</h2>
+        <p class="section-desc">使用 useQuery 获取用户列表，支持自动缓存和重试</p>
 
-      <div class="demo-section">
-        <button :disabled="isLoadingUsers" @click="refetchUsers">
-          {{ isLoadingUsers ? '加载中...' : '刷新用户列表' }}
-        </button>
-
-        <div v-if="isLoadingUsers" class="loading">
-          <div class="spinner" />
-          <p>加载中...</p>
-        </div>
-
-        <div v-else-if="usersError" class="error">
-          <p>❌ 错误: {{ usersError.message }}</p>
-          <button @click="refetchUsers">
-            重试
+        <div class="demo-section">
+          <button class="btn primary" :disabled="isLoadingUsers" @click="refetchUsers">
+            {{ isLoadingUsers ? '加载中...' : '刷新用户列表' }}
           </button>
-        </div>
 
-        <div v-else-if="users" class="success">
-          <p>✅ 成功加载 {{ users.length }} 个用户</p>
-          <div class="user-list">
-            <div v-for="user in users.slice(0, 5)" :key="user.id" class="user-card">
-              <h3>{{ user.name }}</h3>
-              <p>{{ user.email }}</p>
-              <p>{{ user.company.name }}</p>
+          <div v-if="isLoadingUsers" class="loading">
+            <div class="spinner" />
+            <p>加载中...</p>
+          </div>
+
+          <div v-else-if="usersError" class="error-box">
+            <p>❌ 错误: {{ usersError.message }}</p>
+            <button class="btn secondary" @click="refetchUsers">
+              重试
+            </button>
+          </div>
+
+          <div v-else-if="users" class="success">
+            <p class="success-text">✅ 成功加载 {{ users.length }} 个用户</p>
+            <div class="user-list">
+              <div v-for="user in users.slice(0, 5)" :key="user.id" class="user-card">
+                <h3>{{ user.name }}</h3>
+                <p>{{ user.email }}</p>
+                <p>{{ user.company.name }}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
 
     <!-- 变更请求示例 -->
     <div v-if="activeTab === 'mutation'" class="tab-content">
-      <h2>2. 变更请求 (useMutation)</h2>
-      <p>使用 useMutation 创建新用户</p>
+      <section class="section-card">
+        <h2 class="section-title">2. 变更请求 (useMutation)</h2>
+        <p class="section-desc">使用 useMutation 创建新用户</p>
 
-      <div class="demo-section">
-        <form class="form" @submit.prevent="handleCreateUser">
-          <div class="form-group">
-            <label>姓名:</label>
-            <input v-model="newUser.name" type="text" required>
-          </div>
-          <div class="form-group">
-            <label>邮箱:</label>
-            <input v-model="newUser.email" type="email" required>
-          </div>
-          <div class="form-group">
-            <label>用户名:</label>
-            <input v-model="newUser.username" type="text" required>
-          </div>
-          <button type="submit" :disabled="isCreating">
-            {{ isCreating ? '创建中...' : '创建用户' }}
-          </button>
-        </form>
+        <div class="demo-section">
+          <form class="form" @submit.prevent="handleCreateUser">
+            <div class="form-group">
+              <label>姓名:</label>
+              <input v-model="newUser.name" type="text" class="input" required>
+            </div>
+            <div class="form-group">
+              <label>邮箱:</label>
+              <input v-model="newUser.email" type="email" class="input" required>
+            </div>
+            <div class="form-group">
+              <label>用户名:</label>
+              <input v-model="newUser.username" type="text" class="input" required>
+            </div>
+            <button type="submit" class="btn primary" :disabled="isCreating">
+              {{ isCreating ? '创建中...' : '创建用户' }}
+            </button>
+          </form>
 
-        <div v-if="createError" class="error">
-          <p>❌ 创建失败: {{ createError.message }}</p>
+          <div v-if="createError" class="error-box">
+            <p>❌ 创建失败: {{ createError.message }}</p>
+          </div>
+
+          <div v-if="createdUser" class="success-box">
+            <p>✅ 用户创建成功!</p>
+            <pre class="code-block">{{ JSON.stringify(createdUser, null, 2) }}</pre>
+          </div>
         </div>
-
-        <div v-if="createdUser" class="success">
-          <p>✅ 用户创建成功!</p>
-          <pre>{{ JSON.stringify(createdUser, null, 2) }}</pre>
-        </div>
-      </div>
+      </section>
     </div>
 
     <!-- 分页请求示例 -->
     <div v-if="activeTab === 'pagination'" class="tab-content">
-      <h2>3. 分页请求 (usePagination)</h2>
-      <p>使用 usePagination 实现文章列表分页</p>
+      <section class="section-card">
+        <h2 class="section-title">3. 分页请求 (usePagination)</h2>
+        <p class="section-desc">使用 usePagination 实现文章列表分页</p>
 
-      <div class="demo-section">
-        <div class="pagination-controls">
-          <button :disabled="!hasPrevPage || isLoadingPosts" @click="prevPage">
-            上一页
-          </button>
-          <span>第 {{ currentPage }} 页</span>
-          <button :disabled="!hasNextPage || isLoadingPosts" @click="nextPage">
-            下一页
-          </button>
-        </div>
+        <div class="demo-section">
+          <div class="pagination-controls">
+            <button class="btn secondary" :disabled="!hasPrevPage || isLoadingPosts" @click="prevPage">
+              上一页
+            </button>
+            <span>第 {{ currentPage }} 页</span>
+            <button class="btn secondary" :disabled="!hasNextPage || isLoadingPosts" @click="nextPage">
+              下一页
+            </button>
+          </div>
 
-        <div v-if="isLoadingPosts" class="loading">
-          <div class="spinner" />
-          <p>加载中...</p>
-        </div>
+          <div v-if="isLoadingPosts" class="loading">
+            <div class="spinner" />
+            <p>加载中...</p>
+          </div>
 
-        <div v-else-if="postsError" class="error">
-          <p>❌ 错误: {{ postsError.message }}</p>
-        </div>
+          <div v-else-if="postsError" class="error-box">
+            <p>❌ 错误: {{ postsError.message }}</p>
+          </div>
 
-        <div v-else-if="posts" class="success">
-          <div class="post-list">
-            <div v-for="post in posts" :key="post.id" class="post-card">
-              <h3>{{ post.title }}</h3>
-              <p>{{ post.body }}</p>
+          <div v-else-if="posts" class="success">
+            <div class="post-list">
+              <div v-for="post in posts" :key="post.id" class="post-card">
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.body }}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
 
     <!-- 轮询请求示例 -->
     <div v-if="activeTab === 'polling'" class="tab-content">
-      <h2>4. 轮询请求 (usePolling)</h2>
-      <p>使用 usePolling 定时获取数据</p>
+      <section class="section-card">
+        <h2 class="section-title">4. 轮询请求 (usePolling)</h2>
+        <p class="section-desc">使用 usePolling 定时获取数据</p>
 
-      <div class="demo-section">
-        <div class="polling-controls">
-          <button @click="togglePolling">
-            {{ isPolling ? '停止轮询' : '开始轮询' }}
-          </button>
-          <span v-if="isPolling">轮询中... (每 5 秒)</span>
-        </div>
+        <div class="demo-section">
+          <div class="polling-controls">
+            <button class="btn" :class="isPolling ? 'warning' : 'primary'" @click="togglePolling">
+              {{ isPolling ? '停止轮询' : '开始轮询' }}
+            </button>
+            <span v-if="isPolling" class="polling-status">轮询中... (每 5 秒)</span>
+          </div>
 
-        <div v-if="pollingData" class="success">
-          <p>✅ 最后更新: {{ new Date().toLocaleTimeString() }}</p>
-          <pre>{{ JSON.stringify(pollingData, null, 2) }}</pre>
+          <div v-if="pollingData" class="success-box">
+            <p>✅ 最后更新: {{ new Date().toLocaleTimeString() }}</p>
+            <pre class="code-block">{{ JSON.stringify(pollingData, null, 2) }}</pre>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>
@@ -307,57 +309,63 @@ onUnmounted(() => {
 .http-demo {
   max-width: var(--size-size-64);
   margin: 0 auto;
-  padding: var(--size-space-xl);
+  padding: var(--size-space-lg);
 }
 
-h1 {
+.page-title {
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--size-space-xs);
+  margin-bottom: var(--size-space-sm);
 }
 
-.description {
+.page-desc {
   color: var(--color-text-secondary);
   margin-bottom: var(--size-space-xl);
+  font-size: var(--size-font-md);
 }
 
 /* 标签页 */
+.tabs-container {
+  margin-bottom: var(--size-space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
 .tabs {
   display: flex;
-  gap: var(--size-space-xs);
-  margin-bottom: var(--size-space-xl);
-  border-bottom: var(--size-border-width-default) solid var(--color-border);
+  gap: var(--size-space-md);
 }
 
 .tab {
-  padding: var(--size-comp-paddingTB-s) var(--size-comp-paddingLR-m);
+  padding: var(--size-space-sm) var(--size-space-md);
   background: none;
   border: none;
-  border-bottom: var(--size-border-width-thick) solid transparent;
+  border-bottom: 2px solid transparent;
   cursor: pointer;
   font-size: var(--size-font-md);
   color: var(--color-text-secondary);
-  transition: all var(--size-duration-normal);
+  transition: all 0.2s;
+  font-weight: 500;
 }
 
 .tab:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-hover);
+  color: var(--color-primary-500);
 }
 
 .tab.active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
+  color: var(--color-primary-500);
+  border-bottom-color: var(--color-primary-500);
 }
 
 /* 内容区域 */
 .tab-content {
-  animation: fadeIn var(--size-duration-normal);
+  animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(var(--size-space-xs));
+    transform: translateY(10px);
   }
 
   to {
@@ -366,45 +374,70 @@ h1 {
   }
 }
 
-h2 {
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-xs);
+.section-card {
+  margin-bottom: var(--size-space-lg);
+  padding: var(--size-space-lg);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.tab-content>p {
+.section-title {
+  font-size: var(--size-font-lg);
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-sm);
+  font-weight: 600;
+}
+
+.section-desc {
   color: var(--color-text-secondary);
   margin-bottom: var(--size-space-lg);
-}
-
-/* 演示区域 */
-.demo-section {
-  background: var(--color-bg-container-secondary);
-  padding: var(--size-space-lg);
-  border-radius: var(--size-radius-md);
-  margin-bottom: var(--size-space-xl);
+  font-size: var(--size-font-sm);
 }
 
 /* 按钮 */
-button {
-  padding: var(--size-comp-paddingTB-s) var(--size-comp-paddingLR-m);
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
+.btn {
+  padding: 8px 16px;
   border: none;
-  border-radius: var(--size-radius-xs);
+  border-radius: var(--size-radius-md);
   cursor: pointer;
-  font-size: var(--size-font-md);
-  transition: all var(--size-duration-normal);
+  font-size: var(--size-font-sm);
+  transition: all 0.2s;
+  font-weight: 500;
+  background: var(--color-bg-component);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
-button:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--color-shadow-medium);
+.btn:hover:not(:disabled) {
+  background: var(--color-bg-component-hover);
 }
 
-button:disabled {
-  background: var(--color-border-light);
+.btn:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
+}
+
+.btn.primary {
+  background: var(--color-primary-500);
+  color: white;
+  border-color: var(--color-primary-500);
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: var(--color-primary-600);
+}
+
+.btn.secondary {
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
+}
+
+.btn.warning {
+  background: var(--color-warning-500);
+  color: white;
+  border-color: var(--color-warning-500);
 }
 
 /* 加载状态 */
@@ -414,11 +447,11 @@ button:disabled {
 }
 
 .spinner {
-  width: var(--size-size-5);
-  height: var(--size-size-5);
+  width: 24px;
+  height: 24px;
   margin: 0 auto var(--size-space-md);
-  border: var(--size-border-width-thick) solid var(--color-border-light);
-  border-top: var(--size-border-width-thick) solid var(--color-primary);
+  border: 2px solid var(--color-border);
+  border-top: 2px solid var(--color-primary-500);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -434,18 +467,29 @@ button:disabled {
 }
 
 /* 错误状态 */
-.error {
-  background: var(--color-danger-bg);
-  border: var(--size-border-width-thin) solid var(--color-danger);
-  border-radius: var(--size-radius-xs);
+.error-box {
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--size-radius-md);
   padding: var(--size-space-md);
   margin-top: var(--size-space-md);
-  color: var(--color-danger);
+  color: var(--color-error-text);
 }
 
 /* 成功状态 */
-.success {
+.success-text {
   margin-top: var(--size-space-md);
+  color: var(--color-success-500);
+  font-weight: 500;
+}
+
+.success-box {
+  margin-top: var(--size-space-md);
+  padding: var(--size-space-md);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--size-radius-md);
+  color: var(--color-success-text);
 }
 
 /* 用户列表 */
@@ -457,30 +501,32 @@ button:disabled {
 }
 
 .user-card {
-  background: var(--color-bg-container);
+  background: var(--color-bg-page);
   padding: var(--size-space-md);
   border-radius: var(--size-radius-md);
-  box-shadow: var(--color-shadow-small);
+  border: 1px solid var(--color-border);
 }
 
 .user-card h3 {
   margin: 0 0 var(--size-space-xs) 0;
   color: var(--color-text-primary);
-  font-size: var(--size-font-lg);
+  font-size: var(--size-font-md);
+  font-weight: 600;
 }
 
 .user-card p {
-  margin: var(--size-space-xxs) 0;
+  margin: 2px 0;
   color: var(--color-text-secondary);
   font-size: var(--size-font-sm);
 }
 
 /* 表单 */
 .form {
-  background: var(--color-bg-container);
+  background: var(--color-bg-page);
   padding: var(--size-space-lg);
   border-radius: var(--size-radius-md);
   margin-bottom: var(--size-space-md);
+  border: 1px solid var(--color-border);
 }
 
 .form-group {
@@ -491,28 +537,34 @@ button:disabled {
   display: block;
   margin-bottom: var(--size-space-xs);
   color: var(--color-text-primary);
-  font-weight: var(--size-font-weight-medium);
-}
-
-.form-group input {
-  width: 100%;
-  padding: var(--size-comp-paddingTB-s);
-  border: var(--size-border-width-thin) solid var(--color-border);
-  border-radius: var(--size-radius-xs);
-  font-size: var(--size-font-md);
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-pre {
-  background: var(--color-bg-container);
-  padding: var(--size-space-md);
-  border-radius: var(--size-radius-xs);
-  overflow-x: auto;
+  font-weight: 500;
   font-size: var(--size-font-sm);
+}
+
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-radius-md);
+  font-size: var(--size-font-sm);
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+}
+
+.code-block {
+  background: var(--color-bg-layout);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-sm);
+  overflow-x: auto;
+  font-size: var(--size-font-xs);
+  color: var(--color-text-primary);
+  font-family: monospace;
+  margin: var(--size-space-sm) 0 0;
 }
 
 /* 文章列表 */
@@ -523,21 +575,24 @@ pre {
 }
 
 .post-card {
-  background: var(--color-bg-container);
-  padding: var(--size-space-lg);
+  background: var(--color-bg-page);
+  padding: var(--size-space-md);
   border-radius: var(--size-radius-md);
-  box-shadow: var(--color-shadow-small);
+  border: 1px solid var(--color-border);
 }
 
 .post-card h3 {
   margin: 0 0 var(--size-space-xs) 0;
   color: var(--color-text-primary);
+  font-size: var(--size-font-md);
+  font-weight: 600;
 }
 
 .post-card p {
   margin: 0;
   color: var(--color-text-secondary);
-  line-height: var(--size-line-relaxed);
+  line-height: 1.6;
+  font-size: var(--size-font-sm);
 }
 
 /* 分页控制 */
@@ -550,7 +605,8 @@ pre {
 
 .pagination-controls span {
   color: var(--color-text-secondary);
-  font-weight: var(--size-font-weight-medium);
+  font-weight: 500;
+  font-size: var(--size-font-sm);
 }
 
 /* 轮询控制 */
@@ -561,8 +617,9 @@ pre {
   margin-bottom: var(--size-space-md);
 }
 
-.polling-controls span {
-  color: var(--color-primary);
-  font-weight: var(--size-font-weight-medium);
+.polling-status {
+  color: var(--color-primary-500);
+  font-weight: 500;
+  font-size: var(--size-font-sm);
 }
 </style>

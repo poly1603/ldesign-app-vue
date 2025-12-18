@@ -79,36 +79,30 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
 </script>
 
 <template>
-  <div class="breadcrumb-demo">
-    <h1>面包屑组件演示</h1>
-    <p class="description">
+  <div class="breadcrumb-demo page-container">
+    <h1 class="page-title">面包屑组件演示</h1>
+    <p class="page-desc">
       @ldesign/breadcrumb-vue 提供了功能丰富的面包屑导航组件，支持路由自动生成、下拉菜单、折叠显示等特性。
     </p>
 
     <!-- 基础用法 -->
-    <section class="demo-section">
-      <h2>基础用法</h2>
+    <section class="section-card">
+      <h2 class="section-title">基础用法</h2>
       <div class="demo-block">
-        <LBreadcrumb
-          :items="basicItems"
-          :separator="separator"
-          :size="size"
-          :show-home="false"
-          @click="handleClick"
-        />
+        <LBreadcrumb :items="basicItems" :separator="separator" :size="size" :show-home="false" @click="handleClick" />
       </div>
-      <div class="demo-config">
-        <label>
+      <div class="controls-row">
+        <label class="control-label">
           分隔符:
-          <select v-model="separator">
+          <select v-model="separator" class="select-input">
             <option value="/">/</option>
             <option value=">">&gt;</option>
             <option value="•">•</option>
           </select>
         </label>
-        <label>
+        <label class="control-label">
           大小:
-          <select v-model="size">
+          <select v-model="size" class="select-input">
             <option value="small">小</option>
             <option value="medium">中</option>
             <option value="large">大</option>
@@ -118,77 +112,59 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
     </section>
 
     <!-- 带下拉菜单 -->
-    <section class="demo-section">
-      <h2>带下拉菜单</h2>
-      <p>支持在面包屑项上显示下拉菜单，方便快速导航到子页面。</p>
+    <section class="section-card">
+      <h2 class="section-title">带下拉菜单</h2>
+      <p class="section-desc">支持在面包屑项上显示下拉菜单，方便快速导航到子页面。</p>
       <div class="demo-block">
-        <LBreadcrumb
-          :items="itemsWithDropdown"
-          :show-home="false"
-          @click="handleClick"
-          @dropdown-select="handleDropdownSelect"
-        />
+        <LBreadcrumb :items="itemsWithDropdown" :show-home="false" @click="handleClick"
+          @dropdown-select="handleDropdownSelect" />
       </div>
     </section>
 
     <!-- 自动折叠 -->
-    <section class="demo-section">
-      <h2>自动折叠</h2>
-      <p>当路径层级过深时，可以自动折叠中间项，点击省略号可展开。</p>
+    <section class="section-card">
+      <h2 class="section-title">自动折叠</h2>
+      <p class="section-desc">当路径层级过深时，可以自动折叠中间项，点击省略号可展开。</p>
       <div class="demo-block">
-        <LBreadcrumb
-          :items="longPathItems"
-          :max-items="4"
-          :items-before-collapse="1"
-          :items-after-collapse="2"
-          :show-home="false"
-          @click="handleClick"
-        />
+        <LBreadcrumb :items="longPathItems" :max-items="4" :items-before-collapse="1" :items-after-collapse="2"
+          :show-home="false" @click="handleClick" />
       </div>
-      <div class="demo-config">
-        <label>
+      <div class="controls-row">
+        <label class="control-label">
           最大显示项数:
-          <input type="number" v-model.number="maxItems" min="0" max="10" />
+          <input type="number" v-model.number="maxItems" min="0" max="10" class="number-input" />
         </label>
       </div>
     </section>
 
     <!-- 基于路由自动生成 -->
-    <section class="demo-section">
-      <h2>基于路由自动生成</h2>
-      <p>使用 useBreadcrumbRoute 组合式函数，自动根据当前路由生成面包屑。</p>
+    <section class="section-card">
+      <h2 class="section-title">基于路由自动生成</h2>
+      <p class="section-desc">使用 useBreadcrumbRoute 组合式函数，自动根据当前路由生成面包屑。</p>
       <div class="demo-block">
-        <LBreadcrumb
-          :items="routeItems"
-          :show-home="false"
-          @click="handleClick"
-        />
+        <LBreadcrumb :items="routeItems" :show-home="false" @click="handleClick" />
       </div>
-      <div class="demo-tip">
+      <div class="info-tip">
         当前路由: {{ route.path }}
       </div>
     </section>
 
     <!-- 配置选项 -->
-    <section class="demo-section">
-      <h2>配置选项</h2>
-      <div class="demo-config-panel">
-        <label>
+    <section class="section-card">
+      <h2 class="section-title">配置选项</h2>
+      <div class="controls-row">
+        <label class="checkbox-label">
           <input type="checkbox" v-model="showHome" />
           显示首页
         </label>
-        <label>
+        <label class="checkbox-label">
           <input type="checkbox" v-model="lastItemClickable" />
           最后一项可点击
         </label>
       </div>
       <div class="demo-block">
-        <LBreadcrumb
-          :items="basicItems"
-          :show-home="showHome"
-          :last-item-clickable="lastItemClickable"
-          @click="handleClick"
-        />
+        <LBreadcrumb :items="basicItems" :show-home="showHome" :last-item-clickable="lastItemClickable"
+          @click="handleClick" />
       </div>
     </section>
   </div>
@@ -198,91 +174,87 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
 .breadcrumb-demo {
   max-width: 900px;
   margin: 0 auto;
-  padding: 24px;
+  padding: var(--size-space-lg);
 }
 
-.breadcrumb-demo h1 {
-  margin-bottom: 8px;
-  color: var(--color-text-primary, #1f2937);
+.page-title {
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-sm);
 }
 
-.description {
-  margin-bottom: 32px;
-  color: var(--color-text-secondary, #6b7280);
-  font-size: 14px;
+.page-desc {
+  margin-bottom: var(--size-space-xl);
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-md);
 }
 
-.demo-section {
-  margin-bottom: 40px;
-  padding: 24px;
-  background: var(--color-bg-container, #fff);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.section-card {
+  margin-bottom: var(--size-space-lg);
+  padding: var(--size-space-lg);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.demo-section h2 {
-  margin-bottom: 12px;
-  font-size: 18px;
-  color: var(--color-text-primary, #1f2937);
+.section-title {
+  margin-bottom: var(--size-space-md);
+  font-size: var(--size-font-lg);
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
-.demo-section p {
-  margin-bottom: 16px;
-  color: var(--color-text-secondary, #6b7280);
-  font-size: 14px;
+.section-desc {
+  margin-bottom: var(--size-space-md);
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
 }
 
 .demo-block {
-  padding: 20px;
-  background: var(--color-bg-page, #f9fafb);
-  border-radius: 6px;
-  margin-bottom: 12px;
+  padding: var(--size-space-lg);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
+  margin-bottom: var(--size-space-md);
+  border: 1px solid var(--color-border);
 }
 
-.demo-config {
+.controls-row {
   display: flex;
-  gap: 16px;
+  gap: var(--size-space-lg);
   flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: var(--size-space-md);
 }
 
-.demo-config label {
+.control-label,
+.checkbox-label {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: var(--color-text-secondary, #6b7280);
-}
-
-.demo-config select,
-.demo-config input[type="number"] {
-  padding: 4px 8px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.demo-config-panel {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 16px;
-}
-
-.demo-config-panel label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--size-font-sm);
+  color: var(--color-text-secondary);
   cursor: pointer;
 }
 
-.demo-tip {
-  margin-top: 12px;
+.select-input,
+.number-input {
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-radius-sm);
+  font-size: var(--size-font-sm);
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
+}
+
+.info-tip {
+  margin-top: var(--size-space-md);
   padding: 8px 12px;
-  background: var(--color-info-bg, #eff6ff);
-  border-radius: 4px;
-  font-size: 13px;
-  color: var(--color-info, #3b82f6);
+  background: var(--color-primary-50);
+  border-radius: var(--size-radius-sm);
+  font-size: var(--size-font-sm);
+  color: var(--color-primary-600);
+  border: 1px solid var(--color-primary-100);
 }
 </style>
-

@@ -158,147 +158,173 @@ function collapseAll(): void {
 </script>
 
 <template>
-  <div class="bookmark-demo" :class="{ 'dark-mode': theme === 'dark' }">
-    <h1>📚 书签系统演示</h1>
+  <div class="bookmark-demo page-container">
+    <h1 class="page-title">📚 书签系统演示</h1>
 
     <!-- 控制面板 -->
-    <div class="controls">
-      <button @click="toggleMode">
-        切换模式: {{ mode === 'horizontal' ? '水平' : '垂直' }}
-      </button>
-      <button @click="toggleTheme">
-        切换主题: {{ theme === 'light' ? '浅色' : '深色' }}
-      </button>
-      <button @click="addBookmark">
-        ➕ 添加书签
-      </button>
-      <button @click="expandAll">
-        📂 展开全部
-      </button>
-      <button @click="collapseAll">
-        📁 收起全部
-      </button>
-      <label>
-        <input v-model="draggable" type="checkbox">
-        可拖拽
-      </label>
+    <div class="controls-card">
+      <div class="control-group">
+        <button class="action-btn" @click="toggleMode">
+          切换模式: {{ mode === 'horizontal' ? '水平' : '垂直' }}
+        </button>
+        <button class="action-btn" @click="toggleTheme">
+          切换主题: {{ theme === 'light' ? '浅色' : '深色' }}
+        </button>
+        <button class="action-btn primary" @click="addBookmark">
+          ➕ 添加书签
+        </button>
+        <button class="action-btn" @click="expandAll">
+          📂 展开全部
+        </button>
+        <button class="action-btn" @click="collapseAll">
+          📁 收起全部
+        </button>
+        <label class="checkbox-label">
+          <input v-model="draggable" type="checkbox">
+          可拖拽
+        </label>
+      </div>
     </div>
 
     <!-- 书签栏 -->
-    <div class="bookmark-container">
-      <h2>书签栏</h2>
-      <BookmarkBar
-        ref="bookmarkBarRef"
-        :items="store.items.value"
-        :mode="mode"
-        :theme="theme"
-        :draggable="draggable"
-        @select="handleSelect"
-        @contextmenu="handleContextMenu"
-      />
+    <div class="section-card">
+      <h2 class="section-title">书签栏</h2>
+      <div class="bookmark-preview" :class="[theme === 'dark' ? 'theme-dark' : 'theme-light']">
+        <BookmarkBar ref="bookmarkBarRef" :items="store.items.value" :mode="mode" :theme="theme" :draggable="draggable"
+          @select="handleSelect" @contextmenu="handleContextMenu" />
+      </div>
     </div>
 
     <!-- 选中信息 -->
-    <div v-if="selectedBookmark" class="selected-info">
-      <h3>选中的书签</h3>
-      <pre>{{ JSON.stringify(selectedBookmark, null, 2) }}</pre>
+    <div v-if="selectedBookmark" class="section-card">
+      <h3 class="section-title">选中的书签</h3>
+      <pre class="code-block">{{ JSON.stringify(selectedBookmark, null, 2) }}</pre>
     </div>
 
     <!-- 状态信息 -->
-    <div class="state-info">
-      <h3>当前状态</h3>
-      <p>选中 ID: {{ store.selectedId.value || '无' }}</p>
-      <p>展开的文件夹: {{ store.expandedIds.value.join(', ') || '无' }}</p>
-      <p>书签数量: {{ store.items.value.length }}</p>
+    <div class="section-card">
+      <h3 class="section-title">当前状态</h3>
+      <div class="info-list">
+        <p><strong>选中 ID:</strong> {{ store.selectedId.value || '无' }}</p>
+        <p><strong>展开的文件夹:</strong> {{ store.expandedIds.value.join(', ') || '无' }}</p>
+        <p><strong>书签数量:</strong> {{ store.items.value.length }}</p>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .bookmark-demo {
-  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  padding: var(--size-space-lg);
 }
 
-.bookmark-demo.dark-mode {
-  background-color: #1e1e1e;
-  color: #e0e0e0;
+.page-title {
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-xl);
 }
 
-h1 {
-  margin-bottom: 20px;
+.controls-card {
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
+  margin-bottom: var(--size-space-lg);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.controls {
+.control-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
+  gap: var(--size-space-md);
+  align-items: center;
 }
 
-.dark-mode .controls {
-  background-color: #2d2d2d;
-}
-
-.controls button {
+.action-btn {
   padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  background-color: #1976d2;
-  color: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-radius-md);
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  font-size: var(--size-font-sm);
 }
 
-.controls button:hover {
-  background-color: #1565c0;
+.action-btn:hover {
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-500);
 }
 
-.controls label {
+.action-btn.primary {
+  background: var(--color-primary-500);
+  color: white;
+  border-color: var(--color-primary-500);
+}
+
+.action-btn.primary:hover {
+  background: var(--color-primary-600);
+}
+
+.checkbox-label {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   cursor: pointer;
+  color: var(--color-text-primary);
+  font-size: var(--size-font-sm);
 }
 
-.bookmark-container {
-  margin-bottom: 20px;
+.section-card {
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
+  margin-bottom: var(--size-space-lg);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.bookmark-container h2 {
-  margin-bottom: 10px;
+.section-title {
+  font-size: var(--size-font-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-md);
 }
 
-.selected-info,
-.state-info {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
+.bookmark-preview {
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-md);
+  border: 1px solid var(--color-border);
+  min-height: 100px;
 }
 
-.dark-mode .selected-info,
-.dark-mode .state-info {
-  background-color: #2d2d2d;
+.theme-light {
+  background: #f5f5f5;
 }
 
-.selected-info pre {
-  background-color: #e0e0e0;
-  padding: 10px;
-  border-radius: 4px;
+.theme-dark {
+  background: #1e1e1e;
+}
+
+.code-block {
+  background: var(--color-bg-layout);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-md);
   overflow-x: auto;
+  font-family: monospace;
+  font-size: var(--size-font-xs);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
-.dark-mode .selected-info pre {
-  background-color: #1e1e1e;
+.info-list p {
+  margin: 8px 0;
+  color: var(--color-text-primary);
 }
 
-.state-info p {
-  margin: 5px 0;
+.info-list strong {
+  color: var(--color-text-secondary);
+  margin-right: 8px;
 }
 </style>
-

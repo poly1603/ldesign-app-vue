@@ -13,13 +13,13 @@ const currentPreset = computed(() => {
 </script>
 
 <template>
-  <div class="size-page">
-    <h1>尺寸管理</h1>
+  <div class="size-page page-container">
+    <h1 class="page-title">尺寸管理</h1>
 
     <div class="size-content">
       <!-- 当前状态 -->
-      <section class="current-state">
-        <h2>当前预设</h2>
+      <section class="section-card current-state">
+        <h2 class="section-title">当前预设</h2>
         <div v-if="currentPreset" class="state-info">
           <div class="info-item">
             <span class="label">预设名称</span>
@@ -44,14 +44,14 @@ const currentPreset = computed(() => {
       </section>
 
       <!-- 预设选择器 -->
-      <section class="preset-selector">
-        <h2>选择预设</h2>
+      <section class="section-card preset-selector">
+        <h2 class="section-title">选择预设</h2>
         <SizePresetPicker />
       </section>
 
       <!-- 示例文本 -->
-      <section class="example-text">
-        <h2>示例文本</h2>
+      <section class="section-card example-text">
+        <h2 class="section-title">示例文本</h2>
         <div class="text-samples">
           <p class="sample-h1">
             标题 1 - Heading 1
@@ -77,38 +77,40 @@ const currentPreset = computed(() => {
 
 <style scoped>
 .size-page {
-  padding: var(--size-space-lg, 24px);
-  max-width: var(--size-size-64, 1200px);
+  padding: var(--size-space-lg);
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-h1 {
-  font-size: var(--size-font-xxl, 32px);
-  font-weight: var(--size-font-weight-bold, 700);
-  margin-bottom: var(--size-comp-margin-xxxl, 32px);
-  color: var(--color-text-primary, #333);
+.page-title {
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-xl);
+  text-align: center;
 }
 
-h2 {
-  font-size: var(--size-font-lg, 20px);
-  font-weight: var(--size-font-weight-semibold, 600);
-  margin-bottom: var(--size-comp-margin-l, 16px);
-  color: var(--color-text-secondary, #555);
+.section-title {
+  font-size: var(--size-font-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
 }
 
 .size-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--size-space-lg, 24px);
+  gap: var(--size-space-lg);
 }
 
-.current-state,
-.preset-selector,
-.example-text {
-  background: var(--color-bg-container, #ffffff);
-  padding: var(--size-space-lg, 24px);
-  border-radius: var(--size-radius-lg, 12px);
-  box-shadow: var(--size-shadow-2, 0 2px 8px rgba(0, 0, 0, 0.08));
+.section-card {
+  background: var(--color-bg-container);
+  padding: var(--size-space-lg);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
 .example-text {
@@ -118,70 +120,87 @@ h2 {
 .state-info {
   display: flex;
   flex-direction: column;
-  gap: var(--size-space-s, 12px);
+  gap: var(--size-space-sm);
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--size-space-s, 12px);
-  background: var(--color-bg-component, #f5f5f5);
-  border-radius: var(--size-radius-md, 6px);
+  padding: var(--size-space-sm) var(--size-space-md);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
+  border: 1px solid var(--color-border);
 }
 
 .info-item .label {
-  font-weight: var(--size-font-weight-semibold, 600);
-  color: var(--color-text-secondary, #666);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
 }
 
 .info-item .value {
-  font-family: var(--size-font-family-mono, 'Courier New', monospace);
-  color: var(--color-primary, #1890ff);
-  font-weight: var(--size-font-weight-semibold, 600);
+  font-family: monospace;
+  color: var(--color-primary-500);
+  font-weight: 600;
+  font-size: var(--size-font-md);
 }
 
 .no-preset {
-  padding: var(--size-space-lg, 24px);
+  padding: var(--size-space-lg);
   text-align: center;
-  color: var(--color-text-disabled, #999);
+  color: var(--color-text-tertiary);
   font-style: italic;
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
 }
 
 .text-samples {
   display: flex;
   flex-direction: column;
-  gap: var(--size-space-md, 16px);
+  gap: var(--size-space-md);
+  padding: var(--size-space-md);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
+  border: 1px solid var(--color-border);
 }
 
 .sample-h1 {
-  font-size: var(--size-font-xxl, 2em);
-  font-weight: var(--size-font-weight-bold, 700);
-  line-height: var(--size-line-tight, 1.2);
+  font-size: var(--size-font-2xl);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
 .sample-h2 {
-  font-size: var(--size-font-xl, 1.5em);
-  font-weight: var(--size-font-weight-semibold, 600);
-  line-height: var(--size-line-snug, 1.3);
+  font-size: var(--size-font-xl);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
 .sample-h3 {
-  font-size: var(--size-font-lg, 1.25em);
-  font-weight: var(--size-font-weight-semibold, 600);
-  line-height: var(--size-line-normal, 1.4);
+  font-size: var(--size-font-lg);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
 .sample-body {
-  font-size: var(--size-font-md, 1em);
-  line-height: var(--size-line-relaxed, 1.6);
-  color: var(--color-text-primary, #333);
+  font-size: var(--size-font-md);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
 .sample-small {
-  font-size: var(--size-font-sm, 0.875em);
-  line-height: var(--size-line-normal, 1.5);
-  color: var(--color-text-secondary, #666);
+  font-size: var(--size-font-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 @media (max-width: 768px) {

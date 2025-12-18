@@ -5,7 +5,6 @@
  */
 import { ref, computed, onMounted } from 'vue'
 import {
-  useLogger,
   useComponentLogger,
   useErrorTracking,
   usePerformance,
@@ -91,27 +90,24 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="logger-demo">
-    <h1>📝 日志系统演示</h1>
+  <div class="logger-demo page-container">
+    <h1 class="page-title">📝 日志系统演示</h1>
 
     <!-- 日志级别控制 -->
-    <section class="section">
-      <h2>日志级别</h2>
+    <section class="section-card">
+      <h2 class="section-title">日志级别</h2>
       <div class="level-buttons">
-        <button
-          v-for="level in logLevels" :key="level.value"
-          :class="['btn', { active: currentLevel === level.value }]"
-          @click="setLevel(level.value)"
-        >
+        <button v-for="level in logLevels" :key="level.value" :class="['btn', { active: currentLevel === level.value }]"
+          @click="setLevel(level.value)">
           {{ level.label }}
         </button>
       </div>
-      <p class="hint">当前级别: {{ LogLevel[currentLevel] }}</p>
+      <p class="hint">当前级别: <strong>{{ LogLevel[currentLevel] }}</strong></p>
     </section>
 
     <!-- 日志记录 -->
-    <section class="section">
-      <h2>日志记录</h2>
+    <section class="section-card">
+      <h2 class="section-title">日志记录</h2>
       <div class="form-group">
         <input v-model="logMessage" placeholder="输入日志消息" class="input">
       </div>
@@ -126,8 +122,8 @@ onMounted(() => {
     </section>
 
     <!-- 错误追踪 -->
-    <section class="section">
-      <h2>错误追踪</h2>
+    <section class="section-card">
+      <h2 class="section-title">错误追踪</h2>
       <ErrorBoundary @error="(e) => info('捕获到错误', e)">
         <div v-if="shouldError">{{ throwError() }}</div>
         <template #fallback="{ error: err, reset }">
@@ -137,60 +133,203 @@ onMounted(() => {
           </div>
         </template>
       </ErrorBoundary>
-      <button class="btn btn-error" @click="triggerError">触发测试错误</button>
+      <button class="btn btn-danger" @click="triggerError">触发测试错误</button>
     </section>
 
     <!-- 面包屑 -->
-    <section class="section">
-      <h2>面包屑追踪</h2>
+    <section class="section-card">
+      <h2 class="section-title">面包屑追踪</h2>
       <div class="button-group">
-        <button class="btn btn-info" @click="addClickBreadcrumb">添加点击面包屑</button>
-        <button class="btn btn-info" @click="addNavigationBreadcrumb">添加导航面包屑</button>
-        <button class="btn btn-warn" @click="clearBreadcrumbs()">清空</button>
+        <button class="btn" @click="addClickBreadcrumb">添加点击面包屑</button>
+        <button class="btn" @click="addNavigationBreadcrumb">添加导航面包屑</button>
+        <button class="btn btn-warning" @click="clearBreadcrumbs()">清空</button>
       </div>
       <div class="breadcrumbs-list">
         <div v-for="(crumb, index) in breadcrumbs" :key="index" class="breadcrumb-item">
           <span class="crumb-type">{{ crumb.type }}</span>
           <span class="crumb-message">{{ crumb.message }}</span>
         </div>
-        <p v-if="breadcrumbs.length === 0" class="empty">暂无面包屑</p>
+        <p v-if="breadcrumbs.length === 0" class="empty-text">暂无面包屑</p>
       </div>
     </section>
 
     <!-- 性能监控 -->
-    <section class="section">
-      <h2>性能监控</h2>
+    <section class="section-card">
+      <h2 class="section-title">性能监控</h2>
       <button class="btn btn-info" @click="runPerformanceTest">运行性能测试</button>
       <div v-if="Object.keys(performanceReport).length" class="performance-report">
-        <pre>{{ JSON.stringify(performanceReport, null, 2) }}</pre>
+        <pre class="code-block">{{ JSON.stringify(performanceReport, null, 2) }}</pre>
       </div>
     </section>
   </div>
 </template>
 
 <style scoped>
-.logger-demo { max-width: 800px; margin: 0 auto; padding: 20px; }
-h1 { color: #333; margin-bottom: 30px; }
-h2 { color: #666; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-.section { margin-bottom: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px; }
-.form-group { margin-bottom: 15px; }
-.input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
-.button-group, .level-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-.btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-.btn.active { box-shadow: 0 0 0 2px #333; }
-.btn-trace { background: #ddd; color: #333; }
-.btn-debug { background: #6c757d; color: white; }
-.btn-info { background: #4a90d9; color: white; }
-.btn-warn { background: #ffc107; color: #333; }
-.btn-error { background: #dc3545; color: white; }
-.hint { color: #888; font-size: 14px; margin-top: 10px; }
-.error-fallback { padding: 20px; background: #fee; border-radius: 4px; margin-bottom: 10px; }
-.breadcrumbs-list { margin-top: 15px; }
-.breadcrumb-item { display: flex; gap: 10px; padding: 8px; background: white; margin-bottom: 5px; border-radius: 4px; }
-.crumb-type { font-weight: bold; color: #4a90d9; min-width: 80px; }
-.crumb-message { color: #333; }
-.empty { color: #888; font-style: italic; }
-.performance-report { margin-top: 15px; background: white; padding: 15px; border-radius: 4px; overflow: auto; }
-.performance-report pre { margin: 0; font-size: 12px; }
-</style>
+.logger-demo {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--size-space-lg);
+}
 
+.page-title {
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-xl);
+}
+
+.section-card {
+  margin-bottom: var(--size-space-lg);
+  padding: var(--size-space-lg);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
+}
+
+.section-title {
+  font-size: var(--size-font-lg);
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: var(--size-space-md);
+}
+
+.input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-radius-md);
+  font-size: var(--size-font-sm);
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
+}
+
+.button-group,
+.level-buttons {
+  display: flex;
+  gap: var(--size-space-md);
+  flex-wrap: wrap;
+  margin-bottom: var(--size-space-sm);
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--size-radius-md);
+  background: var(--color-bg-component);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-size: var(--size-font-sm);
+  transition: all 0.2s;
+  font-weight: 500;
+  border: 1px solid var(--color-border);
+}
+
+.btn:hover {
+  background: var(--color-bg-component-hover);
+}
+
+.btn.active {
+  background: var(--color-primary-500);
+  color: white;
+  border-color: var(--color-primary-500);
+}
+
+.btn-trace {
+  background: var(--color-text-tertiary);
+  color: white;
+}
+
+.btn-debug {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-info {
+  background: var(--color-info-500);
+  color: white;
+}
+
+.btn-warn {
+  background: var(--color-warning-500);
+  color: white;
+}
+
+.btn-error {
+  background: var(--color-error-500);
+  color: white;
+}
+
+.btn-danger {
+  background: var(--color-error-500);
+  color: white;
+}
+
+.hint {
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
+  margin-top: var(--size-space-sm);
+}
+
+.error-fallback {
+  padding: var(--size-space-md);
+  background: var(--color-error-bg);
+  border-radius: var(--size-radius-md);
+  margin-bottom: var(--size-space-md);
+  border: 1px solid var(--color-error-border);
+  color: var(--color-error-text);
+}
+
+.breadcrumbs-list {
+  margin-top: var(--size-space-md);
+}
+
+.breadcrumb-item {
+  display: flex;
+  gap: var(--size-space-md);
+  padding: 8px;
+  background: var(--color-bg-page);
+  margin-bottom: 4px;
+  border-radius: var(--size-radius-sm);
+  font-size: var(--size-font-sm);
+  border: 1px solid var(--color-border);
+}
+
+.crumb-type {
+  font-weight: 600;
+  color: var(--color-primary-500);
+  min-width: 80px;
+}
+
+.crumb-message {
+  color: var(--color-text-primary);
+}
+
+.empty-text {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  text-align: center;
+}
+
+.performance-report {
+  margin-top: var(--size-space-md);
+}
+
+.code-block {
+  margin: 0;
+  padding: var(--size-space-md);
+  background: var(--color-bg-layout);
+  border-radius: var(--size-radius-md);
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: var(--size-font-xs);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+</style>

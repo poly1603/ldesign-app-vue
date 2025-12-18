@@ -120,7 +120,7 @@ function getOSInfo() {
 }
 
 // 获取检测方法信息
-function getDetectionInfo(width: number) {
+function getDetectionInfo() {
   const screenWidth = window.screen.width
 
   // 判断检测方法
@@ -163,7 +163,7 @@ function updateDeviceInfo() {
     },
     os: getOSInfo(),
     browser: getBrowserInfo(),
-    detection: getDetectionInfo(width),
+    detection: getDetectionInfo(),
   }
 }
 
@@ -210,11 +210,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="device-page">
-    <h1>📱 设备信息检测</h1>
+  <div class="device-page page-container">
+    <h1 class="page-title">📱 设备信息检测</h1>
 
-    <div class="info-section">
-      <h2>🎯 当前设备信息</h2>
+    <div class="section-card">
+      <h2 class="section-title">🎯 当前设备信息</h2>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-label">
@@ -256,8 +256,8 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="info-section">
-      <h2>📐 屏幕尺寸信息</h2>
+    <div class="section-card">
+      <h2 class="section-title">📐 屏幕尺寸信息</h2>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-label">
@@ -297,8 +297,8 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="deviceInfo.detection" class="info-section">
-      <h2>🔍 检测方式信息</h2>
+    <div v-if="deviceInfo.detection" class="section-card">
+      <h2 class="section-title">🔍 检测方式信息</h2>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-label">
@@ -331,8 +331,8 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="info-section">
-      <h2>💻 浏览器信息</h2>
+    <div class="section-card">
+      <h2 class="section-title">💻 浏览器信息</h2>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-label">
@@ -378,15 +378,15 @@ onUnmounted(() => {
         <li>🔄 <strong>动态检测已启用</strong>：尝试调整浏览器窗口大小，设备类型会自动更新</li>
         <li>📱 <strong>多级检测</strong>：优先使用屏幕尺寸 > 视口宽度 > UserAgent</li>
         <li>🖥️ <strong>桌面响应式</strong>：桌面浏览器缩小到移动设备尺寸时，类型会变为"移动设备"</li>
-        <li>📏 <strong>断点设置</strong>：< 768px 为移动设备，768px-1024px 为平板，> 1024px 为桌面</li>
+        <li>📏 <strong>断点设置</strong>：&lt; 768px 为移动设备，768px-1024px 为平板，&gt; 1024px 为桌面</li>
       </ul>
     </div>
 
     <div class="actions">
-      <button class="btn btn-primary" @click="refreshDeviceInfo">
+      <button class="btn primary" @click="refreshDeviceInfo">
         🔄 刷新设备信息
       </button>
-      <button class="btn btn-secondary" @click="goBack">
+      <button class="btn secondary" @click="goBack">
         ← 返回首页
       </button>
     </div>
@@ -397,34 +397,31 @@ onUnmounted(() => {
 .device-page {
   max-width: var(--size-size-64);
   margin: 0 auto;
-  padding: var(--size-space-xl);
+  padding: var(--size-space-lg);
 }
 
-h1 {
-  font-size: var(--size-font-xxl);
-  margin-bottom: var(--size-space-xl);
+.page-title {
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
   color: var(--color-text-primary);
+  margin-bottom: var(--size-space-xl);
   text-align: center;
 }
 
-h2 {
-  font-size: var(--size-font-xl);
-  margin-bottom: var(--size-space-md);
-  color: var(--color-text-secondary);
-}
-
-h3 {
-  font-size: var(--size-font-lg);
-  margin-bottom: var(--size-space-md);
-  color: var(--color-text-secondary);
-}
-
-.info-section {
+.section-card {
   background: var(--color-bg-container);
-  border-radius: var(--size-radius-md);
+  border-radius: var(--size-radius-lg);
   padding: var(--size-space-lg);
   margin-bottom: var(--size-space-lg);
-  box-shadow: var(--color-shadow-small);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
+}
+
+.section-title {
+  font-size: var(--size-font-lg);
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-md);
+  font-weight: 600;
 }
 
 .info-grid {
@@ -434,45 +431,57 @@ h3 {
 }
 
 .info-card {
-  background: var(--color-bg-container-secondary);
-  border-radius: var(--size-radius-sm);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
   padding: var(--size-space-md);
-  border-left: var(--size-border-width-thick) solid var(--color-primary);
+  border-left: 4px solid var(--color-primary-500);
+  border-top: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .info-label {
   font-size: var(--size-font-sm);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   margin-bottom: var(--size-space-xs);
 }
 
 .info-value {
   font-size: var(--size-font-lg);
-  font-weight: var(--size-font-weight-semibold);
+  font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .device-type {
   font-size: var(--size-font-xl);
-  color: var(--color-primary);
+  color: var(--color-primary-500);
 }
 
 .tip-section {
   background: var(--color-warning-bg);
-  border-radius: var(--size-radius-md);
+  border-radius: var(--size-radius-lg);
   padding: var(--size-space-lg);
   margin-bottom: var(--size-space-lg);
-  border-left: var(--size-border-width-thick) solid var(--color-warning);
+  border-left: 4px solid var(--color-warning-500);
+  border: 1px solid var(--color-warning-border);
+}
+
+.tip-section h3 {
+  font-size: var(--size-font-lg);
+  margin-bottom: var(--size-space-md);
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
 .tip-section ul {
   margin: 0;
   padding-left: var(--size-space-lg);
+  color: var(--color-text-primary);
 }
 
 .tip-section li {
   margin-bottom: var(--size-space-xs);
-  line-height: var(--size-line-relaxed);
+  line-height: 1.6;
 }
 
 .actions {
@@ -483,34 +492,38 @@ h3 {
 }
 
 .btn {
-  padding: var(--size-comp-paddingTB-m) var(--size-comp-paddingLR-m);
+  padding: 8px 24px;
   border: none;
-  border-radius: var(--size-radius-sm);
+  border-radius: var(--size-radius-md);
   font-size: var(--size-font-md);
   cursor: pointer;
-  transition: all var(--size-duration-normal) ease;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  border: 1px solid var(--color-border);
 }
 
-.btn-primary {
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary:hover {
-  background: var(--color-primary-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--color-shadow-medium);
+.btn.primary {
+  background: var(--color-primary-500);
+  color: white;
+  border-color: var(--color-primary-500);
 }
 
-.btn-secondary {
-  background: var(--color-text-tertiary);
-  color: var(--color-text-inverse);
+.btn.primary:hover {
+  background: var(--color-primary-600);
 }
 
-.btn-secondary:hover {
-  background: var(--color-text-secondary);
-  transform: translateY(-2px);
-  box-shadow: var(--color-shadow-medium);
+.btn.secondary {
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
+}
+
+.btn.secondary:hover {
+  background: var(--color-bg-hover);
 }
 
 /* 响应式设计 */
@@ -519,7 +532,7 @@ h3 {
     padding: var(--size-space-md);
   }
 
-  h1 {
+  .page-title {
     font-size: var(--size-font-xl);
   }
 

@@ -86,6 +86,7 @@ function handleSocialLogin(provider: string): void {
   <div class="login-page">
     <!-- 动态渲染登录模板 -->
     <div v-if="templateLoading" class="template-loading">
+      <div class="spinner"></div>
       <span>加载模板中...</span>
     </div>
     <component v-else-if="currentTemplate" :is="currentTemplate" title="登录" :on-submit="handleLogin"
@@ -93,11 +94,11 @@ function handleSocialLogin(provider: string): void {
       :category="'login'" :device="deviceType" :message="disabledMessage">
       <!-- 工具栏 slot：语言/主题/尺寸切换 -->
       <template #toolbar>
-        <LanguageSwitcher />
-        <ThemeModeSwitcher />
-        <ThemeColorPicker />
-        <SizeSwitcher />
-        <TemplateSwitcher category="login" :translate="t" />
+        <LanguageSwitcher variant="primary" />
+        <ThemeModeSwitcher variant="primary" />
+        <ThemeColorPicker variant="primary" />
+        <SizeSwitcher variant="primary" />
+        <TemplateSwitcher category="login" :translate="t" variant="primary" />
       </template>
     </component>
   </div>
@@ -109,14 +110,32 @@ function handleSocialLogin(provider: string): void {
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  background: var(--color-bg-layout);
 }
 
 .template-loading {
   display: flex;
+  flex-direction: column;
+  gap: var(--size-space-md);
   align-items: center;
   justify-content: center;
   height: 100vh;
   font-size: var(--size-font-lg);
   color: var(--color-text-secondary);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary-500);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

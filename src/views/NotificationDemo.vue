@@ -163,136 +163,136 @@ const showResizableDrawer = () => {
 </script>
 
 <template>
-  <div class="notification-demo">
-    <h1>🔔 通知系统演示</h1>
+  <div class="notification-demo page-container">
+    <h1 class="page-title">🔔 通知系统演示</h1>
     <p class="subtitle">
       @ldesign/notification-vue - Toast / Message / Notification / Modal / Drawer
     </p>
 
     <!-- Toast 演示 -->
-    <section class="demo-section">
-      <h2>🍞 Toast 轻提示</h2>
-      <p class="desc">
+    <section class="section-card">
+      <h2 class="section-title">🍞 Toast 轻提示</h2>
+      <p class="section-desc">
         轻量级的消息提示，自动消失，适合简单反馈
       </p>
       <div class="button-group">
-        <button class="btn btn-success" @click="showToastSuccess">
+        <button class="btn success" @click="showToastSuccess">
           成功
         </button>
-        <button class="btn btn-error" @click="showToastError">
+        <button class="btn error" @click="showToastError">
           错误
         </button>
-        <button class="btn btn-warning" @click="showToastWarning">
+        <button class="btn warning" @click="showToastWarning">
           警告
         </button>
-        <button class="btn btn-info" @click="showToastInfo">
+        <button class="btn info" @click="showToastInfo">
           信息
         </button>
-        <button class="btn btn-loading" @click="showToastLoading">
+        <button class="btn loading" @click="showToastLoading">
           加载
         </button>
       </div>
     </section>
 
     <!-- Message 演示 -->
-    <section class="demo-section">
-      <h2>💬 Message 消息</h2>
-      <p class="desc">
+    <section class="section-card">
+      <h2 class="section-title">💬 Message 消息</h2>
+      <p class="section-desc">
         顶部居中的全局消息提示
       </p>
       <div class="button-group">
-        <button class="btn btn-success" @click="showMessageSuccess">
+        <button class="btn success" @click="showMessageSuccess">
           成功
         </button>
-        <button class="btn btn-error" @click="showMessageError">
+        <button class="btn error" @click="showMessageError">
           错误
         </button>
-        <button class="btn btn-warning" @click="showMessageWarning">
+        <button class="btn warning" @click="showMessageWarning">
           警告
         </button>
-        <button class="btn btn-info" @click="showMessageInfo">
+        <button class="btn info" @click="showMessageInfo">
           信息
         </button>
       </div>
     </section>
 
     <!-- Notification 演示 -->
-    <section class="demo-section">
-      <h2>📢 Notification 通知</h2>
-      <p class="desc">
+    <section class="section-card">
+      <h2 class="section-title">📢 Notification 通知</h2>
+      <p class="section-desc">
         带标题和内容的通知框，支持操作按钮
       </p>
       <div class="button-group">
-        <button class="btn btn-success" @click="showNotificationSuccess">
+        <button class="btn success" @click="showNotificationSuccess">
           成功通知
         </button>
-        <button class="btn btn-error" @click="showNotificationError">
+        <button class="btn error" @click="showNotificationError">
           错误通知
         </button>
-        <button class="btn btn-primary" @click="showNotificationWithActions">
+        <button class="btn primary" @click="showNotificationWithActions">
           带操作按钮
         </button>
       </div>
     </section>
 
     <!-- Modal 演示 -->
-    <section class="demo-section">
-      <h2>🪟 Modal 弹窗</h2>
-      <p class="desc">模态对话框，用于重要信息确认</p>
+    <section class="section-card">
+      <h2 class="section-title">🪟 Modal 弹窗</h2>
+      <p class="section-desc">模态对话框，用于重要信息确认</p>
 
       <h3 class="subsection-title">基础用法</h3>
       <div class="button-group">
-        <button class="btn btn-primary" @click="showConfirmDialog">确认对话框</button>
-        <button class="btn btn-warning" @click="showAlertDialog">警告对话框</button>
-        <button class="btn btn-info" @click="showPromptDialog">输入对话框</button>
-        <button class="btn btn-secondary" @click="showCustomModal">自定义弹窗</button>
+        <button class="btn primary" @click="showConfirmDialog">确认对话框</button>
+        <button class="btn warning" @click="showAlertDialog">警告对话框</button>
+        <button class="btn info" @click="showPromptDialog">输入对话框</button>
+        <button class="btn secondary" @click="showCustomModal">自定义弹窗</button>
       </div>
-      <p v-if="promptResult" class="result">输入结果: {{ promptResult }}</p>
+      <p v-if="promptResult" class="result-box">输入结果: {{ promptResult }}</p>
 
       <h3 class="subsection-title">动画效果</h3>
       <div class="button-group">
-        <button class="btn btn-anim" @click="showAnimationModal('fade')">淡入淡出</button>
-        <button class="btn btn-anim" @click="showAnimationModal('scale')">缩放</button>
-        <button class="btn btn-anim" @click="showAnimationModal('zoom')">放大</button>
-        <button class="btn btn-anim" @click="showAnimationModal('bounce')">弹跳</button>
-        <button class="btn btn-anim" @click="showAnimationModal('slide-top')">从上滑入</button>
-        <button class="btn btn-anim" @click="showAnimationModal('slide-bottom')">从下滑入</button>
-        <button class="btn btn-anim" @click="showAnimationModal('slide-left')">从左滑入</button>
-        <button class="btn btn-anim" @click="showAnimationModal('slide-right')">从右滑入</button>
+        <button class="btn anim" @click="showAnimationModal('fade')">淡入淡出</button>
+        <button class="btn anim" @click="showAnimationModal('scale')">缩放</button>
+        <button class="btn anim" @click="showAnimationModal('zoom')">放大</button>
+        <button class="btn anim" @click="showAnimationModal('bounce')">弹跳</button>
+        <button class="btn anim" @click="showAnimationModal('slide-top')">从上滑入</button>
+        <button class="btn anim" @click="showAnimationModal('slide-bottom')">从下滑入</button>
+        <button class="btn anim" @click="showAnimationModal('slide-left')">从左滑入</button>
+        <button class="btn anim" @click="showAnimationModal('slide-right')">从右滑入</button>
       </div>
 
       <h3 class="subsection-title">高级功能</h3>
       <div class="button-group">
-        <button class="btn btn-feature" @click="maximizableModalVisible = true">可最大化</button>
-        <button class="btn btn-feature" @click="draggableModalVisible = true">可拖动</button>
-        <button class="btn btn-feature" @click="resizableModalVisible = true">可调整大小</button>
-        <button class="btn btn-feature-full" @click="fullFeaturedModalVisible = true">✨ 全能弹窗</button>
+        <button class="btn feature" @click="maximizableModalVisible = true">可最大化</button>
+        <button class="btn feature" @click="draggableModalVisible = true">可拖动</button>
+        <button class="btn feature" @click="resizableModalVisible = true">可调整大小</button>
+        <button class="btn feature-full" @click="fullFeaturedModalVisible = true">✨ 全能弹窗</button>
       </div>
     </section>
 
     <!-- Drawer 演示 -->
-    <section class="demo-section">
-      <h2>🗄️ Drawer 抽屉</h2>
-      <p class="desc">
+    <section class="section-card">
+      <h2 class="section-title">🗄️ Drawer 抽屉</h2>
+      <p class="section-desc">
         从屏幕边缘滑出的抽屉面板
       </p>
       <div class="button-group">
-        <button class="btn btn-secondary" @click="showDrawer('left')">
+        <button class="btn secondary" @click="showDrawer('left')">
           ← 左侧
         </button>
-        <button class="btn btn-secondary" @click="showDrawer('right')">
+        <button class="btn secondary" @click="showDrawer('right')">
           右侧 →
         </button>
-        <button class="btn btn-secondary" @click="showDrawer('top')">
+        <button class="btn secondary" @click="showDrawer('top')">
           ↑ 顶部
         </button>
-        <button class="btn btn-secondary" @click="showDrawer('bottom')">
+        <button class="btn secondary" @click="showDrawer('bottom')">
           ↓ 底部
         </button>
-        <button class="btn btn-primary" @click="showDrawerWithAPI">
+        <button class="btn primary" @click="showDrawerWithAPI">
           API 调用
         </button>
-        <button class="btn btn-info" @click="showResizableDrawer">
+        <button class="btn info" @click="showResizableDrawer">
           可调整大小
         </button>
       </div>
@@ -320,8 +320,8 @@ const showResizableDrawer = () => {
         </ul>
       </div>
       <template #footer>
-        <button class="btn btn-secondary" @click="modalVisible = false">取消</button>
-        <button class="btn btn-primary" @click="modalVisible = false; toast.success('确认成功')">确认</button>
+        <button class="btn secondary" @click="modalVisible = false">取消</button>
+        <button class="btn primary" @click="modalVisible = false; toast.success('确认成功')">确认</button>
       </template>
     </LModal>
 
@@ -333,7 +333,7 @@ const showResizableDrawer = () => {
         <p class="animation-desc">点击遮罩或关闭按钮查看关闭动画效果。</p>
       </div>
       <template #footer>
-        <button class="btn btn-primary" @click="animationModalVisible = false">关闭</button>
+        <button class="btn primary" @click="animationModalVisible = false">关闭</button>
       </template>
     </LModal>
 
@@ -346,7 +346,7 @@ const showResizableDrawer = () => {
         <p class="tip">再次点击可以恢复原始大小。</p>
       </div>
       <template #footer>
-        <button class="btn btn-secondary" @click="maximizableModalVisible = false">关闭</button>
+        <button class="btn secondary" @click="maximizableModalVisible = false">关闭</button>
       </template>
     </LModal>
 
@@ -359,7 +359,7 @@ const showResizableDrawer = () => {
         <p class="tip">试试拖动我到屏幕的其他位置！</p>
       </div>
       <template #footer>
-        <button class="btn btn-secondary" @click="draggableModalVisible = false">关闭</button>
+        <button class="btn secondary" @click="draggableModalVisible = false">关闭</button>
       </template>
     </LModal>
 
@@ -372,7 +372,7 @@ const showResizableDrawer = () => {
         <p class="tip">鼠标移到右下角会出现调整光标。</p>
       </div>
       <template #footer>
-        <button class="btn btn-secondary" @click="resizableModalVisible = false">关闭</button>
+        <button class="btn secondary" @click="resizableModalVisible = false">关闭</button>
       </template>
     </LModal>
 
@@ -394,8 +394,8 @@ const showResizableDrawer = () => {
         </ul>
       </div>
       <template #footer>
-        <button class="btn btn-secondary" @click="fullFeaturedModalVisible = false">取消</button>
-        <button class="btn btn-primary" @click="fullFeaturedModalVisible = false; toast.success('操作成功！')">
+        <button class="btn secondary" @click="fullFeaturedModalVisible = false">取消</button>
+        <button class="btn primary" @click="fullFeaturedModalVisible = false; toast.success('操作成功！')">
           确认
         </button>
       </template>
@@ -415,7 +415,7 @@ const showResizableDrawer = () => {
         </ul>
       </div>
       <template #footer>
-        <button class="btn btn-secondary" @click="drawerVisible = false">
+        <button class="btn secondary" @click="drawerVisible = false">
           关闭
         </button>
       </template>
@@ -457,7 +457,7 @@ const showResizableDrawer = () => {
         </p>
       </div>
       <template #footer>
-        <button class="btn btn-secondary" @click="resizableDrawerVisible = false">
+        <button class="btn secondary" @click="resizableDrawerVisible = false">
           关闭
         </button>
       </template>
@@ -469,207 +469,322 @@ const showResizableDrawer = () => {
 .notification-demo {
   max-width: 900px;
   margin: 0 auto;
-  padding: 24px;
+  padding: var(--size-space-lg);
 }
 
-h1 {
+.page-title {
   text-align: center;
-  color: #1a1a2e;
-  margin-bottom: 8px;
-  font-size: 28px;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-sm);
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
 }
 
 .subtitle {
   text-align: center;
-  color: #64748b;
-  margin-bottom: 32px;
-  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--size-space-xl);
+  font-size: var(--size-font-md);
 }
 
-.demo-section {
-  background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
+.section-card {
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
+  margin-bottom: var(--size-space-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.demo-section h2 {
-  margin: 0 0 8px;
-  color: #1e293b;
-  font-size: 18px;
+.section-title {
+  margin: 0 0 var(--size-space-sm);
+  color: var(--color-text-primary);
+  font-size: var(--size-font-lg);
+  font-weight: 600;
 }
 
-.demo-section .desc {
-  color: #64748b;
-  font-size: 14px;
-  margin: 0 0 16px;
+.section-desc {
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
+  margin: 0 0 var(--size-space-md);
+}
+
+.subsection-title {
+  font-size: var(--size-font-md);
+  color: var(--color-text-primary);
+  margin: var(--size-space-lg) 0 var(--size-space-md);
+  font-weight: 600;
+  border-left: 3px solid var(--color-primary-500);
+  padding-left: var(--size-space-sm);
 }
 
 .button-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--size-space-md);
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: 8px 16px;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: var(--size-radius-md);
+  font-size: var(--size-font-sm);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  background: var(--color-bg-component);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
 .btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--color-bg-component-hover);
 }
 
 .btn:active {
   transform: translateY(0);
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
+.btn.primary {
+  background: var(--color-primary-500);
+  color: white;
+  border-color: var(--color-primary-500);
 }
 
-.btn-success {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  color: #fff;
+.btn.primary:hover {
+  background: var(--color-primary-600);
 }
 
-.btn-error {
-  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-  color: #fff;
+.btn.success {
+  background: var(--color-success-500);
+  color: white;
+  border-color: var(--color-success-500);
 }
 
-.btn-warning {
-  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
-  color: #1a1a2e;
+.btn.success:hover {
+  background: var(--color-success-600);
 }
 
-.btn-info {
-  background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
-  color: #fff;
+.btn.error {
+  background: var(--color-error-500);
+  color: white;
+  border-color: var(--color-error-500);
 }
 
-.btn-loading {
-  background: linear-gradient(135deg, #8e9eab 0%, #eef2f3 100%);
-  color: #1a1a2e;
+.btn.error:hover {
+  background: var(--color-error-600);
 }
 
-.btn-secondary {
-  background: #f1f5f9;
-  color: #475569;
-  border: 1px solid #e2e8f0;
+.btn.warning {
+  background: var(--color-warning-500);
+  color: white;
+  border-color: var(--color-warning-500);
 }
 
-.btn-secondary:hover {
-  background: #e2e8f0;
+.btn.warning:hover {
+  background: var(--color-warning-600);
 }
 
-.result {
-  margin-top: 16px;
-  padding: 12px 16px;
-  background: #f0fdf4;
-  border-radius: 8px;
-  color: #166534;
-  font-size: 14px;
+.btn.info {
+  background: var(--color-info-500);
+  color: white;
+  border-color: var(--color-info-500);
 }
 
-.custom-modal-content {
-  line-height: 1.8;
+.btn.info:hover {
+  background: var(--color-info-600);
 }
 
-.custom-modal-content ul {
-  margin: 12px 0;
+.btn.loading {
+  background: var(--color-text-tertiary);
+  color: white;
+  border-color: var(--color-text-tertiary);
+}
+
+.btn.secondary {
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+}
+
+.btn.secondary:hover {
+  background: var(--color-bg-hover);
+}
+
+.btn.anim {
+  background: var(--color-bg-layout);
+  border-color: var(--color-primary-200);
+  color: var(--color-primary-600);
+}
+
+.btn.anim:hover {
+  background: var(--color-primary-50);
+}
+
+.btn.feature {
+  background: var(--color-bg-layout);
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text-primary);
+}
+
+.btn.feature-full {
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-info-500) 100%);
+  color: white;
+  border: none;
+}
+
+.result-box {
+  margin-top: var(--size-space-md);
+  padding: var(--size-space-md);
+  background: var(--color-success-bg);
+  border-radius: var(--size-radius-md);
+  color: var(--color-success-text);
+  font-size: var(--size-font-sm);
+  border: 1px solid var(--color-success-border);
+}
+
+.custom-modal-content,
+.drawer-content,
+.feature-modal-content,
+.full-featured-content,
+.animation-modal-content {
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.custom-modal-content ul,
+.drawer-content ul,
+.feature-list-modal {
+  margin: var(--size-space-md) 0;
   padding-left: 20px;
 }
 
-.custom-modal-content li {
-  margin: 4px 0;
-}
-
-.drawer-content {
-  padding: 16px 0;
-}
-
-.drawer-content h3 {
-  margin: 0 0 16px;
-  color: #1e293b;
-}
-
-.drawer-content ul {
-  margin: 12px 0;
-  padding-left: 20px;
-}
-
+.custom-modal-content li,
 .drawer-content li {
-  margin: 8px 0;
-  color: #475569;
+  margin: 4px 0;
+  color: var(--color-text-secondary);
 }
 
-.drawer-content .tip {
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 100%);
-  border-radius: 8px;
-  color: #3730a3;
-  margin-bottom: 20px;
-  font-size: 14px;
+.drawer-content h3,
+.feature-modal-content h3 {
+  margin: 0 0 var(--size-space-md);
+  color: var(--color-text-primary);
+  font-size: var(--size-font-lg);
+}
+
+.drawer-content .tip,
+.feature-modal-content .tip {
+  padding: var(--size-space-md);
+  background: var(--color-info-bg);
+  border-radius: var(--size-radius-md);
+  color: var(--color-info-text);
+  margin-bottom: var(--size-space-lg);
+  font-size: var(--size-font-sm);
+  border: 1px solid var(--color-info-border);
 }
 
 .drawer-content .feature-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin: 20px 0;
+  gap: var(--size-space-md);
+  margin: var(--size-space-lg) 0;
 }
 
 .drawer-content .feature-item {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  background: #f8fafc;
-  border-radius: 8px;
+  gap: var(--size-space-md);
+  padding: var(--size-space-md);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
 }
 
-.drawer-content .feature-item .icon {
+.drawer-content .feature-item .icon,
+.feature-modal-content .feature-icon {
   font-size: 24px;
   line-height: 1;
 }
 
+.feature-modal-content {
+  text-align: center;
+  padding: var(--size-space-lg) 0;
+}
+
+.feature-modal-content .feature-icon {
+  font-size: 48px;
+  margin-bottom: var(--size-space-md);
+}
+
 .drawer-content .feature-item strong {
   display: block;
-  color: #1e293b;
+  color: var(--color-text-primary);
   margin-bottom: 4px;
 }
 
 .drawer-content .feature-item p {
   margin: 0;
-  color: #64748b;
-  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
 }
 
 .drawer-content .note {
-  padding: 10px 14px;
-  background: #fef3c7;
-  border-radius: 6px;
-  color: #92400e;
-  font-size: 13px;
-  margin-top: 16px;
+  padding: var(--size-space-md);
+  background: var(--color-warning-bg);
+  border-radius: var(--size-radius-md);
+  color: var(--color-warning-text);
+  font-size: var(--size-font-sm);
+  margin-top: var(--size-space-lg);
+  border: 1px solid var(--color-warning-border);
 }
 
-.btn-info {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
+.animation-modal-content {
+  text-align: center;
+  padding: var(--size-space-lg) 0;
 }
 
-.btn-info:hover {
-  filter: brightness(1.1);
+.animation-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--color-primary-100);
+  color: var(--color-primary-600);
+  border-radius: 20px;
+  font-weight: 600;
+  margin-bottom: var(--size-space-md);
+}
+
+.animation-desc {
+  color: var(--color-text-tertiary);
+  font-size: var(--size-font-sm);
+  margin-top: var(--size-space-md);
+}
+
+.feature-badges {
+  display: flex;
+  justify-content: center;
+  gap: var(--size-space-sm);
+  margin-bottom: var(--size-space-lg);
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: var(--size-font-xs);
+  font-weight: 600;
+}
+
+.badge-drag {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge-resize {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.badge-max {
+  background: #f3e8ff;
+  color: #7e22ce;
 }
 </style>

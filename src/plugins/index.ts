@@ -24,6 +24,7 @@ import { createRouterPlugin } from './router'
 import { createColorPlugin } from './color'
 import { createSizePlugin } from './size'
 import { createHttpPlugin } from './http'
+import { createApiEnginePlugin } from './api'
 import { createDevicePlugin } from './device'
 import { createCachePlugin } from './cache'
 import { createStorePlugin } from './store'
@@ -63,6 +64,7 @@ export function createEnginePlugins() {
     createColorPlugin(),
     createSizePlugin(),
     createHttpPlugin(),
+    createApiEnginePlugin(),
     createDevicePlugin(),
     createCachePlugin(),
     createStorePlugin(),
@@ -88,6 +90,7 @@ export {
   createColorPlugin,
   createSizePlugin,
   createHttpPlugin,
+  createApiEnginePlugin,
   createDevicePlugin,
   createCachePlugin,
   createStorePlugin,
