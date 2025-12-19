@@ -4,7 +4,24 @@
  *
  * 展示 @ldesign/template-vue 中的布局组件使用
  */
-import { ref } from 'vue'
+import { ref, h } from 'vue'
+import {
+  Palette,
+  LayoutDashboard,
+  Users,
+  Settings,
+  FileText,
+  Pin,
+  Menu,
+  User,
+  Maximize,
+  TrendingUp,
+  TrendingDown,
+  Folder,
+  X,
+  CreditCard,
+  LogIn
+} from 'lucide-vue-next'
 
 interface TabItem {
   key: string
@@ -23,10 +40,10 @@ const showFooter = ref(true)
 
 // 模拟菜单数据
 const menuItems = [
-  { key: 'dashboard', label: '📊 仪表盘', icon: '📊' },
-  { key: 'users', label: '👥 用户管理', icon: '👥' },
-  { key: 'settings', label: '⚙️ 系统设置', icon: '⚙️' },
-  { key: 'logs', label: '📝 操作日志', icon: '📝' },
+  { key: 'dashboard', label: '仪表盘', icon: h(LayoutDashboard) },
+  { key: 'users', label: '用户管理', icon: h(Users) },
+  { key: 'settings', label: '系统设置', icon: h(Settings) },
+  { key: 'logs', label: '操作日志', icon: h(FileText) },
 ]
 
 // 模拟标签页数据
@@ -68,7 +85,10 @@ function handleTabClose(key: string) {
   <div class="layout-demo page-container">
     <!-- 布局模式选择器 -->
     <div class="section-card">
-      <h2 class="section-title">🎨 布局系统演示</h2>
+      <h2 class="section-title">
+        <Palette class="section-icon" />
+        布局系统演示
+      </h2>
       <p class="section-desc">选择布局模式查看不同布局效果：</p>
       <div class="mode-buttons">
         <button v-for="mode in layoutModes" :key="mode" :class="['mode-btn', { active: currentMode === mode }]"
@@ -86,12 +106,13 @@ function handleTabClose(key: string) {
           <!-- 侧边栏 -->
           <aside class="admin-sider" :class="{ collapsed: siderCollapsed }">
             <div class="sider-logo">
-              {{ siderCollapsed ? '🎨' : '🎨 LDesign' }}
+              <Palette class="logo-icon" />
+              <span v-if="!siderCollapsed">LDesign</span>
             </div>
             <nav class="sider-menu">
               <div v-for="item in menuItems" :key="item.key" class="menu-item">
-                <span class="menu-icon">{{ item.icon }}</span>
-                <span v-if="!siderCollapsed" class="menu-text">{{ item.label.slice(2) }}</span>
+                <component :is="item.icon" class="menu-icon" />
+                <span v-if="!siderCollapsed" class="menu-text">{{ item.label }}</span>
               </div>
             </nav>
           </aside>
@@ -100,18 +121,23 @@ function handleTabClose(key: string) {
           <div class="admin-main">
             <!-- 顶栏 -->
             <header class="admin-header">
-              <button class="toggle-btn" @click="toggleSider">☰</button>
+              <button class="toggle-btn" @click="toggleSider">
+                <Menu />
+              </button>
               <span class="header-title">Admin Layout</span>
-              <span class="header-user">👤 用户</span>
+              <span class="header-user">
+                <User class="inline-icon" />
+                用户
+              </span>
             </header>
 
             <!-- 标签栏 -->
             <div v-if="showTabs" class="admin-tabs">
               <div v-for="tab in tabs" :key="tab.key" :class="['tab-item', { active: activeTab === tab.key }]"
                 @click="handleTabChange(tab.key)">
-                <span v-if="tab.pinned" class="pin">📌</span>
+                <Pin v-if="tab.pinned" class="pin-icon" />
                 {{ tab.title }}
-                <span v-if="!tab.pinned" class="close" @click.stop="handleTabClose(tab.key)">×</span>
+                <X v-if="!tab.pinned" class="close-icon" @click.stop="handleTabClose(tab.key)" />
               </div>
             </div>
 
@@ -139,7 +165,10 @@ function handleTabClose(key: string) {
       <div v-else-if="currentMode === 'portal'" class="preview-frame">
         <div class="portal-layout">
           <header class="portal-header">
-            <span class="portal-logo">🎨 LDesign Portal</span>
+            <span class="portal-logo">
+              <Palette class="inline-icon" />
+              LDesign Portal
+            </span>
             <nav class="portal-nav">
               <span>首页</span>
               <span>产品</span>
@@ -149,6 +178,7 @@ function handleTabClose(key: string) {
             <span class="portal-login">登录</span>
           </header>
           <main class="portal-content">
+            <CreditCard class="large-icon" />
             <h3>Portal 门户布局</h3>
             <p>适合官网、博客、门户网站等顶部导航的场景。</p>
           </main>
@@ -162,16 +192,34 @@ function handleTabClose(key: string) {
       <div v-else-if="currentMode === 'dashboard'" class="preview-frame">
         <div class="dashboard-layout">
           <header class="dashboard-header">
-            <span>📊 数据监控中心</span>
+            <span class="flex-center">
+              <LayoutDashboard class="inline-icon" />
+              数据监控中心
+            </span>
             <span>2024-01-01 12:00:00</span>
-            <span>⛶ 全屏</span>
+            <span class="flex-center">
+              <Maximize class="inline-icon" />
+              全屏
+            </span>
           </header>
           <main class="dashboard-content">
             <div class="dashboard-grid">
-              <div class="dashboard-card">📈 图表 1</div>
-              <div class="dashboard-card">📊 图表 2</div>
-              <div class="dashboard-card">📉 图表 3</div>
-              <div class="dashboard-card">🗂️ 图表 4</div>
+              <div class="dashboard-card">
+                <TrendingUp class="card-icon up" />
+                图表 1
+              </div>
+              <div class="dashboard-card">
+                <LayoutDashboard class="card-icon" />
+                图表 2
+              </div>
+              <div class="dashboard-card">
+                <TrendingDown class="card-icon down" />
+                图表 3
+              </div>
+              <div class="dashboard-card">
+                <Folder class="card-icon" />
+                图表 4
+              </div>
             </div>
           </main>
         </div>
@@ -184,7 +232,10 @@ function handleTabClose(key: string) {
             <h3>Blank 空白布局</h3>
             <p>无任何装饰的空白布局，适合登录页、错误页等。</p>
             <div class="login-card">
-              <h4>登录</h4>
+              <h4>
+                <LogIn class="inline-icon" />
+                登录
+              </h4>
               <input type="text" placeholder="用户名" class="input">
               <input type="password" placeholder="密码" class="input">
               <button class="login-btn">登录</button>
@@ -213,10 +264,19 @@ function handleTabClose(key: string) {
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   margin: 0 0 var(--size-space-sm);
   font-size: var(--size-font-lg);
   color: var(--color-text-primary);
   font-weight: 600;
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .section-desc {
@@ -239,6 +299,7 @@ function handleTabClose(key: string) {
   transition: all 0.2s;
   font-size: var(--size-font-sm);
   color: var(--color-text-primary);
+  text-transform: capitalize;
 }
 
 .mode-btn:hover {
@@ -292,11 +353,18 @@ function handleTabClose(key: string) {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   font-weight: bold;
   font-size: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   white-space: nowrap;
   overflow: hidden;
+  color: #fff;
+}
+
+.logo-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .sider-menu {
@@ -324,7 +392,8 @@ function handleTabClose(key: string) {
 }
 
 .menu-icon {
-  font-size: 16px;
+  width: 16px;
+  height: 16px;
 }
 
 .admin-main {
@@ -348,10 +417,11 @@ function handleTabClose(key: string) {
 .toggle-btn {
   background: none;
   border: none;
-  font-size: 18px;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 4px;
   color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
 }
 
 .header-title {
@@ -360,6 +430,9 @@ function handleTabClose(key: string) {
 
 .header-user {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .admin-tabs {
@@ -389,17 +462,19 @@ function handleTabClose(key: string) {
   color: var(--color-primary-600);
 }
 
-.tab-item .pin {
-  font-size: 10px;
+.pin-icon {
+  width: 12px;
+  height: 12px;
 }
 
-.tab-item .close {
-  font-size: 14px;
+.close-icon {
+  width: 14px;
+  height: 14px;
   margin-left: 4px;
   opacity: 0.5;
 }
 
-.tab-item .close:hover {
+.close-icon:hover {
   opacity: 1;
   color: var(--color-error-500);
 }
@@ -472,6 +547,9 @@ function handleTabClose(key: string) {
 .portal-logo {
   font-size: 18px;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .portal-nav {
@@ -501,6 +579,13 @@ function handleTabClose(key: string) {
   justify-content: center;
   text-align: center;
   padding: 48px;
+}
+
+.large-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--color-primary-200);
+  margin-bottom: 24px;
 }
 
 .portal-content h3 {
@@ -559,9 +644,25 @@ function handleTabClose(key: string) {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 18px;
+  gap: 16px;
+}
+
+.card-icon {
+  width: 32px;
+  height: 32px;
+  opacity: 0.8;
+}
+
+.card-icon.up {
+  color: #10b981;
+}
+
+.card-icon.down {
+  color: #ef4444;
 }
 
 /* ==================== Blank 布局 ==================== */
@@ -599,6 +700,10 @@ function handleTabClose(key: string) {
 .login-card h4 {
   margin: 0 0 20px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .input {
@@ -623,5 +728,16 @@ function handleTabClose(key: string) {
 
 .login-btn:hover {
   background: var(--color-primary-600);
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-icon {
+  width: 16px;
+  height: 16px;
 }
 </style>

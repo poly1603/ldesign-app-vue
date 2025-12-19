@@ -3,8 +3,8 @@
  * Menu 组件演示页面
  * 展示菜单的各种功能和样式
  */
-import { ref } from 'vue'
-import { Home, Users, Settings, FileText, Folder, Database, BarChart, Bell, Menu as MenuIcon } from 'lucide-vue-next'
+import { ref, h } from 'vue'
+import { Home, Users, Settings, FileText, Folder, Database, BarChart, Bell, Menu as MenuIcon, User } from 'lucide-vue-next'
 import { LMenu, LMenuItem, LSubMenu } from '@ldesign/menu-vue'
 
 const selectedKey = ref('home')
@@ -21,7 +21,10 @@ function toggleCollapse() {
 
 <template>
   <div class="menu-demo page-container">
-    <h1 class="page-title">Menu 组件演示</h1>
+    <h1 class="page-title">
+      <MenuIcon class="icon-title" />
+      Menu 组件演示
+    </h1>
 
     <div class="controls-card">
       <button @click="toggleCollapse" class="action-btn primary">
@@ -42,29 +45,29 @@ function toggleCollapse() {
         <LMenu v-model:selectedKey="selectedKey" v-model:collapsed="collapsed" :default-open-keys="defaultOpenKeys"
           mode="vertical" theme="light" :collapsed-width="64" :expanded-width="240">
           <!-- 一级菜单项 -->
-          <LMenuItem itemKey="home" label="首页" :icon="Home" />
-          <LMenuItem itemKey="dashboard" label="仪表盘" :icon="BarChart" />
+          <LMenuItem itemKey="home" label="首页" :icon="h(Home)" />
+          <LMenuItem itemKey="dashboard" label="仪表盘" :icon="h(BarChart)" />
 
           <!-- 子菜单 -->
-          <LSubMenu itemKey="users" label="用户管理" :icon="Users">
-            <LMenuItem itemKey="user-list" label="用户列表" :icon="FileText" />
-            <LMenuItem itemKey="user-roles" label="角色管理" :icon="Folder" />
+          <LSubMenu itemKey="users" label="用户管理" :icon="h(Users)">
+            <LMenuItem itemKey="user-list" label="用户列表" :icon="h(FileText)" />
+            <LMenuItem itemKey="user-roles" label="角色管理" :icon="h(Folder)" />
 
             <!-- 多级子菜单 -->
-            <LSubMenu itemKey="user-settings" label="用户设置" :icon="Settings">
-              <LMenuItem itemKey="user-profile" label="个人资料" />
+            <LSubMenu itemKey="user-settings" label="用户设置" :icon="h(Settings)">
+              <LMenuItem itemKey="user-profile" label="个人资料" :icon="h(User)" />
               <LMenuItem itemKey="user-security" label="安全设置" />
               <LMenuItem itemKey="user-privacy" label="隐私设置" />
             </LSubMenu>
           </LSubMenu>
 
-          <LSubMenu itemKey="settings" label="系统设置" :icon="Settings">
+          <LSubMenu itemKey="settings" label="系统设置" :icon="h(Settings)">
             <LMenuItem itemKey="general" label="常规设置" />
-            <LMenuItem itemKey="database" label="数据库配置" :icon="Database" />
-            <LMenuItem itemKey="notifications" label="通知设置" :icon="Bell" />
+            <LMenuItem itemKey="database" label="数据库配置" :icon="h(Database)" />
+            <LMenuItem itemKey="notifications" label="通知设置" :icon="h(Bell)" />
           </LSubMenu>
 
-          <LMenuItem itemKey="reports" label="报表中心" :icon="FileText" />
+          <LMenuItem itemKey="reports" label="报表中心" :icon="h(FileText)" />
         </LMenu>
       </div>
 
@@ -88,9 +91,11 @@ function toggleCollapse() {
           <p>所有颜色和尺寸都使用了 <code>@ldesign/color</code> 和 <code>@ldesign/size</code> 包提供的 CSS 变量：</p>
           <ul class="feature-list">
             <li><strong>颜色</strong>: <code>--color-primary-default</code>, <code>--color-bg-component-hover</code>,
-              <code>--color-text-primary</code> 等</li>
+              <code>--color-text-primary</code> 等
+            </li>
             <li><strong>尺寸</strong>: <code>--size-spacing-md</code>, <code>--size-4</code>,
-              <code>--size-font-base</code> 等</li>
+              <code>--size-font-base</code> 等
+            </li>
           </ul>
         </div>
       </div>
@@ -106,10 +111,19 @@ function toggleCollapse() {
 }
 
 .page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   margin: 0 0 var(--size-space-xl) 0;
   font-size: var(--size-font-2xl);
   color: var(--color-text-primary);
   font-weight: 600;
+}
+
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
 }
 
 .controls-card {

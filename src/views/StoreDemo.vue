@@ -4,9 +4,24 @@
  *
  * 展示 @ldesign/store-vue 的核心功能
  */
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore, storeToRefs } from '@ldesign/store-vue'
 import { usePersist, useSimpleStore } from '@ldesign/store-vue'
+import {
+  Database,
+  BarChart,
+  User,
+  List,
+  Target,
+  Save,
+  Plus,
+  Minus,
+  RefreshCw,
+  Trash2,
+  X,
+  Clock,
+  Zap
+} from 'lucide-vue-next'
 
 // ==================== 1. 基础计数器 Store ====================
 const useCounterStore = defineStore('counter', {
@@ -114,8 +129,6 @@ const userStore = useUserStore()
 const todoStore = useTodoStore()
 
 const { count, doubleCount, historyLength } = storeToRefs(counterStore)
-const { name, email, preferences } = storeToRefs(userStore)
-const { filteredTodos, completedCount, activeCount, filter } = storeToRefs(todoStore)
 
 // ==================== 简单 Store ====================
 const { state: simpleState, setState: setSimpleState, reset: resetSimple } = useSimpleStore({
@@ -130,6 +143,11 @@ const { value: persistedValue, clear: clearPersisted } = usePersist<{ visits: nu
   defaultValue: { visits: 0 },
 })
 persistedValue.value.visits++
+
+// 使用计算属性供模板访问，避免模板类型提示干扰
+const simpleMessage = computed(() => simpleState.value.message)
+const simpleClicks = computed(() => simpleState.value.clicks)
+const visitsCount = computed(() => persistedValue.value.visits)
 
 // ==================== 本地状态 ====================
 const newTodoText = ref('')
@@ -160,25 +178,42 @@ const incrementAsync = async () => {
 
 
 <template>
-  <div class="store-demo page-container">
-    <h1 class="page-title">🗃️ Store 状态管理演示</h1>
+  <div class="store-demo page-shell section-stack">
+    <h1 class="page-title">
+      <Database class="icon-title" />
+      Store 状态管理演示
+    </h1>
     <p class="subtitle">@ldesign/store-vue - 基于 Pinia 的增强版状态管理</p>
 
     <!-- 计数器 Store -->
     <section class="section-card">
-      <h2 class="section-title">📊 计数器 Store</h2>
+      <h2 class="section-title">
+        <BarChart class="section-icon" />
+        计数器 Store
+      </h2>
       <div class="demo-content">
         <div class="counter-display">
           <span class="count">{{ count }}</span>
           <span class="double">双倍: {{ doubleCount }}</span>
         </div>
         <div class="button-group">
-          <button class="btn" @click="counterStore.decrement()">➖ 减少</button>
-          <button class="btn" @click="counterStore.increment()">➕ 增加</button>
-          <button class="btn primary" :disabled="isLoading" @click="incrementAsync">
-            {{ isLoading ? '⏳ 加载中...' : '⏱️ 异步增加' }}
+          <button class="btn" @click="counterStore.decrement()">
+            <Minus class="btn-icon" />
+            减少
           </button>
-          <button class="btn warning" @click="counterStore.reset()">🔄 重置</button>
+          <button class="btn" @click="counterStore.increment()">
+            <Plus class="btn-icon" />
+            增加
+          </button>
+          <button class="btn primary" :disabled="isLoading" @click="incrementAsync">
+            <Clock v-if="isLoading" class="btn-icon spin" />
+            <Zap v-else class="btn-icon" />
+            {{ isLoading ? '加载中...' : '异步增加' }}
+          </button>
+          <button class="btn warning" @click="counterStore.reset()">
+            <RefreshCw class="btn-icon" />
+            重置
+          </button>
         </div>
         <p class="info-text">历史记录: {{ historyLength }} 条</p>
       </div>
@@ -186,17 +221,23 @@ const incrementAsync = async () => {
 
     <!-- 用户信息 Store -->
     <section class="section-card">
-      <h2 class="section-title">👤 用户信息 Store</h2>
+      <h2 class="section-title">
+        <User class="section-icon" />
+        用户信息 Store
+      </h2>
       <div class="demo-content">
-        <div v-if="name" class="user-info">
-          <p><strong>姓名:</strong> {{ name }}</p>
-          <p><strong>邮箱:</strong> {{ email }}</p>
-          <p><strong>主题:</strong> {{ preferences.theme }}</p>
+        <div v-if="userStore.name" class="user-info">
+          <p><strong>姓名:</strong> {{ userStore.name }}</p>
+          <p><strong>邮箱:</strong> {{ userStore.email }}</p>
+          <p><strong>主题:</strong> {{ userStore.preferences.theme }}</p>
           <div class="button-group mt-4">
-            <button class="btn" @click="userStore.setTheme(preferences.theme === 'light' ? 'dark' : 'light')">
+            <button class="btn" @click="userStore.setTheme(userStore.preferences.theme === 'light' ? 'dark' : 'light')">
               切换主题
             </button>
-            <button class="btn danger" @click="userStore.clearUser()">清除用户</button>
+            <button class="btn danger" @click="userStore.clearUser()">
+              <Trash2 class="btn-icon" />
+              清除用户
+            </button>
           </div>
         </div>
         <div v-else class="user-form">
@@ -209,32 +250,44 @@ const incrementAsync = async () => {
 
     <!-- 待办事项 Store -->
     <section class="section-card">
-      <h2 class="section-title">📝 待办事项 Store</h2>
+      <h2 class="section-title">
+        <List class="section-icon" />
+        待办事项 Store
+      </h2>
       <div class="demo-content">
         <div class="todo-input">
           <input v-model="newTodoText" placeholder="添加新待办..." @keyup.enter="addTodo" class="input">
-          <button class="btn primary" @click="addTodo">添加</button>
+          <button class="btn primary" @click="addTodo">
+            <Plus class="btn-icon" />
+            添加
+          </button>
         </div>
         <div class="todo-filters">
-          <button class="filter-btn" :class="{ active: filter === 'all' }" @click="todoStore.filter = 'all'">全部</button>
-          <button class="filter-btn" :class="{ active: filter === 'active' }" @click="todoStore.filter = 'active'">
-            待完成 ({{ activeCount }})
+          <button class="filter-btn" :class="{ active: todoStore.filter === 'all' }"
+            @click="todoStore.filter = 'all'">全部</button>
+          <button class="filter-btn" :class="{ active: todoStore.filter === 'active' }"
+            @click="todoStore.filter = 'active'">
+            待完成 ({{ todoStore.activeCount }})
           </button>
-          <button class="filter-btn" :class="{ active: filter === 'completed' }"
+          <button class="filter-btn" :class="{ active: todoStore.filter === 'completed' }"
             @click="todoStore.filter = 'completed'">
-            已完成 ({{ completedCount }})
+            已完成 ({{ todoStore.completedCount }})
           </button>
         </div>
         <ul class="todo-list">
-          <li v-for="todo in filteredTodos" :key="todo.id" :class="{ completed: todo.completed }">
+          <li v-for="todo in todoStore.filteredTodos" :key="todo.id" :class="{ completed: todo.completed }">
             <label class="todo-item-inner">
               <input type="checkbox" :checked="todo.completed" @change="todoStore.toggleTodo(todo.id)">
               <span class="todo-text">{{ todo.text }}</span>
             </label>
-            <button class="delete-btn" @click="todoStore.removeTodo(todo.id)">✕</button>
+            <button class="delete-btn" @click="todoStore.removeTodo(todo.id)">
+              <X class="mini-icon" />
+            </button>
           </li>
         </ul>
-        <button v-if="completedCount > 0" class="btn danger clear-completed" @click="todoStore.clearCompleted()">
+        <button v-if="todoStore.completedCount > 0" class="btn danger clear-completed"
+          @click="todoStore.clearCompleted()">
+          <Trash2 class="btn-icon" />
           清除已完成
         </button>
       </div>
@@ -242,12 +295,15 @@ const incrementAsync = async () => {
 
     <!-- 简单 Store -->
     <section class="section-card">
-      <h2 class="section-title">🎯 简单 Store（无 Pinia）</h2>
+      <h2 class="section-title">
+        <Target class="section-icon" />
+        简单 Store（无 Pinia）
+      </h2>
       <div class="demo-content">
-        <p>消息: {{ simpleState.message }}</p>
-        <p>点击次数: {{ simpleState.clicks }}</p>
+        <p>消息: {{ simpleMessage }}</p>
+        <p>点击次数: {{ simpleClicks }}</p>
         <div class="button-group mt-4">
-          <button class="btn primary" @click="setSimpleState({ clicks: simpleState.clicks + 1 })">点击 +1</button>
+          <button class="btn primary" @click="setSimpleState({ clicks: simpleClicks + 1 })">点击 +1</button>
           <button class="btn" @click="resetSimple()">重置</button>
         </div>
       </div>
@@ -255,9 +311,12 @@ const incrementAsync = async () => {
 
     <!-- 持久化 Hook -->
     <section class="section-card">
-      <h2 class="section-title">💾 持久化 Hook</h2>
+      <h2 class="section-title">
+        <Save class="section-icon" />
+        持久化 Hook
+      </h2>
       <div class="demo-content">
-        <p>页面访问次数: <strong>{{ persistedValue.visits }}</strong></p>
+        <p>页面访问次数: <strong>{{ visitsCount }}</strong></p>
         <div class="button-group mt-4">
           <button class="btn danger" @click="clearPersisted()">清除访问记录</button>
         </div>
@@ -275,11 +334,21 @@ const incrementAsync = async () => {
 }
 
 .page-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-space-sm);
   text-align: center;
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-sm);
   font-size: var(--size-font-2xl);
   font-weight: 600;
+}
+
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
 }
 
 .subtitle {
@@ -299,12 +368,21 @@ const incrementAsync = async () => {
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   margin-top: 0;
   color: var(--color-text-primary);
   border-bottom: 2px solid var(--color-primary-500);
   padding-bottom: var(--size-space-sm);
   font-size: var(--size-font-lg);
   font-weight: 600;
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .demo-content {
@@ -340,6 +418,9 @@ const incrementAsync = async () => {
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--size-radius-md);
@@ -350,6 +431,11 @@ const incrementAsync = async () => {
   font-size: var(--size-font-sm);
   font-weight: 500;
   border: 1px solid var(--color-border);
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .btn:hover:not(:disabled) {
@@ -490,7 +576,26 @@ const incrementAsync = async () => {
   opacity: 1;
 }
 
+.mini-icon {
+  width: 16px;
+  height: 16px;
+}
+
 .clear-completed {
   margin-top: var(--size-space-md);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

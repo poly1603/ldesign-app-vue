@@ -2,6 +2,7 @@
 import { BaseThemeAdapter } from '@ldesign/color-core'
 import { useI18n } from '@ldesign/i18n-vue'
 import { computed, onMounted, ref } from 'vue'
+import { Palette, Moon, Sun, RefreshCw, Trash2, Check } from 'lucide-vue-next'
 
 const { t } = useI18n()
 
@@ -100,6 +101,7 @@ onMounted(() => {
         <div class="section-header">
           <div>
             <h1 class="page-title white-text">
+              <Palette class="icon-title" />
               {{ t('theme.title') }}
             </h1>
             <p class="section-description">
@@ -108,9 +110,12 @@ onMounted(() => {
           </div>
           <div class="hero-actions">
             <button class="btn glass" :disabled="isLoading" @click="toggleDarkMode">
+              <Moon v-if="currentTheme?.isDark" class="btn-icon" />
+              <Sun v-else class="btn-icon" />
               {{ currentTheme?.isDark ? t('theme.lightMode') : t('theme.darkMode') }}
             </button>
             <button class="btn glass" @click="restoreTheme">
+              <RefreshCw class="btn-icon" />
               {{ t('theme.restore') }}
             </button>
           </div>
@@ -133,7 +138,9 @@ onMounted(() => {
         </div>
         <div class="info-card glass-card">
           <span class="info-card__label">{{ t('theme.modeLabel') }}</span>
-          <span class="info-card__value">
+          <span class="info-card__value flex-center">
+            <Moon v-if="currentTheme?.isDark" class="inline-icon" />
+            <Sun v-else class="inline-icon" />
             {{ currentTheme?.isDark ? t('theme.dark') : t('theme.light') }}
           </span>
         </div>
@@ -144,6 +151,7 @@ onMounted(() => {
       <div class="section-header-row">
         <div>
           <h2 class="section-title">
+            <Palette class="section-icon" />
             {{ t('theme.customizeTitle') }}
           </h2>
           <p class="section-desc">
@@ -163,6 +171,7 @@ onMounted(() => {
               <input v-model="customColor" class="color-input" type="color" @change="applyCustomTheme">
             </div>
             <button class="btn primary" :disabled="isLoading" @click="applyCustomTheme">
+              <Check class="btn-icon" />
               {{ t('theme.apply') }}
             </button>
           </div>
@@ -179,6 +188,7 @@ onMounted(() => {
               <option v-for="preset in presetList" :key="preset" :value="preset">{{ preset }}</option>
             </select>
             <button class="btn secondary" :disabled="!selectedPreset" @click="applyPreset">
+              <Check class="btn-icon" />
               {{ t('theme.applyPreset') }}
             </button>
           </div>
@@ -191,9 +201,11 @@ onMounted(() => {
           </div>
           <div class="control-actions">
             <button class="btn secondary" @click="clearTheme">
+              <Trash2 class="btn-icon" />
               {{ t('theme.clear') }}
             </button>
             <button class="btn secondary" @click="restoreTheme">
+              <RefreshCw class="btn-icon" />
               {{ t('theme.restore') }}
             </button>
           </div>
@@ -241,6 +253,14 @@ onMounted(() => {
   margin: 0 0 var(--size-space-xs);
   font-size: var(--size-font-2xl);
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+}
+
+.icon-title {
+  width: 32px;
+  height: 32px;
 }
 
 .section-description {
@@ -310,6 +330,15 @@ onMounted(() => {
   font-weight: 600;
   color: var(--color-text-primary);
   margin: 0 0 var(--size-space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .section-desc {
@@ -368,6 +397,9 @@ onMounted(() => {
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 16px;
   border-radius: var(--size-radius-md);
   font-size: var(--size-font-sm);
@@ -375,6 +407,11 @@ onMounted(() => {
   cursor: pointer;
   border: 1px solid transparent;
   transition: all 0.2s;
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .btn.primary {
@@ -466,6 +503,17 @@ onMounted(() => {
   border-top-color: var(--color-primary-500);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-icon {
+  width: 16px;
+  height: 16px;
 }
 
 @keyframes spin {

@@ -1,7 +1,18 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import type { User, Post } from '../api'
 import { userApis, postApis, useRestfulApi } from '../api'
+import {
+  Globe,
+  Activity,
+  RefreshCw,
+  Database,
+  FileText,
+  RotateCw,
+  CheckCircle,
+  XCircle,
+  User as UserIcon,
+  Mail
+} from 'lucide-vue-next'
 
 // 标签页状态
 const activeTab = ref('basic')
@@ -18,7 +29,7 @@ const {
   loading: isLoadingUsers,
   error: usersError,
   execute: refetchUsers,
-} = useRestfulApi<User[]>(userApis.list)
+} = useRestfulApi(userApis.list)
 
 // ==================== 2. 变更请求示例 ====================
 const newUser = ref({
@@ -32,7 +43,7 @@ const {
   loading: isCreating,
   error: createError,
   execute: createUser,
-} = useRestfulApi<User, Partial<User>>(userApis.create)
+} = useRestfulApi(userApis.create)
 
 async function handleCreateUser() {
   try {
@@ -54,7 +65,7 @@ const {
   loading: isLoadingPosts,
   error: postsError,
   execute: fetchPosts,
-} = useRestfulApi<Post[]>(postApis.list)
+} = useRestfulApi(postApis.list)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const hasNextPage = ref(true)
@@ -92,7 +103,7 @@ function prevPage() {
 const {
   data: pollingData,
   execute: fetchPollingUser,
-} = useRestfulApi<User, { id: number }>(userApis.get, {
+} = useRestfulApi(userApis.get, {
   pathParams: {
     id: 1,
   },
@@ -153,11 +164,16 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="http-demo page-container">
-    <h1 class="page-title">HTTP 请求示例</h1>
-    <p class="page-desc">
-      演示 @ldesign/http-vue 的各种功能，包括基础请求、查询、变更、分页等
-    </p>
+  <div class="http-demo page-shell section-stack">
+    <div class="header-section">
+      <h1 class="page-title">
+        <Globe class="icon-title" />
+        HTTP 请求示例
+      </h1>
+      <p class="page-desc">
+        演示 @ldesign/http-vue 的各种功能，包括基础请求、查询、变更、分页等
+      </p>
+    </div>
 
     <!-- 标签页切换 -->
     <div class="tabs-container">
@@ -172,11 +188,15 @@ onUnmounted(() => {
     <!-- 基础请求示例 -->
     <div v-if="activeTab === 'basic'" class="tab-content">
       <section class="section-card">
-        <h2 class="section-title">1. 基础请求 (useQuery)</h2>
+        <h2 class="section-title">
+          <Database class="section-icon" />
+          1. 基础请求 (useQuery)
+        </h2>
         <p class="section-desc">使用 useQuery 获取用户列表，支持自动缓存和重试</p>
 
         <div class="demo-section">
           <button class="btn primary" :disabled="isLoadingUsers" @click="refetchUsers">
+            <RefreshCw class="btn-icon" :class="{ 'spin': isLoadingUsers }" />
             {{ isLoadingUsers ? '加载中...' : '刷新用户列表' }}
           </button>
 
@@ -186,18 +206,28 @@ onUnmounted(() => {
           </div>
 
           <div v-else-if="usersError" class="error-box">
-            <p>❌ 错误: {{ usersError.message }}</p>
+            <p class="flex-center">
+              <XCircle class="inline-icon" /> 错误: {{ usersError.message }}
+            </p>
             <button class="btn secondary" @click="refetchUsers">
+              <RotateCw class="btn-icon" />
               重试
             </button>
           </div>
 
           <div v-else-if="users" class="success">
-            <p class="success-text">✅ 成功加载 {{ users.length }} 个用户</p>
+            <p class="success-text flex-center">
+              <CheckCircle class="inline-icon" /> 成功加载 {{ users.length }} 个用户
+            </p>
             <div class="user-list">
               <div v-for="user in users.slice(0, 5)" :key="user.id" class="user-card">
-                <h3>{{ user.name }}</h3>
-                <p>{{ user.email }}</p>
+                <h3>
+                  <UserIcon class="card-icon" />
+                  {{ user.name }}
+                </h3>
+                <p class="flex-center">
+                  <Mail class="mini-icon" /> {{ user.email }}
+                </p>
                 <p>{{ user.company.name }}</p>
               </div>
             </div>
@@ -209,7 +239,10 @@ onUnmounted(() => {
     <!-- 变更请求示例 -->
     <div v-if="activeTab === 'mutation'" class="tab-content">
       <section class="section-card">
-        <h2 class="section-title">2. 变更请求 (useMutation)</h2>
+        <h2 class="section-title">
+          <Activity class="section-icon" />
+          2. 变更请求 (useMutation)
+        </h2>
         <p class="section-desc">使用 useMutation 创建新用户</p>
 
         <div class="demo-section">
@@ -232,11 +265,15 @@ onUnmounted(() => {
           </form>
 
           <div v-if="createError" class="error-box">
-            <p>❌ 创建失败: {{ createError.message }}</p>
+            <p class="flex-center">
+              <XCircle class="inline-icon" /> 创建失败: {{ createError.message }}
+            </p>
           </div>
 
           <div v-if="createdUser" class="success-box">
-            <p>✅ 用户创建成功!</p>
+            <p class="flex-center">
+              <CheckCircle class="inline-icon" /> 用户创建成功!
+            </p>
             <pre class="code-block">{{ JSON.stringify(createdUser, null, 2) }}</pre>
           </div>
         </div>
@@ -246,7 +283,10 @@ onUnmounted(() => {
     <!-- 分页请求示例 -->
     <div v-if="activeTab === 'pagination'" class="tab-content">
       <section class="section-card">
-        <h2 class="section-title">3. 分页请求 (usePagination)</h2>
+        <h2 class="section-title">
+          <FileText class="section-icon" />
+          3. 分页请求 (usePagination)
+        </h2>
         <p class="section-desc">使用 usePagination 实现文章列表分页</p>
 
         <div class="demo-section">
@@ -266,7 +306,9 @@ onUnmounted(() => {
           </div>
 
           <div v-else-if="postsError" class="error-box">
-            <p>❌ 错误: {{ postsError.message }}</p>
+            <p class="flex-center">
+              <XCircle class="inline-icon" /> 错误: {{ postsError.message }}
+            </p>
           </div>
 
           <div v-else-if="posts" class="success">
@@ -284,19 +326,28 @@ onUnmounted(() => {
     <!-- 轮询请求示例 -->
     <div v-if="activeTab === 'polling'" class="tab-content">
       <section class="section-card">
-        <h2 class="section-title">4. 轮询请求 (usePolling)</h2>
+        <h2 class="section-title">
+          <RefreshCw class="section-icon" />
+          4. 轮询请求 (usePolling)
+        </h2>
         <p class="section-desc">使用 usePolling 定时获取数据</p>
 
         <div class="demo-section">
           <div class="polling-controls">
             <button class="btn" :class="isPolling ? 'warning' : 'primary'" @click="togglePolling">
+              <RefreshCw class="btn-icon" :class="{ 'spin': isPolling }" />
               {{ isPolling ? '停止轮询' : '开始轮询' }}
             </button>
-            <span v-if="isPolling" class="polling-status">轮询中... (每 5 秒)</span>
+            <span v-if="isPolling" class="polling-status flex-center">
+              <Activity class="inline-icon spin" />
+              轮询中... (每 5 秒)
+            </span>
           </div>
 
           <div v-if="pollingData" class="success-box">
-            <p>✅ 最后更新: {{ new Date().toLocaleTimeString() }}</p>
+            <p class="flex-center">
+              <CheckCircle class="inline-icon" /> 最后更新: {{ new Date().toLocaleTimeString() }}
+            </p>
             <pre class="code-block">{{ JSON.stringify(pollingData, null, 2) }}</pre>
           </div>
         </div>
@@ -307,21 +358,33 @@ onUnmounted(() => {
 
 <style scoped>
 .http-demo {
-  max-width: var(--size-size-64);
+  max-width: 1000px;
   margin: 0 auto;
   padding: var(--size-space-lg);
 }
 
+.header-section {
+  margin-bottom: var(--size-space-xl);
+}
+
 .page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-sm);
 }
 
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
+}
+
 .page-desc {
   color: var(--color-text-secondary);
-  margin-bottom: var(--size-space-xl);
   font-size: var(--size-font-md);
 }
 
@@ -376,18 +439,22 @@ onUnmounted(() => {
 
 .section-card {
   margin-bottom: var(--size-space-lg);
-  padding: var(--size-space-lg);
-  background: var(--color-bg-container);
-  border-radius: var(--size-radius-lg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--color-border-secondary);
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-sm);
   font-weight: 600;
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .section-desc {
@@ -398,6 +465,10 @@ onUnmounted(() => {
 
 /* 按钮 */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--size-radius-md);
@@ -408,6 +479,11 @@ onUnmounted(() => {
   background: var(--color-bg-component);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border);
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .btn:hover:not(:disabled) {
@@ -466,6 +542,10 @@ onUnmounted(() => {
   }
 }
 
+.spin {
+  animation: spin 1s linear infinite;
+}
+
 /* 错误状态 */
 .error-box {
   background: var(--color-error-bg);
@@ -508,16 +588,31 @@ onUnmounted(() => {
 }
 
 .user-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0 0 var(--size-space-xs) 0;
   color: var(--color-text-primary);
   font-size: var(--size-font-md);
   font-weight: 600;
 }
 
+.card-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary-500);
+}
+
 .user-card p {
-  margin: 2px 0;
+  margin: 4px 0;
   color: var(--color-text-secondary);
   font-size: var(--size-font-sm);
+}
+
+.mini-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
 }
 
 /* 表单 */
@@ -618,8 +713,22 @@ onUnmounted(() => {
 }
 
 .polling-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--color-primary-500);
   font-weight: 500;
   font-size: var(--size-font-sm);
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-icon {
+  width: 16px;
+  height: 16px;
 }
 </style>

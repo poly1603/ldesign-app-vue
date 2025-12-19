@@ -12,6 +12,7 @@ import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
 import { useI18n, LanguageSwitcher } from '@ldesign/i18n-vue'
 import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
 import { SizeSwitcher } from '@ldesign/size-vue'
+import { Loader2 } from 'lucide-vue-next'
 
 /** 登录数据类型 */
 interface LoginData {
@@ -86,7 +87,7 @@ function handleSocialLogin(provider: string): void {
   <div class="login-page">
     <!-- 动态渲染登录模板 -->
     <div v-if="templateLoading" class="template-loading">
-      <div class="spinner"></div>
+      <Loader2 class="spinner" />
       <span>加载模板中...</span>
     </div>
     <component v-else-if="currentTemplate" :is="currentTemplate" title="登录" :on-submit="handleLogin"

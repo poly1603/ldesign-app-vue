@@ -1,9 +1,18 @@
 <template>
-  <div class="crypto-demo page-container">
-    <h1 class="page-title">🔐 加密功能演示</h1>
+  <div class="crypto-demo page-shell section-stack">
+    <div class="header-section">
+      <h1 class="page-title">
+        <Lock class="icon-title" />
+        加密功能演示
+      </h1>
+      <p class="page-desc">展示 @ldesign/crypto-vue 的功能，包括 AES 加密、哈希运算和安全存储。</p>
+    </div>
 
     <section class="section-card">
-      <h2 class="section-title">1. 基础加密/解密</h2>
+      <h2 class="section-title">
+        <KeyRound class="section-icon" />
+        1. 基础加密/解密
+      </h2>
       <div class="form-group">
         <label class="form-label">原始数据：</label>
         <input v-model="plainText" type="text" placeholder="输入要加密的文本" class="input" />
@@ -16,9 +25,11 @@
 
       <div class="button-group">
         <button class="btn primary" @click="handleEncrypt" :disabled="loading">
+          <Lock class="btn-icon" />
           {{ loading ? '加密中...' : '加密' }}
         </button>
         <button class="btn" @click="handleDecrypt" :disabled="loading || !encryptedText">
+          <Unlock class="btn-icon" />
           {{ loading ? '解密中...' : '解密' }}
         </button>
       </div>
@@ -35,14 +46,20 @@
 
       <div v-if="error" class="result-box error">
         <div class="flex-between">
-          <span>❌ 错误：{{ error }}</span>
+          <span class="error-msg">
+            <XCircle class="msg-icon" />
+            错误：{{ error }}
+          </span>
           <button class="btn small danger" @click="clearError">清除</button>
         </div>
       </div>
     </section>
 
     <section class="section-card">
-      <h2 class="section-title">2. 哈希功能</h2>
+      <h2 class="section-title">
+        <Hash class="section-icon" />
+        2. 哈希功能
+      </h2>
       <div class="form-group">
         <label class="form-label">输入文本：</label>
         <input v-model="hashInput" type="text" placeholder="输入要哈希的文本" class="input" />
@@ -61,7 +78,10 @@
     </section>
 
     <section class="section-card">
-      <h2 class="section-title">3. 本地存储加密</h2>
+      <h2 class="section-title">
+        <Save class="section-icon" />
+        3. 本地存储加密
+      </h2>
       <div class="form-group">
         <label class="form-label">存储键名：</label>
         <input v-model="storageKey" type="text" placeholder="输入键名" class="input" />
@@ -73,9 +93,18 @@
       </div>
 
       <div class="button-group">
-        <button class="btn primary" @click="handleSaveEncrypted">加密并保存</button>
-        <button class="btn" @click="handleLoadEncrypted">读取并解密</button>
-        <button class="btn danger" @click="handleClearStorage">清除</button>
+        <button class="btn primary" @click="handleSaveEncrypted">
+          <Save class="btn-icon" />
+          加密并保存
+        </button>
+        <button class="btn" @click="handleLoadEncrypted">
+          <Unlock class="btn-icon" />
+          读取并解密
+        </button>
+        <button class="btn danger" @click="handleClearStorage">
+          <Trash2 class="btn-icon" />
+          清除
+        </button>
       </div>
 
       <div v-if="loadedValue" class="result-box success">
@@ -89,6 +118,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useCrypto, useHash } from '@ldesign/crypto-vue'
+import {
+  Lock,
+  Unlock,
+  KeyRound,
+  Hash,
+  Save,
+  Trash2,
+  XCircle
+} from 'lucide-vue-next'
 
 // 基础加密/解密
 const plainText = ref('Hello, LDesign!')
@@ -170,29 +208,51 @@ function handleClearStorage() {
   padding: var(--size-space-lg);
 }
 
+.header-section {
+  margin-bottom: var(--size-space-xl);
+}
+
 .page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--size-space-xl);
+  margin-bottom: var(--size-space-xs);
+}
+
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
+}
+
+.page-desc {
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-md);
 }
 
 .section-card {
   margin-bottom: var(--size-space-lg);
-  padding: var(--size-space-lg);
-  background: var(--color-bg-container);
-  border-radius: var(--size-radius-lg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--color-border-secondary);
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-md);
   border-bottom: 1px solid var(--color-border-secondary);
   padding-bottom: var(--size-space-sm);
   font-weight: 600;
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .form-group {
@@ -225,6 +285,9 @@ function handleClearStorage() {
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--size-radius-md);
@@ -234,6 +297,11 @@ function handleClearStorage() {
   font-size: var(--size-font-sm);
   transition: all 0.2s;
   font-weight: 500;
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .btn:hover:not(:disabled) {
@@ -301,12 +369,24 @@ function handleClearStorage() {
   font-family: monospace;
   font-size: var(--size-font-xs);
   color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
 .flex-between {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.error-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--color-error-500);
+}
+
+.msg-icon {
+  width: 16px;
+  height: 16px;
 }
 </style>

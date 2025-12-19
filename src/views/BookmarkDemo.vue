@@ -5,7 +5,25 @@
  */
 import type { BookmarkItem } from '@ldesign/bookmark-vue'
 import { BookmarkBar, useBookmarkStore } from '@ldesign/bookmark-vue'
-import { ref, computed } from 'vue'
+import { ref, computed, h } from 'vue'
+import {
+  Home,
+  Wrench,
+  Github,
+  Monitor,
+  Package,
+  Book,
+  FileCode,
+  Settings,
+  Bookmark,
+  Plus,
+  FolderOpen,
+  Folder,
+  Layout,
+  Moon,
+  Sun,
+  MousePointer2
+} from 'lucide-vue-next'
 
 // 示例书签数据
 const sampleBookmarks: BookmarkItem[] = [
@@ -14,28 +32,28 @@ const sampleBookmarks: BookmarkItem[] = [
     type: 'bookmark',
     title: '首页',
     url: '/',
-    icon: '🏠',
+    icon: h(Home),
     pinned: true,
   },
   {
     id: 'folder-dev',
     type: 'folder',
     title: '开发工具',
-    icon: '🛠️',
+    icon: h(Wrench),
     children: [
       {
         id: 'github',
         type: 'bookmark',
         title: 'GitHub',
         url: 'https://github.com',
-        icon: '🐙',
+        icon: h(Github),
       },
       {
         id: 'vscode',
         type: 'bookmark',
         title: 'VS Code',
         url: 'https://code.visualstudio.com',
-        icon: '💻',
+        icon: h(Monitor),
       },
       { type: 'separator' },
       {
@@ -43,7 +61,7 @@ const sampleBookmarks: BookmarkItem[] = [
         type: 'bookmark',
         title: 'NPM',
         url: 'https://npmjs.com',
-        icon: '📦',
+        icon: h(Package),
       },
     ],
   },
@@ -51,21 +69,21 @@ const sampleBookmarks: BookmarkItem[] = [
     id: 'folder-docs',
     type: 'folder',
     title: '文档',
-    icon: '📚',
+    icon: h(Book),
     children: [
       {
         id: 'vue-docs',
         type: 'bookmark',
         title: 'Vue 3 文档',
         url: 'https://vuejs.org',
-        icon: '💚',
+        icon: h(FileCode),
       },
       {
         id: 'ts-docs',
         type: 'bookmark',
         title: 'TypeScript 文档',
         url: 'https://typescriptlang.org',
-        icon: '🔷',
+        icon: h(FileCode),
       },
     ],
   },
@@ -74,7 +92,7 @@ const sampleBookmarks: BookmarkItem[] = [
     type: 'bookmark',
     title: '设置',
     url: '/settings',
-    icon: '⚙️',
+    icon: h(Settings),
   },
 ]
 
@@ -123,7 +141,7 @@ function addBookmark(): void {
     type: 'bookmark',
     title: `新书签 ${Date.now()}`,
     url: 'https://example.com',
-    icon: '🔖',
+    icon: h(Bookmark),
   })
   console.log('添加书签:', newBookmark)
 }
@@ -158,37 +176,52 @@ function collapseAll(): void {
 </script>
 
 <template>
-  <div class="bookmark-demo page-container">
-    <h1 class="page-title">📚 书签系统演示</h1>
+  <div class="bookmark-demo page-shell section-stack">
+    <div class="header-section">
+      <h1 class="page-title">
+        <Bookmark class="icon-title" />
+        书签系统演示
+      </h1>
+      <p class="page-desc">展示 LDesign 书签系统的完整功能，支持拖拽排序、多级文件夹和右键菜单。</p>
+    </div>
 
     <!-- 控制面板 -->
-    <div class="controls-card">
+    <div class="section-card">
       <div class="control-group">
         <button class="action-btn" @click="toggleMode">
-          切换模式: {{ mode === 'horizontal' ? '水平' : '垂直' }}
+          <Layout class="btn-icon" />
+          {{ mode === 'horizontal' ? '水平模式' : '垂直模式' }}
         </button>
         <button class="action-btn" @click="toggleTheme">
-          切换主题: {{ theme === 'light' ? '浅色' : '深色' }}
+          <component :is="theme === 'light' ? Moon : Sun" class="btn-icon" />
+          {{ theme === 'light' ? '深色主题' : '浅色主题' }}
         </button>
         <button class="action-btn primary" @click="addBookmark">
-          ➕ 添加书签
+          <Plus class="btn-icon" />
+          添加书签
         </button>
         <button class="action-btn" @click="expandAll">
-          📂 展开全部
+          <FolderOpen class="btn-icon" />
+          展开全部
         </button>
         <button class="action-btn" @click="collapseAll">
-          📁 收起全部
+          <Folder class="btn-icon" />
+          收起全部
         </button>
         <label class="checkbox-label">
           <input v-model="draggable" type="checkbox">
-          可拖拽
+          <MousePointer2 class="label-icon" />
+          允许拖拽
         </label>
       </div>
     </div>
 
     <!-- 书签栏 -->
     <div class="section-card">
-      <h2 class="section-title">书签栏</h2>
+      <h2 class="section-title">
+        <Layout class="section-icon" />
+        书签栏预览
+      </h2>
       <div class="bookmark-preview" :class="[theme === 'dark' ? 'theme-dark' : 'theme-light']">
         <BookmarkBar ref="bookmarkBarRef" :items="store.items.value" :mode="mode" :theme="theme" :draggable="draggable"
           @select="handleSelect" @contextmenu="handleContextMenu" />
@@ -197,13 +230,19 @@ function collapseAll(): void {
 
     <!-- 选中信息 -->
     <div v-if="selectedBookmark" class="section-card">
-      <h3 class="section-title">选中的书签</h3>
+      <h3 class="section-title">
+        <MousePointer2 class="section-icon" />
+        选中的书签
+      </h3>
       <pre class="code-block">{{ JSON.stringify(selectedBookmark, null, 2) }}</pre>
     </div>
 
     <!-- 状态信息 -->
     <div class="section-card">
-      <h3 class="section-title">当前状态</h3>
+      <h3 class="section-title">
+        <Monitor class="section-icon" />
+        当前状态
+      </h3>
       <div class="info-list">
         <p><strong>选中 ID:</strong> {{ store.selectedId.value || '无' }}</p>
         <p><strong>展开的文件夹:</strong> {{ store.expandedIds.value.join(', ') || '无' }}</p>
@@ -220,20 +259,32 @@ function collapseAll(): void {
   padding: var(--size-space-lg);
 }
 
-.page-title {
-  font-size: var(--size-font-2xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
+.header-section {
   margin-bottom: var(--size-space-xl);
 }
 
-.controls-card {
-  background: var(--color-bg-container);
-  border-radius: var(--size-radius-lg);
-  padding: var(--size-space-lg);
-  margin-bottom: var(--size-space-lg);
-  border: 1px solid var(--color-border-secondary);
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+  font-size: var(--size-font-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--size-space-xs);
 }
+
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
+}
+
+.page-desc {
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-md);
+}
+
+/* 使用全局 .section-card 样式 */
 
 .control-group {
   display: flex;
@@ -242,31 +293,14 @@ function collapseAll(): void {
   align-items: center;
 }
 
-.action-btn {
-  padding: 8px 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--size-radius-md);
-  background: var(--color-bg-container);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: var(--size-font-sm);
+/* 使用全局 .action-btn 样式 */
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
 }
 
-.action-btn:hover {
-  border-color: var(--color-primary-500);
-  color: var(--color-primary-500);
-}
-
-.action-btn.primary {
-  background: var(--color-primary-500);
-  color: white;
-  border-color: var(--color-primary-500);
-}
-
-.action-btn.primary:hover {
-  background: var(--color-primary-600);
-}
+/* 交互样式沿用全局 */
 
 .checkbox-label {
   display: flex;
@@ -275,36 +309,51 @@ function collapseAll(): void {
   cursor: pointer;
   color: var(--color-text-primary);
   font-size: var(--size-font-sm);
+  margin-left: var(--size-space-sm);
 }
 
-.section-card {
-  background: var(--color-bg-container);
-  border-radius: var(--size-radius-lg);
-  padding: var(--size-space-lg);
-  margin-bottom: var(--size-space-lg);
-  border: 1px solid var(--color-border-secondary);
+.label-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-secondary);
 }
+
+/* 使用全局 .section-card */
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-md);
+  padding-bottom: var(--size-space-sm);
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .bookmark-preview {
-  padding: var(--size-space-md);
+  padding: var(--size-space-lg);
   border-radius: var(--size-radius-md);
   border: 1px solid var(--color-border);
-  min-height: 100px;
+  min-height: 120px;
+  transition: all 0.3s ease;
 }
 
 .theme-light {
-  background: #f5f5f5;
+  background: var(--color-bg-container);
+  border-color: var(--color-border);
 }
 
 .theme-dark {
-  background: #1e1e1e;
+  background: var(--color-bg-container);
+  border-color: var(--color-border);
 }
 
 .code-block {
@@ -321,6 +370,7 @@ function collapseAll(): void {
 .info-list p {
   margin: 8px 0;
   color: var(--color-text-primary);
+  font-size: var(--size-font-sm);
 }
 
 .info-list strong {
