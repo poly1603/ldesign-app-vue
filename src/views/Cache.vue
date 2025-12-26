@@ -6,10 +6,22 @@
  */
 import { computed, ref } from 'vue'
 import { useCache } from '@ldesign/cache-vue'
+import {
+  Database,
+  Activity,
+  Save,
+  Search,
+  Trash2,
+  User,
+  RotateCcw,
+  Zap,
+  Box,
+  Target
+} from 'lucide-vue-next'
 
 // 使用缓存组合式函数
-const { set, get, clear, stats, size, keys } = useCache({
-  strategy: 'lru',
+const { set, get, clear, stats } = useCache({
+  // 使用默认策略，避免类型不匹配
   maxSize: 100,
   defaultTTL: 60000,
   enableStats: true,
@@ -20,6 +32,11 @@ const hitRatePercent = computed(() => {
   const rate = stats.value.hitRate || 0
   return (rate * 100).toFixed(2)
 })
+
+// 统计字段计算属性，避免模板类型报错
+const statsTotalKeys = computed(() => stats.value.totalKeys)
+const statsHits = computed(() => stats.value.hits)
+const statsMisses = computed(() => stats.value.misses)
 
 // 响应式缓存示例
 interface User {
@@ -33,12 +50,12 @@ const userCache = ref<User>({ name: '', age: 0 })
 const counter = ref<number>(0)
 
 // 初始化时从缓存加载
-const cachedUser = get<User>('demo:user')
+const cachedUser = get('demo:user') as User | undefined
 if (cachedUser) {
   userCache.value = cachedUser
 }
 
-const cachedCounter = get<number>('demo:counter')
+const cachedCounter = get('demo:counter') as number | undefined
 if (cachedCounter !== undefined) {
   counter.value = cachedCounter
 }
@@ -80,7 +97,7 @@ function handleGet() {
   }
 
   try {
-    const value = get<string>(formData.value.key)
+    const value = get(formData.value.key) as string | undefined
     result.value = value !== undefined ? `获取成功: ${formData.value.key} = ${value}` : `键 "${formData.value.key}" 不存在`
   }
   catch (error) {
@@ -124,27 +141,44 @@ function incrementCounter() {
 </script>
 
 <template>
-  <div class="cache-demo page-container">
-    <h1 class="page-title">缓存功能演示</h1>
+  <div class="cache-demo page-shell section-stack">
+    <div class="header-section">
+      <h1 class="page-title">
+        <Database class="icon-title" />
+        缓存功能演示
+      </h1>
+      <p class="page-desc">展示 @ldesign/cache 的使用方法，包括基础读写、统计信息和响应式缓存。</p>
+    </div>
 
     <!-- 缓存统计 -->
     <section class="section-card">
-      <h2 class="section-title">缓存统计</h2>
+      <h2 class="section-title">
+        <Activity class="section-icon" />
+        缓存统计
+      </h2>
       <div v-if="stats" class="stats-grid">
         <div class="stat-item">
-          <span class="label">总键数</span>
-          <span class="value">{{ stats.totalKeys }}</span>
+          <span class="label">
+            <Box class="stat-icon" /> 总键数
+          </span>
+          <span class="value">{{ statsTotalKeys }}</span>
         </div>
         <div class="stat-item">
-          <span class="label">命中次数</span>
-          <span class="value">{{ stats.hits }}</span>
+          <span class="label">
+            <Target class="stat-icon" /> 命中次数
+          </span>
+          <span class="value">{{ statsHits }}</span>
         </div>
         <div class="stat-item">
-          <span class="label">未命中次数</span>
-          <span class="value">{{ stats.misses }}</span>
+          <span class="label">
+            <Target class="stat-icon off" /> 未命中次数
+          </span>
+          <span class="value">{{ statsMisses }}</span>
         </div>
         <div class="stat-item">
-          <span class="label">命中率</span>
+          <span class="label">
+            <Zap class="stat-icon" /> 命中率
+          </span>
           <span class="value">{{ hitRatePercent }}%</span>
         </div>
       </div>
@@ -152,19 +186,25 @@ function incrementCounter() {
 
     <!-- 基础操作 -->
     <section class="section-card">
-      <h2 class="section-title">基础操作</h2>
+      <h2 class="section-title">
+        <Database class="section-icon" />
+        基础操作
+      </h2>
       <div class="form-group">
         <input v-model="formData.key" placeholder="缓存键" class="input">
         <input v-model="formData.value" placeholder="缓存值" class="input">
       </div>
       <div class="button-group">
         <button class="btn primary" @click="handleSet">
+          <Save class="btn-icon" />
           设置
         </button>
         <button class="btn" @click="handleGet">
+          <Search class="btn-icon" />
           获取
         </button>
         <button class="btn danger" @click="handleClear">
+          <Trash2 class="btn-icon" />
           清空
         </button>
       </div>
@@ -175,7 +215,10 @@ function incrementCounter() {
 
     <!-- 用户缓存示例 -->
     <section class="section-card">
-      <h2 class="section-title">用户缓存示例</h2>
+      <h2 class="section-title">
+        <User class="section-icon" />
+        用户缓存示例
+      </h2>
       <div class="info-card">
         <template v-if="userCache.name">
           <p>
@@ -190,18 +233,22 @@ function incrementCounter() {
         </template>
       </div>
       <button class="btn primary" @click="updateUser">
+        <RotateCcw class="btn-icon" />
         随机更新用户
       </button>
     </section>
 
     <!-- 计数器示例 -->
     <section class="section-card">
-      <h2 class="section-title">计数器示例</h2>
+      <h2 class="section-title">
+        <Zap class="section-icon" />
+        计数器示例
+      </h2>
       <div class="counter-display">
         <span class="counter-value">{{ counter ?? 0 }}</span>
       </div>
       <button class="btn primary block-btn" @click="incrementCounter">
-        +1
+        +1 增加计数
       </button>
     </section>
   </div>
@@ -214,29 +261,51 @@ function incrementCounter() {
   padding: var(--size-space-lg);
 }
 
+.header-section {
+  margin-bottom: var(--size-space-xl);
+}
+
 .page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--size-space-xl);
+  margin-bottom: var(--size-space-xs);
+}
+
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
+}
+
+.page-desc {
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-md);
 }
 
 .section-card {
   margin-bottom: var(--size-space-lg);
-  padding: var(--size-space-lg);
-  background: var(--color-bg-container);
-  border-radius: var(--size-radius-lg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--color-border-secondary);
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-md);
   border-bottom: 1px solid var(--color-border-secondary);
   padding-bottom: var(--size-space-sm);
   font-weight: 600;
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .stats-grid {
@@ -252,12 +321,27 @@ function incrementCounter() {
   background: var(--color-bg-page);
   border-radius: var(--size-radius-md);
   text-align: center;
+  border: 1px solid var(--color-border);
 }
 
 .stat-item .label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   color: var(--color-text-secondary);
   font-size: var(--size-font-sm);
   margin-bottom: var(--size-space-xs);
+}
+
+.stat-icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
+
+.stat-icon.off {
+  color: var(--color-text-quaternary);
 }
 
 .stat-item .value {
@@ -288,6 +372,10 @@ function incrementCounter() {
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--size-radius-md);
@@ -297,6 +385,11 @@ function incrementCounter() {
   font-size: var(--size-font-sm);
   transition: all 0.2s;
   font-weight: 500;
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .btn:hover {
@@ -341,6 +434,7 @@ function incrementCounter() {
   padding: var(--size-space-md);
   background: var(--color-bg-page);
   border-radius: var(--size-radius-md);
+  border: 1px solid var(--color-border);
 }
 
 .info-card p {
@@ -360,6 +454,7 @@ function incrementCounter() {
   padding: var(--size-space-lg);
   background: var(--color-bg-page);
   border-radius: var(--size-radius-md);
+  border: 1px solid var(--color-border);
 }
 
 .counter-value {

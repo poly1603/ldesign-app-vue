@@ -3,7 +3,7 @@
  * 面包屑组件演示页面
  * 展示 @ldesign/breadcrumb-vue 的各种功能和用法
  */
-import { ref, computed } from 'vue'
+import { ref, computed, markRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import type { BreadcrumbItem } from '@ldesign/breadcrumb-vue'
 import {
@@ -11,19 +11,20 @@ import {
   useBreadcrumbRoute,
 } from '@ldesign/breadcrumb-vue'
 import '@ldesign/breadcrumb-vue/styles'
+import { Home, ChevronRight, MoreHorizontal, Settings, List, Map } from 'lucide-vue-next'
 
 const route = useRoute()
 
 // 基础面包屑数据
 const basicItems = ref<BreadcrumbItem[]>([
-  { key: 'home', label: '首页', path: '/', icon: '🏠' },
+  { key: 'home', label: '首页', path: '/', icon: markRaw(Home) },
   { key: 'system', label: '系统管理', path: '/system' },
   { key: 'user', label: '用户管理', path: '/system/user' },
 ])
 
 // 带下拉菜单的面包屑
 const itemsWithDropdown = ref<BreadcrumbItem[]>([
-  { key: 'home', label: '首页', path: '/', icon: '🏠' },
+  { key: 'home', label: '首页', path: '/', icon: markRaw(Home) },
   {
     key: 'products',
     label: '产品中心',
@@ -58,7 +59,7 @@ const lastItemClickable = ref(false)
 const { items: routeItems } = useBreadcrumbRoute({
   route,
   includeHome: true,
-  homeItem: { label: '首页', icon: '🏠' },
+  homeItem: { label: '首页', icon: markRaw(Home) },
 })
 
 /**
@@ -80,14 +81,22 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
 
 <template>
   <div class="breadcrumb-demo page-container">
-    <h1 class="page-title">面包屑组件演示</h1>
-    <p class="page-desc">
-      @ldesign/breadcrumb-vue 提供了功能丰富的面包屑导航组件，支持路由自动生成、下拉菜单、折叠显示等特性。
-    </p>
+    <div class="header-section">
+      <h1 class="page-title">
+        <Map class="icon-title" />
+        面包屑组件演示
+      </h1>
+      <p class="page-desc">
+        @ldesign/breadcrumb-vue 提供了功能丰富的面包屑导航组件，支持路由自动生成、下拉菜单、折叠显示等特性。
+      </p>
+    </div>
 
     <!-- 基础用法 -->
     <section class="section-card">
-      <h2 class="section-title">基础用法</h2>
+      <h2 class="section-title">
+        <List class="section-icon" />
+        基础用法
+      </h2>
       <div class="demo-block">
         <LBreadcrumb :items="basicItems" :separator="separator" :size="size" :show-home="false" @click="handleClick" />
       </div>
@@ -113,7 +122,10 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
 
     <!-- 带下拉菜单 -->
     <section class="section-card">
-      <h2 class="section-title">带下拉菜单</h2>
+      <h2 class="section-title">
+        <List class="section-icon" />
+        带下拉菜单
+      </h2>
       <p class="section-desc">支持在面包屑项上显示下拉菜单，方便快速导航到子页面。</p>
       <div class="demo-block">
         <LBreadcrumb :items="itemsWithDropdown" :show-home="false" @click="handleClick"
@@ -123,7 +135,10 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
 
     <!-- 自动折叠 -->
     <section class="section-card">
-      <h2 class="section-title">自动折叠</h2>
+      <h2 class="section-title">
+        <MoreHorizontal class="section-icon" />
+        自动折叠
+      </h2>
       <p class="section-desc">当路径层级过深时，可以自动折叠中间项，点击省略号可展开。</p>
       <div class="demo-block">
         <LBreadcrumb :items="longPathItems" :max-items="4" :items-before-collapse="1" :items-after-collapse="2"
@@ -139,7 +154,10 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
 
     <!-- 基于路由自动生成 -->
     <section class="section-card">
-      <h2 class="section-title">基于路由自动生成</h2>
+      <h2 class="section-title">
+        <Map class="section-icon" />
+        基于路由自动生成
+      </h2>
       <p class="section-desc">使用 useBreadcrumbRoute 组合式函数，自动根据当前路由生成面包屑。</p>
       <div class="demo-block">
         <LBreadcrumb :items="routeItems" :show-home="false" @click="handleClick" />
@@ -151,7 +169,10 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
 
     <!-- 配置选项 -->
     <section class="section-card">
-      <h2 class="section-title">配置选项</h2>
+      <h2 class="section-title">
+        <Settings class="section-icon" />
+        配置选项
+      </h2>
       <div class="controls-row">
         <label class="checkbox-label">
           <input type="checkbox" v-model="showHome" />
@@ -177,15 +198,27 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
   padding: var(--size-space-lg);
 }
 
+.header-section {
+  margin-bottom: var(--size-space-xl);
+}
+
 .page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-sm);
 }
 
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
+}
+
 .page-desc {
-  margin-bottom: var(--size-space-xl);
   color: var(--color-text-secondary);
   font-size: var(--size-font-md);
 }
@@ -195,15 +228,26 @@ function handleDropdownSelect(parentItem: BreadcrumbItem, selectedItem: any, eve
   padding: var(--size-space-lg);
   background: var(--color-bg-container);
   border-radius: var(--size-radius-lg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border-secondary);
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   margin-bottom: var(--size-space-md);
   font-size: var(--size-font-lg);
   color: var(--color-text-primary);
   font-weight: 600;
+  padding-bottom: var(--size-space-sm);
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .section-desc {

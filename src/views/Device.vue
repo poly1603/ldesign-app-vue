@@ -1,5 +1,20 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
+import {
+  Smartphone,
+  Monitor,
+  Tablet,
+  Maximize,
+  Minimize,
+  Search,
+  Globe,
+  RefreshCw,
+  ArrowLeft,
+  CheckCircle,
+  XCircle,
+  Lightbulb,
+  Award
+} from 'lucide-vue-next'
 
 // 设备信息接口
 interface DeviceInfo {
@@ -159,7 +174,6 @@ function updateDeviceInfo() {
       height,
       pixelRatio: window.devicePixelRatio,
       deviceWidth: window.screen.width,
-      deviceHeight: window.screen.height,
     },
     os: getOSInfo(),
     browser: getBrowserInfo(),
@@ -211,19 +225,31 @@ onUnmounted(() => {
 
 <template>
   <div class="device-page page-container">
-    <h1 class="page-title">📱 设备信息检测</h1>
+    <h1 class="page-title">
+      <Smartphone class="icon-title" />
+      设备信息检测
+    </h1>
 
     <div class="section-card">
-      <h2 class="section-title">🎯 当前设备信息</h2>
+      <h2 class="section-title">
+        <Monitor class="section-icon" />
+        当前设备信息
+      </h2>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-label">
             设备类型
           </div>
           <div class="info-value device-type">
-            <span v-if="deviceInfo.type === 'mobile'">📱 移动设备</span>
-            <span v-else-if="deviceInfo.type === 'tablet'">📱 平板设备</span>
-            <span v-else>🖥️ 桌面设备</span>
+            <span v-if="deviceInfo.type === 'mobile'" class="flex-center">
+              <Smartphone class="inline-icon" /> 移动设备
+            </span>
+            <span v-else-if="deviceInfo.type === 'tablet'" class="flex-center">
+              <Tablet class="inline-icon" /> 平板设备
+            </span>
+            <span v-else class="flex-center">
+              <Monitor class="inline-icon" /> 桌面设备
+            </span>
           </div>
         </div>
 
@@ -232,7 +258,12 @@ onUnmounted(() => {
             屏幕方向
           </div>
           <div class="info-value">
-            {{ deviceInfo.orientation === 'portrait' ? '📱 竖屏' : '🖥️ 横屏' }}
+            <span v-if="deviceInfo.orientation === 'portrait'" class="flex-center">
+              <Minimize class="inline-icon" /> 竖屏
+            </span>
+            <span v-else class="flex-center">
+              <Maximize class="inline-icon" /> 横屏
+            </span>
           </div>
         </div>
 
@@ -241,7 +272,12 @@ onUnmounted(() => {
             触摸设备
           </div>
           <div class="info-value">
-            {{ deviceInfo.isTouchDevice ? '✅ 是' : '❌ 否' }}
+            <span v-if="deviceInfo.isTouchDevice" class="flex-center text-success">
+              <CheckCircle class="inline-icon" /> 是
+            </span>
+            <span v-else class="flex-center text-error">
+              <XCircle class="inline-icon" /> 否
+            </span>
           </div>
         </div>
 
@@ -257,7 +293,10 @@ onUnmounted(() => {
     </div>
 
     <div class="section-card">
-      <h2 class="section-title">📐 屏幕尺寸信息</h2>
+      <h2 class="section-title">
+        <Maximize class="section-icon" />
+        屏幕尺寸信息
+      </h2>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-label">
@@ -298,16 +337,25 @@ onUnmounted(() => {
     </div>
 
     <div v-if="deviceInfo.detection" class="section-card">
-      <h2 class="section-title">🔍 检测方式信息</h2>
+      <h2 class="section-title">
+        <Search class="section-icon" />
+        检测方式信息
+      </h2>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-label">
             检测方法
           </div>
           <div class="info-value">
-            <span v-if="deviceInfo.detection.method === 'screen'">🥇 屏幕尺寸 (最准确)</span>
-            <span v-else-if="deviceInfo.detection.method === 'viewport'">🥈 视口宽度 (动态)</span>
-            <span v-else>🥉 UserAgent (降级)</span>
+            <span v-if="deviceInfo.detection.method === 'screen'" class="flex-center">
+              <Award class="inline-icon text-gold" /> 屏幕尺寸 (最准确)
+            </span>
+            <span v-else-if="deviceInfo.detection.method === 'viewport'" class="flex-center">
+              <Award class="inline-icon text-silver" /> 视口宽度 (动态)
+            </span>
+            <span v-else class="flex-center">
+              <Award class="inline-icon text-bronze" /> UserAgent (降级)
+            </span>
           </div>
         </div>
 
@@ -325,14 +373,22 @@ onUnmounted(() => {
             动态检测
           </div>
           <div class="info-value">
-            {{ deviceInfo.detection.isDynamic ? '✅ 已启用' : '❌ 未启用' }}
+            <span v-if="deviceInfo.detection.isDynamic" class="flex-center text-success">
+              <CheckCircle class="inline-icon" /> 已启用
+            </span>
+            <span v-else class="flex-center text-error">
+              <XCircle class="inline-icon" /> 未启用
+            </span>
           </div>
         </div>
       </div>
     </div>
 
     <div class="section-card">
-      <h2 class="section-title">💻 浏览器信息</h2>
+      <h2 class="section-title">
+        <Globe class="section-icon" />
+        浏览器信息
+      </h2>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-label">
@@ -373,21 +429,46 @@ onUnmounted(() => {
     </div>
 
     <div class="tip-section">
-      <h3>💡 提示</h3>
+      <h3>
+        <Lightbulb class="inline-icon" />
+        提示
+      </h3>
       <ul>
-        <li>🔄 <strong>动态检测已启用</strong>：尝试调整浏览器窗口大小，设备类型会自动更新</li>
-        <li>📱 <strong>多级检测</strong>：优先使用屏幕尺寸 > 视口宽度 > UserAgent</li>
-        <li>🖥️ <strong>桌面响应式</strong>：桌面浏览器缩小到移动设备尺寸时，类型会变为"移动设备"</li>
-        <li>📏 <strong>断点设置</strong>：&lt; 768px 为移动设备，768px-1024px 为平板，&gt; 1024px 为桌面</li>
+        <li>
+          <span class="tip-icon">
+            <RefreshCw class="inline-icon" />
+          </span>
+          <strong>动态检测已启用</strong>：尝试调整浏览器窗口大小，设备类型会自动更新
+        </li>
+        <li>
+          <span class="tip-icon">
+            <Search class="inline-icon" />
+          </span>
+          <strong>多级检测</strong>：优先使用屏幕尺寸 > 视口宽度 > UserAgent
+        </li>
+        <li>
+          <span class="tip-icon">
+            <Monitor class="inline-icon" />
+          </span>
+          <strong>桌面响应式</strong>：桌面浏览器缩小到移动设备尺寸时，类型会变为"移动设备"
+        </li>
+        <li>
+          <span class="tip-icon">
+            <Maximize class="inline-icon" />
+          </span>
+          <strong>断点设置</strong>：&lt; 768px 为移动设备，768px-1024px 为平板，&gt; 1024px 为桌面
+        </li>
       </ul>
     </div>
 
     <div class="actions">
       <button class="btn primary" @click="refreshDeviceInfo">
-        🔄 刷新设备信息
+        <RefreshCw class="btn-icon" />
+        刷新设备信息
       </button>
       <button class="btn secondary" @click="goBack">
-        ← 返回首页
+        <ArrowLeft class="btn-icon" />
+        返回首页
       </button>
     </div>
   </div>
@@ -395,17 +476,27 @@ onUnmounted(() => {
 
 <style scoped>
 .device-page {
-  max-width: var(--size-size-64);
+  max-width: 1000px;
   margin: 0 auto;
   padding: var(--size-space-lg);
 }
 
 .page-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-xl);
   text-align: center;
+}
+
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
 }
 
 .section-card {
@@ -418,10 +509,21 @@ onUnmounted(() => {
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-md);
   font-weight: 600;
+  padding-bottom: var(--size-space-sm);
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .info-grid {
@@ -467,6 +569,9 @@ onUnmounted(() => {
 }
 
 .tip-section h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   margin-bottom: var(--size-space-md);
   color: var(--color-text-primary);
@@ -475,13 +580,24 @@ onUnmounted(() => {
 
 .tip-section ul {
   margin: 0;
-  padding-left: var(--size-space-lg);
+  padding-left: var(--size-space-md);
   color: var(--color-text-primary);
+  list-style: none;
 }
 
 .tip-section li {
-  margin-bottom: var(--size-space-xs);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--size-space-sm);
+  margin-bottom: var(--size-space-sm);
   line-height: 1.6;
+}
+
+.tip-icon {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  color: var(--color-warning-600);
 }
 
 .actions {
@@ -492,6 +608,9 @@ onUnmounted(() => {
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 24px;
   border: none;
   border-radius: var(--size-radius-md);
@@ -500,6 +619,11 @@ onUnmounted(() => {
   transition: all 0.2s ease;
   font-weight: 500;
   border: 1px solid var(--color-border);
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .btn:hover {
@@ -526,6 +650,37 @@ onUnmounted(() => {
   background: var(--color-bg-hover);
 }
 
+.flex-center {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.text-success {
+  color: var(--color-success-500);
+}
+
+.text-error {
+  color: var(--color-error-500);
+}
+
+.text-gold {
+  color: #fbbf24;
+}
+
+.text-silver {
+  color: #9ca3af;
+}
+
+.text-bronze {
+  color: #b45309;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .device-page {
@@ -546,6 +701,7 @@ onUnmounted(() => {
 
   .btn {
     width: 100%;
+    justify-content: center;
   }
 }
 </style>

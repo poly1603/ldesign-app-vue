@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import type { MonthWorkdayData, LeapUserInfo } from '../api'
 import { useLeapApi, getMonthWorkdayApi, getCurrentUserApi } from '../api'
+import { Server, Calendar, User, AlertCircle } from 'lucide-vue-next'
 
 // 月份字符串，格式：YYYY-MM
 const month = ref('2025-01')
@@ -36,14 +37,22 @@ async function handleFetchUser() {
 
 <template>
   <div class="leap-demo page-container">
-    <h1 class="page-title">LEAP 接口示例</h1>
-    <p class="page-desc">
-      演示如何使用 <code>useLeapApi</code> 调用 LEAP RPC 接口（如 LPOM 工作日、当前用户信息等）。
-    </p>
+    <div class="header-section">
+      <h1 class="page-title">
+        <Server class="icon-title" />
+        LEAP 接口示例
+      </h1>
+      <p class="page-desc">
+        演示如何使用 <code>useLeapApi</code> 调用 LEAP RPC 接口（如 LPOM 工作日、当前用户信息等）。
+      </p>
+    </div>
 
     <!-- 月工作日查询 -->
     <section class="section-card">
-      <h2 class="section-title">1. 月工作日查询</h2>
+      <h2 class="section-title">
+        <Calendar class="section-icon" />
+        1. 月工作日查询
+      </h2>
       <p class="section-desc">调用 <code>getMonthWorkdayApi</code> 接口，根据月份获取工作日信息。</p>
 
       <div class="form-row">
@@ -55,7 +64,9 @@ async function handleFetchUser() {
       </div>
 
       <div v-if="workdayError" class="error-box">
-        <strong>错误：</strong>
+        <strong>
+          <AlertCircle class="inline-icon" /> 错误：
+        </strong>
         <span>{{ workdayError.message }}</span>
       </div>
 
@@ -69,7 +80,10 @@ async function handleFetchUser() {
 
     <!-- 当前用户信息 -->
     <section class="section-card">
-      <h2 class="section-title">2. 当前用户信息</h2>
+      <h2 class="section-title">
+        <User class="section-icon" />
+        2. 当前用户信息
+      </h2>
       <p class="section-desc">调用 <code>getCurrentUserApi</code> 接口，获取当前登录用户的基础信息。</p>
 
       <button class="btn primary" :disabled="loadingUser" @click="handleFetchUser">
@@ -77,7 +91,9 @@ async function handleFetchUser() {
       </button>
 
       <div v-if="userError" class="error-box">
-        <strong>错误：</strong>
+        <strong>
+          <AlertCircle class="inline-icon" /> 错误：
+        </strong>
         <span>{{ userError.message }}</span>
       </div>
 
@@ -96,11 +112,24 @@ async function handleFetchUser() {
   padding: var(--size-space-lg);
 }
 
+.header-section {
+  margin-bottom: var(--size-space-xl);
+}
+
 .page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-sm);
+}
+
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
 }
 
 .page-desc {
@@ -119,10 +148,19 @@ async function handleFetchUser() {
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-sm);
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .section-desc {
@@ -188,6 +226,9 @@ async function handleFetchUser() {
 }
 
 .error-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   margin-top: var(--size-space-md);
   padding: var(--size-space-md);
   background: var(--color-error-bg);
@@ -195,6 +236,12 @@ async function handleFetchUser() {
   border: 1px solid var(--color-error-border);
   border-radius: var(--size-radius-md);
   font-size: var(--size-font-sm);
+}
+
+.inline-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: text-bottom;
 }
 
 .result-card {

@@ -12,6 +12,7 @@ import {
   ErrorBoundary,
   LogLevel,
 } from '@ldesign/logger-vue'
+import { FileText, AlertTriangle, Bug, Activity, Clock, Trash2, Lightbulb, XCircle } from 'lucide-vue-next'
 
 // 使用组件日志器
 const { logger, info, debug, warn, error } = useComponentLogger('LoggerDemo')
@@ -91,11 +92,17 @@ onMounted(() => {
 
 <template>
   <div class="logger-demo page-container">
-    <h1 class="page-title">📝 日志系统演示</h1>
+    <h1 class="page-title">
+      <FileText class="icon-title" />
+      日志系统演示
+    </h1>
 
     <!-- 日志级别控制 -->
     <section class="section-card">
-      <h2 class="section-title">日志级别</h2>
+      <h2 class="section-title">
+        <Activity class="section-icon" />
+        日志级别
+      </h2>
       <div class="level-buttons">
         <button v-for="level in logLevels" :key="level.value" :class="['btn', { active: currentLevel === level.value }]"
           @click="setLevel(level.value)">
@@ -107,7 +114,10 @@ onMounted(() => {
 
     <!-- 日志记录 -->
     <section class="section-card">
-      <h2 class="section-title">日志记录</h2>
+      <h2 class="section-title">
+        <FileText class="section-icon" />
+        日志记录
+      </h2>
       <div class="form-group">
         <input v-model="logMessage" placeholder="输入日志消息" class="input">
       </div>
@@ -118,31 +128,49 @@ onMounted(() => {
         <button class="btn btn-warn" @click="logWarn">WARN</button>
         <button class="btn btn-error" @click="logError">ERROR</button>
       </div>
-      <p class="hint">💡 打开浏览器控制台查看日志输出</p>
+      <p class="hint flex-center">
+        <Lightbulb class="inline-icon" />
+        打开浏览器控制台查看日志输出
+      </p>
     </section>
 
     <!-- 错误追踪 -->
     <section class="section-card">
-      <h2 class="section-title">错误追踪</h2>
+      <h2 class="section-title">
+        <Bug class="section-icon" />
+        错误追踪
+      </h2>
       <ErrorBoundary @error="(e) => info('捕获到错误', e)">
         <div v-if="shouldError">{{ throwError() }}</div>
         <template #fallback="{ error: err, reset }">
           <div class="error-fallback">
-            <p>❌ 捕获到错误: {{ err?.message }}</p>
+            <p class="flex-center">
+              <XCircle class="inline-icon" />
+              捕获到错误: {{ err?.message }}
+            </p>
             <button class="btn btn-info" @click="reset(); resetError()">重试</button>
           </div>
         </template>
       </ErrorBoundary>
-      <button class="btn btn-danger" @click="triggerError">触发测试错误</button>
+      <button class="btn btn-danger" @click="triggerError">
+        <AlertTriangle class="btn-icon" />
+        触发测试错误
+      </button>
     </section>
 
     <!-- 面包屑 -->
     <section class="section-card">
-      <h2 class="section-title">面包屑追踪</h2>
+      <h2 class="section-title">
+        <Clock class="section-icon" />
+        面包屑追踪
+      </h2>
       <div class="button-group">
         <button class="btn" @click="addClickBreadcrumb">添加点击面包屑</button>
         <button class="btn" @click="addNavigationBreadcrumb">添加导航面包屑</button>
-        <button class="btn btn-warning" @click="clearBreadcrumbs()">清空</button>
+        <button class="btn btn-warning" @click="clearBreadcrumbs()">
+          <Trash2 class="btn-icon" />
+          清空
+        </button>
       </div>
       <div class="breadcrumbs-list">
         <div v-for="(crumb, index) in breadcrumbs" :key="index" class="breadcrumb-item">
@@ -155,8 +183,14 @@ onMounted(() => {
 
     <!-- 性能监控 -->
     <section class="section-card">
-      <h2 class="section-title">性能监控</h2>
-      <button class="btn btn-info" @click="runPerformanceTest">运行性能测试</button>
+      <h2 class="section-title">
+        <Activity class="section-icon" />
+        性能监控
+      </h2>
+      <button class="btn btn-info" @click="runPerformanceTest">
+        <Activity class="btn-icon" />
+        运行性能测试
+      </button>
       <div v-if="Object.keys(performanceReport).length" class="performance-report">
         <pre class="code-block">{{ JSON.stringify(performanceReport, null, 2) }}</pre>
       </div>
@@ -172,10 +206,19 @@ onMounted(() => {
 }
 
 .page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-xl);
+}
+
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
 }
 
 .section-card {
@@ -188,12 +231,21 @@ onMounted(() => {
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-md);
   border-bottom: 1px solid var(--color-border-secondary);
   padding-bottom: var(--size-space-sm);
   font-weight: 600;
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .form-group {
@@ -219,6 +271,9 @@ onMounted(() => {
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--size-radius-md);
@@ -229,6 +284,11 @@ onMounted(() => {
   transition: all 0.2s;
   font-weight: 500;
   border: 1px solid var(--color-border);
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .btn:hover {
@@ -331,5 +391,16 @@ onMounted(() => {
   font-size: var(--size-font-xs);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border);
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-icon {
+  width: 16px;
+  height: 16px;
 }
 </style>

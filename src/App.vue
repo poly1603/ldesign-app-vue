@@ -11,7 +11,6 @@ import { computed, markRaw, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
 import { LanguageSwitcher, useI18n } from '@ldesign/i18n-vue'
-import type { MenuSelectEventParams } from '@ldesign/menu-vue'
 import { LMenu, LMenuItem, LSubMenu } from '@ldesign/menu-vue'
 import '@ldesign/menu-vue/styles'
 import { SizeSwitcher } from '@ldesign/size-vue'
@@ -37,8 +36,18 @@ import {
   Smartphone,
 } from 'lucide-vue-next'
 
+import { provideApiManager } from '@ldesign/api-vue'
+import { servers, apis } from './api'
+import httpClient from './api/http'
+
 /** 登录按钮图标组件 */
 const LoginIcon = markRaw(KeyRound)
+
+provideApiManager({
+  servers,
+  apis,
+  httpClientFactory: async () => httpClient,
+})
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -261,7 +270,7 @@ watch(
 /**
  * 处理菜单选择事件
  */
-function handleMenuSelect(params: MenuSelectEventParams) {
+function handleMenuSelect(params: any) {
   router.push(params.key)
 }
 

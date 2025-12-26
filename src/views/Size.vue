@@ -2,6 +2,7 @@
 import type { BaseSizeAdapter } from '@ldesign/size-core'
 import { SIZE_SYMBOL, SizePresetPicker } from '@ldesign/size-vue'
 import { computed, inject } from 'vue'
+import { Ruler, Maximize, FileText, CheckCircle, Scale, Type } from 'lucide-vue-next'
 
 // 注入 Size 适配器
 const sizeAdapter = inject<BaseSizeAdapter>(SIZE_SYMBOL)
@@ -14,27 +15,41 @@ const currentPreset = computed(() => {
 
 <template>
   <div class="size-page page-container">
-    <h1 class="page-title">尺寸管理</h1>
+    <h1 class="page-title">
+      <Ruler class="icon-title" />
+      尺寸管理
+    </h1>
 
     <div class="size-content">
       <!-- 当前状态 -->
       <section class="section-card current-state">
-        <h2 class="section-title">当前预设</h2>
+        <h2 class="section-title">
+          <CheckCircle class="section-icon" />
+          当前预设
+        </h2>
         <div v-if="currentPreset" class="state-info">
           <div class="info-item">
-            <span class="label">预设名称</span>
+            <span class="label flex-center">
+              <Type class="inline-icon" /> 预设名称
+            </span>
             <span class="value">{{ currentPreset.name }}</span>
           </div>
           <div class="info-item">
-            <span class="label">基础尺寸</span>
+            <span class="label flex-center">
+              <Ruler class="inline-icon" /> 基础尺寸
+            </span>
             <span class="value">{{ currentPreset.config.baseSize }}px</span>
           </div>
           <div class="info-item">
-            <span class="label">缩放比例</span>
+            <span class="label flex-center">
+              <Scale class="inline-icon" /> 缩放比例
+            </span>
             <span class="value">×{{ currentPreset.config.scale }}</span>
           </div>
           <div class="info-item">
-            <span class="label">单位</span>
+            <span class="label flex-center">
+              <Maximize class="inline-icon" /> 单位
+            </span>
             <span class="value">{{ currentPreset.config.unit }}</span>
           </div>
         </div>
@@ -45,13 +60,19 @@ const currentPreset = computed(() => {
 
       <!-- 预设选择器 -->
       <section class="section-card preset-selector">
-        <h2 class="section-title">选择预设</h2>
+        <h2 class="section-title">
+          <Maximize class="section-icon" />
+          选择预设
+        </h2>
         <SizePresetPicker />
       </section>
 
       <!-- 示例文本 -->
       <section class="section-card example-text">
-        <h2 class="section-title">示例文本</h2>
+        <h2 class="section-title">
+          <FileText class="section-icon" />
+          示例文本
+        </h2>
         <div class="text-samples">
           <p class="sample-h1">
             标题 1 - Heading 1
@@ -83,6 +104,10 @@ const currentPreset = computed(() => {
 }
 
 .page-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
   font-weight: 600;
   color: var(--color-text-primary);
@@ -90,13 +115,28 @@ const currentPreset = computed(() => {
   text-align: center;
 }
 
+.icon-title {
+  width: 32px;
+  height: 32px;
+  color: var(--color-primary-500);
+}
+
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: var(--size-space-md);
   border-bottom: 1px solid var(--color-border-secondary);
   padding-bottom: var(--size-space-sm);
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .size-content {
@@ -201,6 +241,17 @@ const currentPreset = computed(() => {
   line-height: 1.5;
   color: var(--color-text-secondary);
   margin: 0;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-icon {
+  width: 14px;
+  height: 14px;
 }
 
 @media (max-width: 768px) {
