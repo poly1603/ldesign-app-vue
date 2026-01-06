@@ -325,9 +325,9 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
       </div>
     </template>
 
-    <!-- 侧边栏菜单 - 使用 @ldesign/menu-vue 组件，深色主题 -->
+    <!-- 侧边栏菜单 - 使用 @ldesign/menu-vue 组件，自动继承布局颜色 -->
     <template #sider="{ collapsed }">
-      <LMenu theme="dark" :collapsed="collapsed" :selected-key="selectedMenuKey" :open-keys="openKeys"
+      <LMenu :collapsed="collapsed" :selected-key="selectedMenuKey" :open-keys="openKeys"
         @select="handleMenuSelect" @open-change="handleOpenChange">
         <template v-for="item in menuItems" :key="item.key">
           <!-- 有子菜单的项 -->
@@ -352,7 +352,7 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
 
     <!-- 页签栏插槽 - 使用 @ldesign/bookmark-vue 的 ChromeTabs 组件 -->
     <template #tabs>
-      <ChromeTabs :tabs="tabs" :active-key="activeKey" variant="chrome" @change="switchTab" @close="removeTab"
+      <ChromeTabs v-model:tabs="tabs" :active-key="activeKey" variant="chrome" @change="switchTab" @close="removeTab"
         @toggle-pin="togglePin" @refresh="refreshTab" @close-left="closeLeft" @close-right="closeRight"
         @close-others="closeOthers" @close-all="closeAll" />
     </template>
