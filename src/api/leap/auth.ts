@@ -53,40 +53,128 @@ export interface LoginResult {
 }
 
 /**
- * 用户信息
+ * 通用用户信息接口
+ * 
+ * 设计为通用结构，可兼容 LEAP 和 RESTful API
  */
 export interface UserInfo {
   /** 用户 ID */
-  userid?: string
-  /** 用户标识 */
-  userflag?: string
+  id: string
+  /** 用户名/用户标识 */
+  username: string
+  /** 显示名称/全名 */
+  displayName: string
+  /** 邮箱 */
+  email?: string
+  /** 手机号 */
+  phone?: string
+  /** 头像 URL */
+  avatar?: string
+  /** 性别: male/female/unknown */
+  gender?: 'male' | 'female' | 'unknown'
+  /** 生日 */
+  birthday?: string
+  /** 组织/部门信息 */
+  organization?: {
+    id: string
+    name: string
+    code?: string
+  }
+  /** 职位信息 */
+  position?: {
+    id: string
+    name: string
+  }
+  /** 角色列表 */
+  roles?: Array<{
+    id: string
+    name: string
+    code?: string
+  }>
+  /** 权限列表 */
+  permissions?: string[]
+  /** 账号状态: active/inactive/locked/expired */
+  status?: 'active' | 'inactive' | 'locked' | 'expired'
+  /** 创建时间 */
+  createdAt?: string
+  /** 更新时间 */
+  updatedAt?: string
+  /** 最后登录时间 */
+  lastLoginAt?: string
+  /** 扩展信息（用于存储特定系统的额外数据） */
+  extra?: Record<string, unknown>
+}
+
+/**
+ * LEAP 系统原始用户信息
+ * 
+ * 保留 LEAP 返回的原始结构，用于转换
+ */
+export interface LeapRawUserInfo {
+  /** 应用名称 */
+  applicationname?: string
+  /** 应用代码 */
+  applictioncode?: string
   /** 全名 */
   fullName?: string
   /** 手机号 */
   mobilephone?: string
-  /** 头像 */
-  photo?: string
   /** 组织ID */
   orgid?: string
   /** 组织中文名 */
   orgCNName?: string
-  /** 职位ID */
-  positionid?: string
-  /** 职位中文名 */
-  positionCNName?: string
-  /** 角色列表 */
-  roles?: Array<{ id?: string; name?: string }>
+  /** 组织英文名 */
+  orgENName?: string
+  /** 组织系统编码 */
+  orgsyscode?: string
   /** 详细信息 */
   detail?: {
     id?: string
-    name?: string
+    userflag?: string
+    usercode?: string
     fullname?: string
     mobilephone?: string
     photo?: string
     sex?: string
     birthday?: string
     extinfo?: string
+    isvalid?: string
+    createtime?: string
+    updatetime?: string
+    lastlogintime?: string
+    lastloginip?: string
+    areaid?: string
+    workaddress?: string
+    [key: string]: unknown
   }
+  /** 角色列表 */
+  roles?: Array<{
+    id?: string
+    name?: string
+    [key: string]: unknown
+  }>
+  /** 职位列表 */
+  positions?: Array<{
+    id?: string
+    name?: string
+    [key: string]: unknown
+  }>
+  /** 父组织列表 */
+  parentorgs?: Array<{
+    id?: string
+    name?: string
+    [key: string]: unknown
+  }>
+  /** 是否组织 */
+  isorg?: number
+  /** 是否停用 */
+  isstoped?: number
+  /** 过期状态 */
+  expiredstatus?: number
+  /** 强制修改密码 */
+  forcechangepwd?: number
+  /** 时间戳 */
+  datetime?: number
   /** 其他属性 */
   [key: string]: unknown
 }
@@ -204,6 +292,118 @@ function getLoginMessage(code: string): LoginResult {
     return { code: '-101', type: 'error', message: `IP地址登录异常，请${time}分钟后再试` }
   }
   return LOGIN_MESSAGES[code] || { code, type: 'error', message: '登录失败，请重试' }
+}
+
+// ============================================================================
+// 用户信息转换工具
+// ============================================================================
+
+/**
+ * 将 LEAP 原始用户信息转换为通用格式
+ * 
+ * @param raw - LEAP 返回的原始用户数据
+ * @returns 通用格式的用户信息
+ */
+export function transformLeapUserInfo(raw: LeapRawUserInfo): UserInfo {
+  const detail = raw.detail || {}
+  
+  // 解析 extinfo JSON
+  let extinfo: Record<string, unknown> = {}
+  if (detail.extinfo) {
+    try {
+      extinfo = JSON.parse(detail.extinfo)
+    } catch {
+      // 忽略解析失败
+    }
+  }
+  
+  // 性别转换
+  const genderMap: Record<string, 'male' | 'female' | 'unknown'> = {
+    '1': 'male',
+    '0': 'female',
+    'male': 'male',
+    'female': 'female',
+    '男': 'male',
+    '女': 'female',
+  }
+  const gender = detail.sex ? (genderMap[detail.sex] || 'unknown') : undefined
+  
+  // 账号状态转换
+  let status: UserInfo['status'] = 'active'
+  if (raw.isstoped === 1) {
+    status = 'inactive'
+  } else if (raw.expiredstatus === 1) {
+    status = 'expired'
+  } else if (detail.isvalid === '0') {
+    status = 'locked'
+  }
+  
+  // 转换角色
+  const roles = raw.roles?.map(r => ({
+    id: r.id || '',
+    name: r.name || '',
+    code: r.id,
+  })).filter(r => r.id) || []
+  
+  // 转换职位（取第一个）
+  const position = raw.positions?.[0]
+    ? {
+        id: raw.positions[0].id || '',
+        name: raw.positions[0].name || '',
+      }
+    : undefined
+  
+  return {
+    // 基本信息
+    id: detail.id || '',
+    username: detail.userflag || detail.usercode || '',
+    displayName: raw.fullName || detail.fullname || detail.userflag || '',
+    
+    // 联系信息
+    phone: raw.mobilephone || detail.mobilephone,
+    email: undefined, // LEAP 中无邮箱字段
+    avatar: detail.photo,
+    
+    // 个人信息
+    gender,
+    birthday: detail.birthday,
+    
+    // 组织信息
+    organization: raw.orgid
+      ? {
+          id: raw.orgid,
+          name: raw.orgCNName || raw.orgENName || '',
+          code: raw.orgsyscode,
+        }
+      : undefined,
+    
+    // 职位和角色
+    position,
+    roles,
+    permissions: [], // LEAP 权限需要单独获取
+    
+    // 状态信息
+    status,
+    createdAt: detail.createtime,
+    updatedAt: detail.updatetime,
+    lastLoginAt: detail.lastlogintime,
+    
+    // 扩展信息（保留 LEAP 特有数据）
+    extra: {
+      // LEAP 特有字段
+      applicationname: raw.applicationname,
+      applictioncode: raw.applictioncode,
+      lastloginip: detail.lastloginip,
+      workaddress: detail.workaddress,
+      areaid: detail.areaid,
+      usercode: detail.usercode,
+      forcechangepwd: raw.forcechangepwd === 1,
+      // 用户自定义配置
+      userSettings: extinfo,
+      // 原始数据（以备不时之需）
+      _raw: raw,
+    },
+  }
 }
 
 // ============================================================================
@@ -570,9 +770,14 @@ export async function fetchUserInfo(): Promise<UserInfo | null> {
   }
 
   try {
-    const userInfo = await leapRpcRequest<UserInfo>('app_getUserInfo')
+    // 获取 LEAP 原始用户信息
+    const rawUserInfo = await leapRpcRequest<LeapRawUserInfo>('app_getUserInfo')
 
-    if (userInfo) {
+    if (rawUserInfo) {
+      // 转换为通用格式
+      const userInfo = transformLeapUserInfo(rawUserInfo)
+      console.log('[Auth] fetchUserInfo raw:', rawUserInfo)
+      console.log('[Auth] fetchUserInfo transformed:', userInfo)
       saveUserInfo(userInfo)
       return userInfo
     }

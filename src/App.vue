@@ -19,6 +19,8 @@ import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
 import { ChromeTabs, useRouteTabs } from '@ldesign/bookmark-vue'
 import { LBreadcrumb } from '@ldesign/breadcrumb-vue'
 import '@ldesign/breadcrumb-vue/styles'
+import { useNotification, LNotification, LToast, LMessage } from '@ldesign/notification-vue'
+import LogoutModal from './components/LogoutModal.vue'
 
 // 导入 Lucide 图标组件
 import {
@@ -53,6 +55,7 @@ const UserIcon = markRaw(User)
 
 // 认证状态管理
 const auth = useAuth()
+const notification = useNotification()
 
 provideApiManager({
   servers,
@@ -304,20 +307,55 @@ function goToLogin() {
   router.push('/login')
 }
 
-/** 登出登录 */
-async function handleLogout() {
-  await auth.logout()
-  router.push('/login')
+/** 退出登录确认弹窗状态 */
+const showLogoutModal = ref(false)
+const logoutLoading = ref(false)
+
+/** 打开退出确认弹窗 */
+function openLogoutModal() {
+  showLogoutModal.value = true
+}
+
+/** 关闭退出确认弹窗 */
+function closeLogoutModal() {
+  showLogoutModal.value = false
+}
+
+/** 确认退出登录 */
+async function confirmLogout() {
+  logoutLoading.value = true
+  try {
+    await auth.logout()
+    showLogoutModal.value = false
+    router.push('/login')
+  } catch (e) {
+    console.error('[App] 退出登录失败:', e)
+  } finally {
+    logoutLoading.value = false
+  }
 }
 
 /**
  * 页面加载时初始化认证状态
  * 如果已登录，获取用户信息和菜单
+ * 如果获取失败（登录过期等），提示用户并跳转到登录页
  */
 onMounted(async () => {
   if (!isFullscreenPage.value) {
-    await auth.initAuth()
-    console.log('[App] 认证初始化完成, 登录状态:', auth.loggedIn.value)
+    const result = await auth.initAuth()
+    console.log('[App] 认证初始化完成:', result)
+
+    // 如果登录已过期或获取用户信息失败，提示用户并跳转到登录页
+    if (!result.success && result.message) {
+      notification.warning('登录过期', {
+        content: result.message,
+        duration: 3000,
+      })
+      // 稍微延迟跳转，让用户看到提示
+      setTimeout(() => {
+        router.push('/login')
+      }, 500)
+    }
   }
 })
 
@@ -398,11 +436,11 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
         <template v-if="auth.loggedIn.value">
           <div class="user-info">
             <component :is="UserIcon" :size="16" />
-            <span class="username">{{ auth.username.value || '用户' }}</span>
+            <span class="username">{{ auth.displayName.value || '用户' }}</span>
           </div>
-          <button class="logout-btn" @click="handleLogout">
+          <button class="logout-btn" @click="openLogoutModal">
             <component :is="LogoutIcon" :size="16" />
-            登出
+            退出
           </button>
         </template>
 
@@ -424,8 +462,20 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
       <router-view :key="`${route.fullPath}-${refreshKey}`" />
     </template>
   </component>
-</template>
 
+  <!-- 退出登录确认弹窗 -->
+  <LogoutModal 
+    :visible="showLogoutModal" 
+    :loading="logoutLoading"
+    @confirm="confirmLogout" 
+    @cancel="closeLogoutModal" 
+  />
+
+  <!-- 全局通知组件容器 -->
+  <LNotification />
+  <LToast />
+  <LMessage />
+</template>
 <style>
 /* ==================== 全局重置 ==================== */
 * {

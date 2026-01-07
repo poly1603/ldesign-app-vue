@@ -62,26 +62,42 @@ export function useAuth() {
   // 计算属性
   // ==========================================================================
 
-  /** 用户名 */
-  const username = computed(() => userInfo.value?.fullName || userInfo.value?.detail?.fullname || '')
+  /** 用户名（登录标识） */
+  const username = computed(() => userInfo.value?.username || '')
+
+  /** 显示名称 */
+  const displayName = computed(() => userInfo.value?.displayName || userInfo.value?.username || '')
 
   /** 用户头像 */
-  const avatar = computed(() => userInfo.value?.photo || userInfo.value?.detail?.photo || '')
+  const avatar = computed(() => userInfo.value?.avatar || '')
 
   /** 用户ID */
-  const userId = computed(() => userInfo.value?.userid || userInfo.value?.detail?.id || '')
+  const userId = computed(() => userInfo.value?.id || '')
 
   // ==========================================================================
   // 方法
   // ==========================================================================
 
+  /** 初始化结果类型 */
+  interface InitAuthResult {
+    success: boolean
+    loggedIn: boolean
+    reason?: 'not_logged_in' | 'session_expired' | 'fetch_failed' | 'network_error'
+    message?: string
+  }
+
   /**
    * 初始化认证状态
    * 检查本地存储的登录状态，如果已登录则获取用户信息和菜单
+   * 
+   * @returns 初始化结果，包含成功状态和失败原因
    */
-  async function initAuth(): Promise<boolean> {
+  async function initAuth(): Promise<InitAuthResult> {
     if (initialized.value) {
-      return loggedIn.value
+      return {
+        success: true,
+        loggedIn: loggedIn.value,
+      }
     }
 
     loading.value = true
@@ -98,35 +114,61 @@ export function useAuth() {
 
         // 从服务器验证并获取最新用户信息
         const serverUserInfo = await fetchUserInfo()
-        if (serverUserInfo && serverUserInfo.userid) {
+        if (serverUserInfo && serverUserInfo.id) {
           userInfo.value = serverUserInfo
           loggedIn.value = true
 
           // 获取菜单
           const menus = await fetchMenuList()
           menuList.value = menus
+
+          return {
+            success: true,
+            loggedIn: true,
+          }
         } else {
-          // 服务器验证失败，清除本地状态
+          // 服务器验证失败，登录已过期
           clearSession()
           userInfo.value = null
           loggedIn.value = false
           menuList.value = []
+
+          return {
+            success: false,
+            loggedIn: false,
+            reason: 'session_expired',
+            message: '登录已过期，请重新登录',
+          }
         }
       } else {
         loggedIn.value = false
         userInfo.value = null
         menuList.value = []
+
+        return {
+          success: true,
+          loggedIn: false,
+          reason: 'not_logged_in',
+        }
       }
     } catch (e) {
       console.error('[useAuth] initAuth error:', e)
-      error.value = '初始化失败'
+      error.value = '获取用户信息失败'
+      clearSession()
+      userInfo.value = null
       loggedIn.value = false
+      menuList.value = []
+
+      return {
+        success: false,
+        loggedIn: false,
+        reason: 'fetch_failed',
+        message: '获取用户信息失败，请重新登录',
+      }
     } finally {
       loading.value = false
       initialized.value = true
     }
-
-    return loggedIn.value
   }
 
   /**
@@ -267,6 +309,7 @@ export function useAuth() {
 
     // 计算属性
     username,
+    displayName,
     avatar,
     userId,
 

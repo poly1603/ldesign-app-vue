@@ -64,13 +64,13 @@ export function createAuthEnginePlugin() {
           return {
             success: true,
             user: {
-              id: userInfo?.userid || '',
-              username: userInfo?.detail?.name || credentials.username,
-              nickname: userInfo?.fullName || userInfo?.detail?.fullname || '',
-              email: '',
-              avatar: userInfo?.photo || userInfo?.detail?.photo || '',
-              roles: userInfo?.roles?.map(r => r.name || '') || [],
-              permissions: [],
+              id: userInfo?.id || '',
+              username: userInfo?.username || credentials.username,
+              nickname: userInfo?.displayName || '',
+              email: userInfo?.email || '',
+              avatar: userInfo?.avatar || '',
+              roles: userInfo?.roles?.map(r => r.name) || [],
+              permissions: userInfo?.permissions || [],
               // 保存原始用户信息
               _raw: userInfo,
             },
@@ -122,15 +122,15 @@ export function createAuthEnginePlugin() {
       try {
         const userInfo = await fetchUserInfo()
 
-        if (userInfo && userInfo.userid) {
+        if (userInfo && userInfo.id) {
           return {
-            id: userInfo.userid,
-            username: userInfo.detail?.name || '',
-            nickname: userInfo.fullName || userInfo.detail?.fullname || '',
-            email: '',
-            avatar: userInfo.photo || userInfo.detail?.photo || '',
-            roles: userInfo.roles?.map(r => r.name || '') || [],
-            permissions: [],
+            id: userInfo.id,
+            username: userInfo.username || '',
+            nickname: userInfo.displayName || '',
+            email: userInfo.email || '',
+            avatar: userInfo.avatar || '',
+            roles: userInfo.roles?.map(r => r.name) || [],
+            permissions: userInfo.permissions || [],
             _raw: userInfo,
           }
         }

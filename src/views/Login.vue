@@ -14,6 +14,7 @@ import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
 import { useI18n, LanguageSwitcher } from '@ldesign/i18n-vue'
 import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
 import { SizeSwitcher } from '@ldesign/size-vue'
+import { useNotification, LNotification, LToast, LMessage } from '@ldesign/notification-vue'
 import { Loader2 } from 'lucide-vue-next'
 import { useAuth } from '../composables/useAuth'
 
@@ -30,6 +31,7 @@ interface LoginData {
 const engine = useEngine()
 const router = useRouterService()
 const { t } = useI18n()
+const notification = useNotification()
 
 // 认证状态管理
 const auth = useAuth()
@@ -93,18 +95,28 @@ async function handleLogin(data: LoginData): Promise<void> {
     })
 
     if (result.type === 'success') {
-      // 登录成功
-      alert('登录成功！')
+      // 登录成功 - 显示欢迎通知
+      const displayName = auth.displayName.value || '用户'
+      notification.success('欢迎回来', {
+        content: `${displayName}，登录成功！`,
+        duration: 3000,
+      })
+      
       engine.events.emit('user:login', {
         username: auth.username.value,
         userInfo: auth.userInfo.value,
       })
 
-      // 跳转到首页
-      router.push('/')
+      // 稍微延迟跳转，确保通知显示出来
+      setTimeout(() => {
+        router.push('/')
+      }, 300)
     } else {
-      // 登录失败，弹出错误消息
-      alert(result.message)
+      // 登录失败，弹出错误通知
+      notification.error('登录失败', {
+        content: result.message,
+        duration: 5000,
+      })
       errorMessage.value = result.message
     }
   } catch (e) {
@@ -160,6 +172,11 @@ function handleSocialLogin(provider: string): void {
         <TemplateSwitcher category="login" :translate="t" variant="primary" />
       </template>
     </component>
+
+    <!-- 通知组件容器 -->
+    <LNotification />
+    <LToast />
+    <LMessage />
   </div>
 </template>
 
