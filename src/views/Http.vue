@@ -164,15 +164,19 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="http-demo page-shell section-stack">
-    <div class="header-section">
-      <h1 class="page-title">
-        <Globe class="icon-title" />
-        HTTP 请求示例
-      </h1>
-      <p class="page-desc">
-        演示 @ldesign/http-vue 的各种功能，包括基础请求、查询、变更、分页等
-      </p>
+  <div class="http-demo page-container">
+    <div class="page-header section-card">
+      <div class="header-content">
+        <div class="header-icon">
+          <Globe class="icon-hero" />
+        </div>
+        <div>
+          <h1 class="page-title">HTTP 请求示例</h1>
+          <p class="page-desc">
+            演示 @ldesign/http-vue 的各种功能，包括基础请求、查询、变更、分页等
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- 标签页切换 -->
@@ -187,15 +191,17 @@ onUnmounted(() => {
 
     <!-- 基础请求示例 -->
     <div v-if="activeTab === 'basic'" class="tab-content">
-      <section class="section-card">
-        <h2 class="section-title">
-          <Database class="section-icon" />
-          1. 基础请求 (useQuery)
-        </h2>
-        <p class="section-desc">使用 useQuery 获取用户列表，支持自动缓存和重试</p>
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <Database class="section-icon" />
+            1. 基础请求 (useQuery)
+          </h2>
+          <p class="section-desc">使用 useQuery 获取用户列表，支持自动缓存和重试</p>
+        </div>
 
         <div class="demo-section">
-          <button class="btn primary" :disabled="isLoadingUsers" @click="refetchUsers">
+          <button class="action-btn primary" :disabled="isLoadingUsers" @click="refetchUsers">
             <RefreshCw class="btn-icon" :class="{ 'spin': isLoadingUsers }" />
             {{ isLoadingUsers ? '加载中...' : '刷新用户列表' }}
           </button>
@@ -209,7 +215,7 @@ onUnmounted(() => {
             <p class="flex-center">
               <XCircle class="inline-icon" /> 错误: {{ usersError.message }}
             </p>
-            <button class="btn secondary" @click="refetchUsers">
+            <button class="action-btn secondary" @click="refetchUsers">
               <RotateCw class="btn-icon" />
               重试
             </button>
@@ -233,17 +239,19 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
 
     <!-- 变更请求示例 -->
     <div v-if="activeTab === 'mutation'" class="tab-content">
-      <section class="section-card">
-        <h2 class="section-title">
-          <Activity class="section-icon" />
-          2. 变更请求 (useMutation)
-        </h2>
-        <p class="section-desc">使用 useMutation 创建新用户</p>
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <Activity class="section-icon" />
+            2. 变更请求 (useMutation)
+          </h2>
+          <p class="section-desc">使用 useMutation 创建新用户</p>
+        </div>
 
         <div class="demo-section">
           <form class="form" @submit.prevent="handleCreateUser">
@@ -259,7 +267,7 @@ onUnmounted(() => {
               <label>用户名:</label>
               <input v-model="newUser.username" type="text" class="input" required>
             </div>
-            <button type="submit" class="btn primary" :disabled="isCreating">
+            <button type="submit" class="action-btn primary" :disabled="isCreating">
               {{ isCreating ? '创建中...' : '创建用户' }}
             </button>
           </form>
@@ -277,25 +285,27 @@ onUnmounted(() => {
             <pre class="code-block">{{ JSON.stringify(createdUser, null, 2) }}</pre>
           </div>
         </div>
-      </section>
+      </div>
     </div>
 
     <!-- 分页请求示例 -->
     <div v-if="activeTab === 'pagination'" class="tab-content">
-      <section class="section-card">
-        <h2 class="section-title">
-          <FileText class="section-icon" />
-          3. 分页请求 (usePagination)
-        </h2>
-        <p class="section-desc">使用 usePagination 实现文章列表分页</p>
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <FileText class="section-icon" />
+            3. 分页请求 (usePagination)
+          </h2>
+          <p class="section-desc">使用 usePagination 实现文章列表分页</p>
+        </div>
 
         <div class="demo-section">
           <div class="pagination-controls">
-            <button class="btn secondary" :disabled="!hasPrevPage || isLoadingPosts" @click="prevPage">
+            <button class="action-btn secondary" :disabled="!hasPrevPage || isLoadingPosts" @click="prevPage">
               上一页
             </button>
             <span>第 {{ currentPage }} 页</span>
-            <button class="btn secondary" :disabled="!hasNextPage || isLoadingPosts" @click="nextPage">
+            <button class="action-btn secondary" :disabled="!hasNextPage || isLoadingPosts" @click="nextPage">
               下一页
             </button>
           </div>
@@ -320,21 +330,23 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
 
     <!-- 轮询请求示例 -->
     <div v-if="activeTab === 'polling'" class="tab-content">
-      <section class="section-card">
-        <h2 class="section-title">
-          <RefreshCw class="section-icon" />
-          4. 轮询请求 (usePolling)
-        </h2>
-        <p class="section-desc">使用 usePolling 定时获取数据</p>
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <RefreshCw class="section-icon" />
+            4. 轮询请求 (usePolling)
+          </h2>
+          <p class="section-desc">使用 usePolling 定时获取数据</p>
+        </div>
 
         <div class="demo-section">
           <div class="polling-controls">
-            <button class="btn" :class="isPolling ? 'warning' : 'primary'" @click="togglePolling">
+            <button class="action-btn" :class="isPolling ? 'warning' : 'primary'" @click="togglePolling">
               <RefreshCw class="btn-icon" :class="{ 'spin': isPolling }" />
               {{ isPolling ? '停止轮询' : '开始轮询' }}
             </button>
@@ -351,7 +363,7 @@ onUnmounted(() => {
             <pre class="code-block">{{ JSON.stringify(pollingData, null, 2) }}</pre>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   </div>
 </template>
@@ -361,36 +373,93 @@ onUnmounted(() => {
   max-width: 1000px;
   margin: 0 auto;
   padding: var(--size-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-lg);
 }
 
-.header-section {
-  margin-bottom: var(--size-space-xl);
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  color: white;
+  padding: var(--size-space-xl);
+  border-radius: var(--size-radius-lg);
+  border: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-lg);
+}
+
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-round);
+  display: flex;
+}
+
+.icon-hero {
+  width: 48px;
+  height: 48px;
+  color: white;
 }
 
 .page-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-sm);
-}
-
-.icon-title {
-  width: 32px;
-  height: 32px;
-  color: var(--color-primary-500);
+  font-weight: 700;
+  margin: 0 0 var(--size-space-xs);
+  color: white;
 }
 
 .page-desc {
-  color: var(--color-text-secondary);
   font-size: var(--size-font-md);
+  opacity: 0.9;
+  margin: 0;
+  max-width: 600px;
 }
 
-/* 标签页 */
+/* Section Card */
+.section-card {
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
+}
+
+.section-header {
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
+}
+
+.section-title {
+  font-size: var(--size-font-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+  margin: 0 0 var(--size-space-xs);
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
+}
+
+.section-desc {
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
+  margin: 0;
+}
+
+/* Tabs */
 .tabs-container {
-  margin-bottom: var(--size-space-lg);
+  margin-bottom: var(--size-space-md);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -420,51 +489,18 @@ onUnmounted(() => {
   border-bottom-color: var(--color-primary-500);
 }
 
-/* 内容区域 */
+/* Tab Content Animation */
 .tab-content {
   animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.section-card {
-  margin-bottom: var(--size-space-lg);
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
-  font-size: var(--size-font-lg);
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-sm);
-  font-weight: 600;
-}
-
-.section-icon {
-  width: 20px;
-  height: 20px;
-  color: var(--color-primary-500);
-}
-
-.section-desc {
-  color: var(--color-text-secondary);
-  margin-bottom: var(--size-space-lg);
-  font-size: var(--size-font-sm);
-}
-
-/* 按钮 */
-.btn {
+/* Buttons */
+.action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -476,7 +512,7 @@ onUnmounted(() => {
   font-size: var(--size-font-sm);
   transition: all 0.2s;
   font-weight: 500;
-  background: var(--color-bg-component);
+  background: var(--color-bg-container);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border);
 }
@@ -486,40 +522,41 @@ onUnmounted(() => {
   height: 16px;
 }
 
-.btn:hover:not(:disabled) {
-  background: var(--color-bg-component-hover);
+.action-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  transform: translateY(-1px);
 }
 
-.btn:disabled {
+.action-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn.primary {
+.action-btn.primary {
   background: var(--color-primary-500);
   color: white;
   border-color: var(--color-primary-500);
 }
 
-.btn.primary:hover:not(:disabled) {
+.action-btn.primary:hover:not(:disabled) {
   background: var(--color-primary-600);
 }
 
-.btn.secondary {
-  background: var(--color-bg-container);
-  color: var(--color-text-primary);
+.action-btn.secondary {
+  background: var(--color-bg-page);
 }
 
-.btn.warning {
+.action-btn.warning {
   background: var(--color-warning-500);
   color: white;
   border-color: var(--color-warning-500);
 }
 
-/* 加载状态 */
+/* Loading */
 .loading {
   text-align: center;
   padding: var(--size-space-xl);
+  color: var(--color-text-secondary);
 }
 
 .spinner {
@@ -533,20 +570,14 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .spin {
   animation: spin 1s linear infinite;
 }
 
-/* 错误状态 */
+/* Status Boxes */
 .error-box {
   background: var(--color-error-bg);
   border: 1px solid var(--color-error-border);
@@ -554,9 +585,11 @@ onUnmounted(() => {
   padding: var(--size-space-md);
   margin-top: var(--size-space-md);
   color: var(--color-error-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* 成功状态 */
 .success-text {
   margin-top: var(--size-space-md);
   color: var(--color-success-500);
@@ -572,7 +605,7 @@ onUnmounted(() => {
   color: var(--color-success-text);
 }
 
-/* 用户列表 */
+/* User List */
 .user-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -585,6 +618,12 @@ onUnmounted(() => {
   padding: var(--size-space-md);
   border-radius: var(--size-radius-md);
   border: 1px solid var(--color-border);
+  transition: transform 0.2s;
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary-200);
 }
 
 .user-card h3 {
@@ -615,7 +654,7 @@ onUnmounted(() => {
   margin-right: 4px;
 }
 
-/* 表单 */
+/* Form */
 .form {
   background: var(--color-bg-page);
   padding: var(--size-space-lg);
@@ -644,13 +683,16 @@ onUnmounted(() => {
   font-size: var(--size-font-sm);
   background: var(--color-bg-container);
   color: var(--color-text-primary);
+  transition: all 0.2s;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
+/* Code Block */
 .code-block {
   background: var(--color-bg-layout);
   padding: var(--size-space-md);
@@ -660,9 +702,10 @@ onUnmounted(() => {
   color: var(--color-text-primary);
   font-family: monospace;
   margin: var(--size-space-sm) 0 0;
+  border: 1px solid var(--color-border);
 }
 
-/* 文章列表 */
+/* Post List */
 .post-list {
   display: grid;
   gap: var(--size-space-md);
@@ -690,7 +733,7 @@ onUnmounted(() => {
   font-size: var(--size-font-sm);
 }
 
-/* 分页控制 */
+/* Pagination */
 .pagination-controls {
   display: flex;
   align-items: center;
@@ -704,7 +747,7 @@ onUnmounted(() => {
   font-size: var(--size-font-sm);
 }
 
-/* 轮询控制 */
+/* Polling */
 .polling-controls {
   display: flex;
   align-items: center;
@@ -730,5 +773,16 @@ onUnmounted(() => {
 .inline-icon {
   width: 16px;
   height: 16px;
+}
+
+@media (max-width: 768px) {
+  .http-demo {
+    padding: var(--size-space-md);
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 </style>

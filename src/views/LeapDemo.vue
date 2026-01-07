@@ -37,28 +37,36 @@ async function handleFetchUser() {
 
 <template>
   <div class="leap-demo page-container">
-    <div class="header-section">
-      <h1 class="page-title">
-        <Server class="icon-title" />
-        LEAP 接口示例
-      </h1>
-      <p class="page-desc">
-        演示如何使用 <code>useLeapApi</code> 调用 LEAP RPC 接口（如 LPOM 工作日、当前用户信息等）。
-      </p>
+    <div class="page-header section-card">
+      <div class="header-content">
+        <div class="header-icon">
+          <Server class="icon-hero" />
+        </div>
+        <div>
+          <h1 class="page-title">LEAP 接口示例</h1>
+          <p class="page-desc">
+            演示如何使用 <code>useLeapApi</code> 调用 LEAP RPC 接口（如 LPOM 工作日、当前用户信息等）。
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- 月工作日查询 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Calendar class="section-icon" />
-        1. 月工作日查询
-      </h2>
-      <p class="section-desc">调用 <code>getMonthWorkdayApi</code> 接口，根据月份获取工作日信息。</p>
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Calendar class="section-icon" />
+          1. 月工作日查询
+        </h2>
+        <p class="section-desc">调用 <code>getMonthWorkdayApi</code> 接口，根据月份获取工作日信息。</p>
+      </div>
 
       <div class="form-row">
-        <label for="month-input" class="label">选择月份：</label>
-        <input id="month-input" v-model="month" class="input" type="month">
-        <button class="btn primary" :disabled="loadingWorkday" @click="handleFetchWorkday">
+        <div class="control-item">
+          <label for="month-input" class="label">选择月份：</label>
+          <input id="month-input" v-model="month" class="input" type="month">
+        </div>
+        <button class="action-btn primary" :disabled="loadingWorkday" @click="handleFetchWorkday">
           {{ loadingWorkday ? '查询中...' : '查询工作日' }}
         </button>
       </div>
@@ -76,17 +84,19 @@ async function handleFetchUser() {
         <p>工作日日期：{{ workdayData.days.join(', ') }}</p>
         <p v-if="workdayData.holidays?.length">节假日：{{ workdayData.holidays.join(', ') }}</p>
       </div>
-    </section>
+    </div>
 
     <!-- 当前用户信息 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <User class="section-icon" />
-        2. 当前用户信息
-      </h2>
-      <p class="section-desc">调用 <code>getCurrentUserApi</code> 接口，获取当前登录用户的基础信息。</p>
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <User class="section-icon" />
+          2. 当前用户信息
+        </h2>
+        <p class="section-desc">调用 <code>getCurrentUserApi</code> 接口，获取当前登录用户的基础信息。</p>
+      </div>
 
-      <button class="btn primary" :disabled="loadingUser" @click="handleFetchUser">
+      <button class="action-btn primary mb-md" :disabled="loadingUser" @click="handleFetchUser">
         {{ loadingUser ? '加载中...' : '获取当前用户' }}
       </button>
 
@@ -101,7 +111,7 @@ async function handleFetchUser() {
         <h3 class="card-title">用户信息</h3>
         <pre class="code-block">{{ JSON.stringify(currentUser, null, 2) }}</pre>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
@@ -110,51 +120,82 @@ async function handleFetchUser() {
   max-width: 960px;
   margin: 0 auto;
   padding: var(--size-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-lg);
 }
 
-.header-section {
-  margin-bottom: var(--size-space-xl);
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  color: white;
+  padding: var(--size-space-xl);
+  border-radius: var(--size-radius-lg);
+  border: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-lg);
+}
+
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-round);
+  display: flex;
+}
+
+.icon-hero {
+  width: 48px;
+  height: 48px;
+  color: white;
 }
 
 .page-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-sm);
-}
-
-.icon-title {
-  width: 32px;
-  height: 32px;
-  color: var(--color-primary-500);
+  font-weight: 700;
+  margin: 0 0 var(--size-space-xs);
+  color: white;
 }
 
 .page-desc {
-  margin-bottom: var(--size-space-xl);
-  color: var(--color-text-secondary);
   font-size: var(--size-font-md);
+  opacity: 0.9;
+  margin: 0;
+  max-width: 600px;
 }
 
+.page-desc code {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Section Card */
 .section-card {
-  margin-bottom: var(--size-space-lg);
-  padding: var(--size-space-lg);
-  border-radius: var(--size-radius-lg);
   background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--color-border-secondary);
 }
 
+.section-header {
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
+}
+
 .section-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--size-space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+  margin: 0 0 var(--size-space-xs);
 }
 
 .section-icon {
@@ -164,11 +205,19 @@ async function handleFetchUser() {
 }
 
 .section-desc {
-  margin-bottom: var(--size-space-md);
   color: var(--color-text-secondary);
   font-size: var(--size-font-sm);
+  margin: 0;
 }
 
+.section-desc code {
+  background: var(--color-bg-layout);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--color-primary-600);
+}
+
+/* Form */
 .form-row {
   display: flex;
   flex-wrap: wrap;
@@ -177,9 +226,16 @@ async function handleFetchUser() {
   margin-bottom: var(--size-space-md);
 }
 
+.control-item {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+}
+
 .label {
   font-size: var(--size-font-sm);
   color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
 .input {
@@ -190,41 +246,97 @@ async function handleFetchUser() {
   font-size: var(--size-font-sm);
   background: var(--color-bg-container);
   color: var(--color-text-primary);
+  transition: all 0.2s;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
 }
 
-.btn {
+/* Buttons */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 8px 16px;
-  border-radius: var(--size-radius-md);
   border: none;
+  border-radius: var(--size-radius-md);
   cursor: pointer;
   font-size: var(--size-font-sm);
-  font-weight: 500;
-  background: var(--color-bg-component);
-  color: var(--color-text-primary);
   transition: all 0.2s;
+  font-weight: 500;
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
   border: 1px solid var(--color-border);
 }
 
-.btn.primary {
+.action-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  transform: translateY(-1px);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-btn.primary {
   background: var(--color-primary-500);
   color: white;
   border-color: var(--color-primary-500);
 }
 
-.btn.primary:hover:not(:disabled) {
+.action-btn.primary:hover:not(:disabled) {
   background: var(--color-primary-600);
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.mb-md {
+  margin-bottom: var(--size-space-md);
 }
 
+/* Result Card */
+.result-card {
+  margin-top: var(--size-space-md);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-md);
+  background: var(--color-bg-page);
+  border: 1px solid var(--color-border);
+}
+
+.card-title {
+  margin: 0 0 var(--size-space-sm);
+  font-size: var(--size-font-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.result-card p {
+  margin: 4px 0;
+  color: var(--color-text-secondary);
+  font-size: var(--size-font-sm);
+}
+
+.result-card strong {
+  color: var(--color-text-primary);
+}
+
+/* Code Block */
+.code-block {
+  margin: 0;
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-sm);
+  background: var(--color-bg-layout);
+  color: var(--color-text-primary);
+  font-size: var(--size-font-xs);
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  font-family: monospace;
+}
+
+/* Error Box */
 .error-box {
   display: flex;
   align-items: flex-start;
@@ -244,41 +356,23 @@ async function handleFetchUser() {
   vertical-align: text-bottom;
 }
 
-.result-card {
-  margin-top: var(--size-space-md);
-  padding: var(--size-space-md);
-  border-radius: var(--size-radius-md);
-  background: var(--color-bg-page);
-  border: 1px solid var(--color-border);
-}
-
-.card-title {
-  margin: 0 0 var(--size-space-sm);
-  font-size: var(--size-font-md);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.code-block {
-  margin: 0;
-  padding: var(--size-space-md);
-  border-radius: var(--size-radius-md);
-  background: var(--color-bg-layout);
-  color: var(--color-text-primary);
-  font-size: var(--size-font-xs);
-  overflow-x: auto;
-  border: 1px solid var(--color-border);
-  font-family: monospace;
-}
-
 @media (max-width: 768px) {
   .leap-demo {
     padding: var(--size-space-md);
   }
-
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
   .form-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+  
+  .input {
+    width: 100%;
   }
 }
 </style>

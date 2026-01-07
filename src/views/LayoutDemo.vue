@@ -83,13 +83,27 @@ function handleTabClose(key: string) {
 
 <template>
   <div class="layout-demo page-container">
+    <div class="page-header section-card">
+      <div class="header-content">
+        <div class="header-icon">
+          <Palette class="icon-hero" />
+        </div>
+        <div>
+          <h1 class="page-title">布局系统演示</h1>
+          <p class="page-desc">展示 @ldesign/template-vue 中的布局组件使用，支持多种经典布局模式。</p>
+        </div>
+      </div>
+    </div>
+
     <!-- 布局模式选择器 -->
     <div class="section-card">
-      <h2 class="section-title">
-        <Palette class="section-icon" />
-        布局系统演示
-      </h2>
-      <p class="section-desc">选择布局模式查看不同布局效果：</p>
+      <div class="section-header">
+        <h2 class="section-title">
+          <Settings class="section-icon" />
+          模式选择
+        </h2>
+        <p class="section-desc">选择布局模式查看不同布局效果：</p>
+      </div>
       <div class="mode-buttons">
         <button v-for="mode in layoutModes" :key="mode" :class="['mode-btn', { active: currentMode === mode }]"
           @click="switchMode(mode)">
@@ -99,146 +113,154 @@ function handleTabClose(key: string) {
     </div>
 
     <!-- 布局预览区域 -->
-    <div class="preview-card">
-      <!-- Admin 布局 -->
-      <div v-if="currentMode === 'admin'" class="preview-frame">
-        <div class="admin-layout">
-          <!-- 侧边栏 -->
-          <aside class="admin-sider" :class="{ collapsed: siderCollapsed }">
-            <div class="sider-logo">
-              <Palette class="logo-icon" />
-              <span v-if="!siderCollapsed">LDesign</span>
-            </div>
-            <nav class="sider-menu">
-              <div v-for="item in menuItems" :key="item.key" class="menu-item">
-                <component :is="item.icon" class="menu-icon" />
-                <span v-if="!siderCollapsed" class="menu-text">{{ item.label }}</span>
+    <div class="section-card preview-container">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Maximize class="section-icon" />
+          实时预览
+        </h2>
+      </div>
+      <div class="preview-card">
+        <!-- Admin 布局 -->
+        <div v-if="currentMode === 'admin'" class="preview-frame">
+          <div class="admin-layout">
+            <!-- 侧边栏 -->
+            <aside class="admin-sider" :class="{ collapsed: siderCollapsed }">
+              <div class="sider-logo">
+                <Palette class="logo-icon" />
+                <span v-if="!siderCollapsed">LDesign</span>
               </div>
-            </nav>
-          </aside>
+              <nav class="sider-menu">
+                <div v-for="item in menuItems" :key="item.key" class="menu-item">
+                  <component :is="item.icon" class="menu-icon" />
+                  <span v-if="!siderCollapsed" class="menu-text">{{ item.label }}</span>
+                </div>
+              </nav>
+            </aside>
 
-          <!-- 主区域 -->
-          <div class="admin-main">
-            <!-- 顶栏 -->
-            <header class="admin-header">
-              <button class="toggle-btn" @click="toggleSider">
-                <Menu />
-              </button>
-              <span class="header-title">Admin Layout</span>
-              <span class="header-user">
-                <User class="inline-icon" />
-                用户
-              </span>
-            </header>
+            <!-- 主区域 -->
+            <div class="admin-main">
+              <!-- 顶栏 -->
+              <header class="admin-header">
+                <button class="toggle-btn" @click="toggleSider">
+                  <Menu />
+                </button>
+                <span class="header-title">Admin Layout</span>
+                <span class="header-user">
+                  <User class="inline-icon" />
+                  用户
+                </span>
+              </header>
 
-            <!-- 标签栏 -->
-            <div v-if="showTabs" class="admin-tabs">
-              <div v-for="tab in tabs" :key="tab.key" :class="['tab-item', { active: activeTab === tab.key }]"
-                @click="handleTabChange(tab.key)">
-                <Pin v-if="tab.pinned" class="pin-icon" />
-                {{ tab.title }}
-                <X v-if="!tab.pinned" class="close-icon" @click.stop="handleTabClose(tab.key)" />
-              </div>
-            </div>
-
-            <!-- 内容区 -->
-            <main class="admin-content">
-              <div class="content-card">
-                <h3>内容区域</h3>
-                <p>这是 Admin 布局的内容区域，包含侧边栏、顶栏、标签栏和页脚。</p>
-                <div class="controls">
-                  <label class="checkbox-label"><input v-model="showTabs" type="checkbox"> 显示标签栏</label>
-                  <label class="checkbox-label"><input v-model="showFooter" type="checkbox"> 显示页脚</label>
+              <!-- 标签栏 -->
+              <div v-if="showTabs" class="admin-tabs">
+                <div v-for="tab in tabs" :key="tab.key" :class="['tab-item', { active: activeTab === tab.key }]"
+                  @click="handleTabChange(tab.key)">
+                  <Pin v-if="tab.pinned" class="pin-icon" />
+                  {{ tab.title }}
+                  <X v-if="!tab.pinned" class="close-icon" @click.stop="handleTabClose(tab.key)" />
                 </div>
               </div>
-            </main>
 
-            <!-- 页脚 -->
-            <footer v-if="showFooter" class="admin-footer">
-              Copyright © 2024 LDesign
+              <!-- 内容区 -->
+              <main class="admin-content">
+                <div class="content-card">
+                  <h3>内容区域</h3>
+                  <p>这是 Admin 布局的内容区域，包含侧边栏、顶栏、标签栏和页脚。</p>
+                  <div class="controls">
+                    <label class="checkbox-label"><input v-model="showTabs" type="checkbox"> 显示标签栏</label>
+                    <label class="checkbox-label"><input v-model="showFooter" type="checkbox"> 显示页脚</label>
+                  </div>
+                </div>
+              </main>
+
+              <!-- 页脚 -->
+              <footer v-if="showFooter" class="admin-footer">
+                Copyright © 2024 LDesign
+              </footer>
+            </div>
+          </div>
+        </div>
+
+        <!-- Portal 布局 -->
+        <div v-else-if="currentMode === 'portal'" class="preview-frame">
+          <div class="portal-layout">
+            <header class="portal-header">
+              <span class="portal-logo">
+                <Palette class="inline-icon" />
+                LDesign Portal
+              </span>
+              <nav class="portal-nav">
+                <span>首页</span>
+                <span>产品</span>
+                <span>文档</span>
+                <span>关于</span>
+              </nav>
+              <span class="portal-login">登录</span>
+            </header>
+            <main class="portal-content">
+              <CreditCard class="large-icon" />
+              <h3>Portal 门户布局</h3>
+              <p>适合官网、博客、门户网站等顶部导航的场景。</p>
+            </main>
+            <footer class="portal-footer">
+              © 2024 LDesign. All rights reserved.
             </footer>
           </div>
         </div>
-      </div>
 
-      <!-- Portal 布局 -->
-      <div v-else-if="currentMode === 'portal'" class="preview-frame">
-        <div class="portal-layout">
-          <header class="portal-header">
-            <span class="portal-logo">
-              <Palette class="inline-icon" />
-              LDesign Portal
-            </span>
-            <nav class="portal-nav">
-              <span>首页</span>
-              <span>产品</span>
-              <span>文档</span>
-              <span>关于</span>
-            </nav>
-            <span class="portal-login">登录</span>
-          </header>
-          <main class="portal-content">
-            <CreditCard class="large-icon" />
-            <h3>Portal 门户布局</h3>
-            <p>适合官网、博客、门户网站等顶部导航的场景。</p>
-          </main>
-          <footer class="portal-footer">
-            © 2024 LDesign. All rights reserved.
-          </footer>
+        <!-- Dashboard 布局 -->
+        <div v-else-if="currentMode === 'dashboard'" class="preview-frame">
+          <div class="dashboard-layout">
+            <header class="dashboard-header">
+              <span class="flex-center">
+                <LayoutDashboard class="inline-icon" />
+                数据监控中心
+              </span>
+              <span>2024-01-01 12:00:00</span>
+              <span class="flex-center">
+                <Maximize class="inline-icon" />
+                全屏
+              </span>
+            </header>
+            <main class="dashboard-content">
+              <div class="dashboard-grid">
+                <div class="dashboard-card">
+                  <TrendingUp class="card-icon up" />
+                  图表 1
+                </div>
+                <div class="dashboard-card">
+                  <LayoutDashboard class="card-icon" />
+                  图表 2
+                </div>
+                <div class="dashboard-card">
+                  <TrendingDown class="card-icon down" />
+                  图表 3
+                </div>
+                <div class="dashboard-card">
+                  <Folder class="card-icon" />
+                  图表 4
+                </div>
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
 
-      <!-- Dashboard 布局 -->
-      <div v-else-if="currentMode === 'dashboard'" class="preview-frame">
-        <div class="dashboard-layout">
-          <header class="dashboard-header">
-            <span class="flex-center">
-              <LayoutDashboard class="inline-icon" />
-              数据监控中心
-            </span>
-            <span>2024-01-01 12:00:00</span>
-            <span class="flex-center">
-              <Maximize class="inline-icon" />
-              全屏
-            </span>
-          </header>
-          <main class="dashboard-content">
-            <div class="dashboard-grid">
-              <div class="dashboard-card">
-                <TrendingUp class="card-icon up" />
-                图表 1
+        <!-- Blank 布局 -->
+        <div v-else-if="currentMode === 'blank'" class="preview-frame">
+          <div class="blank-layout">
+            <div class="blank-content">
+              <h3>Blank 空白布局</h3>
+              <p>无任何装饰的空白布局，适合登录页、错误页等。</p>
+              <div class="login-card">
+                <h4>
+                  <LogIn class="inline-icon" />
+                  登录
+                </h4>
+                <input type="text" placeholder="用户名" class="input">
+                <input type="password" placeholder="密码" class="input">
+                <button class="login-btn">登录</button>
               </div>
-              <div class="dashboard-card">
-                <LayoutDashboard class="card-icon" />
-                图表 2
-              </div>
-              <div class="dashboard-card">
-                <TrendingDown class="card-icon down" />
-                图表 3
-              </div>
-              <div class="dashboard-card">
-                <Folder class="card-icon" />
-                图表 4
-              </div>
-            </div>
-          </main>
-        </div>
-      </div>
-
-      <!-- Blank 布局 -->
-      <div v-else-if="currentMode === 'blank'" class="preview-frame">
-        <div class="blank-layout">
-          <div class="blank-content">
-            <h3>Blank 空白布局</h3>
-            <p>无任何装饰的空白布局，适合登录页、错误页等。</p>
-            <div class="login-card">
-              <h4>
-                <LogIn class="inline-icon" />
-                登录
-              </h4>
-              <input type="text" placeholder="用户名" class="input">
-              <input type="password" placeholder="密码" class="input">
-              <button class="login-btn">登录</button>
             </div>
           </div>
         </div>
@@ -249,28 +271,79 @@ function handleTabClose(key: string) {
 
 <style scoped>
 .layout-demo {
-  padding: var(--size-space-lg);
   max-width: 1200px;
   margin: 0 auto;
+  padding: var(--size-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-lg);
 }
 
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  color: white;
+  padding: var(--size-space-xl);
+  border-radius: var(--size-radius-lg);
+  border: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-lg);
+}
+
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-round);
+  display: flex;
+}
+
+.icon-hero {
+  width: 48px;
+  height: 48px;
+  color: white;
+}
+
+.page-title {
+  font-size: var(--size-font-2xl);
+  font-weight: 700;
+  margin: 0 0 var(--size-space-xs);
+  color: white;
+}
+
+.page-desc {
+  font-size: var(--size-font-md);
+  opacity: 0.9;
+  margin: 0;
+  max-width: 600px;
+}
+
+/* Section Card */
 .section-card {
-  margin-bottom: var(--size-space-lg);
-  padding: var(--size-space-lg);
   background: var(--color-bg-container);
   border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--color-border-secondary);
 }
 
+.section-header {
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
+}
+
 .section-title {
+  font-size: var(--size-font-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   gap: var(--size-space-sm);
-  margin: 0 0 var(--size-space-sm);
-  font-size: var(--size-font-lg);
-  color: var(--color-text-primary);
-  font-weight: 600;
+  margin: 0 0 var(--size-space-xs);
 }
 
 .section-icon {
@@ -280,31 +353,35 @@ function handleTabClose(key: string) {
 }
 
 .section-desc {
-  margin: 0 0 var(--size-space-md);
   color: var(--color-text-secondary);
   font-size: var(--size-font-sm);
+  margin: 0;
 }
 
+/* Mode Buttons */
 .mode-buttons {
   display: flex;
   gap: var(--size-space-md);
+  flex-wrap: wrap;
 }
 
 .mode-btn {
   padding: 8px 20px;
   border: 1px solid var(--color-border);
   border-radius: var(--size-radius-md);
-  background: var(--color-bg-container);
+  background: var(--color-bg-page);
   cursor: pointer;
   transition: all 0.2s;
   font-size: var(--size-font-sm);
   color: var(--color-text-primary);
   text-transform: capitalize;
+  font-weight: 500;
 }
 
 .mode-btn:hover {
   border-color: var(--color-primary-500);
   color: var(--color-primary-500);
+  background: var(--color-bg-container);
 }
 
 .mode-btn.active {
@@ -313,13 +390,19 @@ function handleTabClose(key: string) {
   color: white;
 }
 
-/* 预览框架 */
-.preview-card {
-  border: 1px solid var(--color-border);
-  border-radius: var(--size-radius-lg);
+/* Preview Card */
+.preview-container {
+  padding: 0;
   overflow: hidden;
-  background: var(--color-bg-page);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.preview-container .section-header {
+  margin: var(--size-space-lg);
+}
+
+.preview-card {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-layout);
 }
 
 .preview-frame {
@@ -739,5 +822,20 @@ function handleTabClose(key: string) {
 .inline-icon {
   width: 16px;
   height: 16px;
+}
+
+@media (max-width: 768px) {
+  .layout-demo {
+    padding: var(--size-space-md);
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .preview-frame {
+    height: 400px;
+  }
 }
 </style>

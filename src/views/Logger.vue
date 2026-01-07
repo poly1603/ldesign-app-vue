@@ -92,54 +92,69 @@ onMounted(() => {
 
 <template>
   <div class="logger-demo page-container">
-    <h1 class="page-title">
-      <FileText class="icon-title" />
-      日志系统演示
-    </h1>
+    <div class="page-header section-card">
+      <div class="header-content">
+        <div class="header-icon">
+          <FileText class="icon-hero" />
+        </div>
+        <div>
+          <h1 class="page-title">日志系统演示</h1>
+          <p class="page-desc">展示 @ldesign/logger-vue 的使用方法，包括日志分级、错误追踪、面包屑和性能监控。</p>
+        </div>
+      </div>
+    </div>
 
-    <!-- 日志级别控制 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Activity class="section-icon" />
-        日志级别
-      </h2>
-      <div class="level-buttons">
-        <button v-for="level in logLevels" :key="level.value" :class="['btn', { active: currentLevel === level.value }]"
-          @click="setLevel(level.value)">
-          {{ level.label }}
-        </button>
+    <div class="grid-layout">
+      <!-- 日志级别控制 -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <Activity class="section-icon" />
+            日志级别
+          </h2>
+        </div>
+        <div class="level-buttons">
+          <button v-for="level in logLevels" :key="level.value" :class="['level-btn', { active: currentLevel === level.value }]"
+            @click="setLevel(level.value)">
+            {{ level.label }}
+          </button>
+        </div>
+        <p class="hint">当前级别: <strong>{{ LogLevel[currentLevel] }}</strong></p>
       </div>
-      <p class="hint">当前级别: <strong>{{ LogLevel[currentLevel] }}</strong></p>
-    </section>
 
-    <!-- 日志记录 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <FileText class="section-icon" />
-        日志记录
-      </h2>
-      <div class="form-group">
-        <input v-model="logMessage" placeholder="输入日志消息" class="input">
+      <!-- 日志记录 -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <FileText class="section-icon" />
+            日志记录
+          </h2>
+        </div>
+        <div class="form-group">
+          <input v-model="logMessage" placeholder="输入日志消息" class="input">
+        </div>
+        <div class="button-group wrap">
+          <button class="action-btn btn-trace" @click="logTrace">TRACE</button>
+          <button class="action-btn btn-debug" @click="logDebug">DEBUG</button>
+          <button class="action-btn btn-info" @click="logInfo">INFO</button>
+          <button class="action-btn btn-warn" @click="logWarn">WARN</button>
+          <button class="action-btn btn-error" @click="logError">ERROR</button>
+        </div>
+        <p class="hint flex-center">
+          <Lightbulb class="inline-icon" />
+          打开浏览器控制台查看日志输出
+        </p>
       </div>
-      <div class="button-group">
-        <button class="btn btn-trace" @click="logTrace">TRACE</button>
-        <button class="btn btn-debug" @click="logDebug">DEBUG</button>
-        <button class="btn btn-info" @click="logInfo">INFO</button>
-        <button class="btn btn-warn" @click="logWarn">WARN</button>
-        <button class="btn btn-error" @click="logError">ERROR</button>
-      </div>
-      <p class="hint flex-center">
-        <Lightbulb class="inline-icon" />
-        打开浏览器控制台查看日志输出
-      </p>
-    </section>
+    </div>
 
     <!-- 错误追踪 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Bug class="section-icon" />
-        错误追踪
-      </h2>
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Bug class="section-icon" />
+          错误追踪
+        </h2>
+      </div>
       <ErrorBoundary @error="(e) => info('捕获到错误', e)">
         <div v-if="shouldError">{{ throwError() }}</div>
         <template #fallback="{ error: err, reset }">
@@ -148,26 +163,28 @@ onMounted(() => {
               <XCircle class="inline-icon" />
               捕获到错误: {{ err?.message }}
             </p>
-            <button class="btn btn-info" @click="reset(); resetError()">重试</button>
+            <button class="action-btn btn-info" @click="reset(); resetError()">重试</button>
           </div>
         </template>
       </ErrorBoundary>
-      <button class="btn btn-danger" @click="triggerError">
+      <button class="action-btn btn-danger" @click="triggerError">
         <AlertTriangle class="btn-icon" />
         触发测试错误
       </button>
-    </section>
+    </div>
 
     <!-- 面包屑 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Clock class="section-icon" />
-        面包屑追踪
-      </h2>
-      <div class="button-group">
-        <button class="btn" @click="addClickBreadcrumb">添加点击面包屑</button>
-        <button class="btn" @click="addNavigationBreadcrumb">添加导航面包屑</button>
-        <button class="btn btn-warning" @click="clearBreadcrumbs()">
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Clock class="section-icon" />
+          面包屑追踪
+        </h2>
+      </div>
+      <div class="button-group mb-md">
+        <button class="action-btn secondary" @click="addClickBreadcrumb">添加点击面包屑</button>
+        <button class="action-btn secondary" @click="addNavigationBreadcrumb">添加导航面包屑</button>
+        <button class="action-btn btn-warning" @click="clearBreadcrumbs()">
           <Trash2 class="btn-icon" />
           清空
         </button>
@@ -179,67 +196,102 @@ onMounted(() => {
         </div>
         <p v-if="breadcrumbs.length === 0" class="empty-text">暂无面包屑</p>
       </div>
-    </section>
+    </div>
 
     <!-- 性能监控 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Activity class="section-icon" />
-        性能监控
-      </h2>
-      <button class="btn btn-info" @click="runPerformanceTest">
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Activity class="section-icon" />
+          性能监控
+        </h2>
+      </div>
+      <button class="action-btn btn-info mb-md" @click="runPerformanceTest">
         <Activity class="btn-icon" />
         运行性能测试
       </button>
       <div v-if="Object.keys(performanceReport).length" class="performance-report">
         <pre class="code-block">{{ JSON.stringify(performanceReport, null, 2) }}</pre>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .logger-demo {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: var(--size-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-lg);
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  color: white;
+  padding: var(--size-space-xl);
+  border-radius: var(--size-radius-lg);
+  border: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-lg);
+}
+
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-round);
+  display: flex;
+}
+
+.icon-hero {
+  width: 48px;
+  height: 48px;
+  color: white;
 }
 
 .page-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-xl);
+  font-weight: 700;
+  margin: 0 0 var(--size-space-xs);
+  color: white;
 }
 
-.icon-title {
-  width: 32px;
-  height: 32px;
-  color: var(--color-primary-500);
+.page-desc {
+  font-size: var(--size-font-md);
+  opacity: 0.9;
+  margin: 0;
+  max-width: 600px;
 }
 
+/* Section Card */
 .section-card {
-  margin-bottom: var(--size-space-lg);
-  padding: var(--size-space-lg);
   background: var(--color-bg-container);
   border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--color-border-secondary);
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
-  font-size: var(--size-font-lg);
-  color: var(--color-text-primary);
+.section-header {
   margin-bottom: var(--size-space-md);
   border-bottom: 1px solid var(--color-border-secondary);
   padding-bottom: var(--size-space-sm);
+}
+
+.section-title {
+  font-size: var(--size-font-lg);
   font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+  margin: 0 0 var(--size-space-xs);
 }
 
 .section-icon {
@@ -248,6 +300,14 @@ onMounted(() => {
   color: var(--color-primary-500);
 }
 
+/* Grid Layout */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--size-space-lg);
+}
+
+/* Form */
 .form-group {
   margin-bottom: var(--size-space-md);
 }
@@ -260,29 +320,43 @@ onMounted(() => {
   font-size: var(--size-font-sm);
   background: var(--color-bg-container);
   color: var(--color-text-primary);
+  transition: all 0.2s;
 }
 
-.button-group,
-.level-buttons {
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+/* Buttons */
+.button-group {
   display: flex;
   gap: var(--size-space-md);
-  flex-wrap: wrap;
-  margin-bottom: var(--size-space-sm);
 }
 
-.btn {
+.button-group.wrap {
+  flex-wrap: wrap;
+}
+
+.mb-md {
+  margin-bottom: var(--size-space-md);
+}
+
+.action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--size-radius-md);
-  background: var(--color-bg-component);
-  color: var(--color-text-primary);
   cursor: pointer;
   font-size: var(--size-font-sm);
   transition: all 0.2s;
   font-weight: 500;
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
   border: 1px solid var(--color-border);
 }
 
@@ -291,45 +365,48 @@ onMounted(() => {
   height: 16px;
 }
 
-.btn:hover {
-  background: var(--color-bg-component-hover);
+.action-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.95);
 }
 
-.btn.active {
+.action-btn.secondary {
+  background: var(--color-bg-page);
+}
+
+/* Log Levels */
+.level-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-space-sm);
+  margin-bottom: var(--size-space-sm);
+}
+
+.level-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--size-radius-md);
+  background: var(--color-bg-page);
+  cursor: pointer;
+  font-size: var(--size-font-sm);
+  color: var(--color-text-secondary);
+  transition: all 0.2s;
+}
+
+.level-btn.active {
   background: var(--color-primary-500);
   color: white;
   border-color: var(--color-primary-500);
 }
 
-.btn-trace {
-  background: var(--color-text-tertiary);
-  color: white;
-}
-
-.btn-debug {
-  background: #6c757d;
-  color: white;
-}
-
-.btn-info {
-  background: var(--color-info-500);
-  color: white;
-}
-
-.btn-warn {
-  background: var(--color-warning-500);
-  color: white;
-}
-
-.btn-error {
-  background: var(--color-error-500);
-  color: white;
-}
-
-.btn-danger {
-  background: var(--color-error-500);
-  color: white;
-}
+/* Log Colors */
+.btn-trace { background: var(--color-bg-layout); color: var(--color-text-tertiary); }
+.btn-debug { background: #6c757d; color: white; border-color: #6c757d; }
+.btn-info { background: var(--color-info-500); color: white; border-color: var(--color-info-500); }
+.btn-warn { background: var(--color-warning-500); color: white; border-color: var(--color-warning-500); }
+.btn-error { background: var(--color-error-500); color: white; border-color: var(--color-error-500); }
+.btn-danger { background: var(--color-error-500); color: white; border-color: var(--color-error-500); }
+.btn-warning { background: var(--color-warning-500); color: white; border-color: var(--color-warning-500); }
 
 .hint {
   color: var(--color-text-secondary);
@@ -337,6 +414,7 @@ onMounted(() => {
   margin-top: var(--size-space-sm);
 }
 
+/* Error Fallback */
 .error-fallback {
   padding: var(--size-space-md);
   background: var(--color-error-bg);
@@ -344,37 +422,50 @@ onMounted(() => {
   margin-bottom: var(--size-space-md);
   border: 1px solid var(--color-error-border);
   color: var(--color-error-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
+/* Breadcrumbs */
 .breadcrumbs-list {
-  margin-top: var(--size-space-md);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
+  border: 1px solid var(--color-border);
+  padding: var(--size-space-sm);
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .breadcrumb-item {
   display: flex;
   gap: var(--size-space-md);
   padding: 8px;
-  background: var(--color-bg-page);
-  margin-bottom: 4px;
-  border-radius: var(--size-radius-sm);
-  font-size: var(--size-font-sm);
-  border: 1px solid var(--color-border);
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.breadcrumb-item:last-child {
+  border-bottom: none;
 }
 
 .crumb-type {
   font-weight: 600;
   color: var(--color-primary-500);
   min-width: 80px;
+  font-size: var(--size-font-xs);
+  text-transform: uppercase;
 }
 
 .crumb-message {
   color: var(--color-text-primary);
+  font-size: var(--size-font-sm);
 }
 
 .empty-text {
   color: var(--color-text-tertiary);
   font-style: italic;
   text-align: center;
+  padding: var(--size-space-md);
 }
 
 .performance-report {
@@ -402,5 +493,16 @@ onMounted(() => {
 .inline-icon {
   width: 16px;
   height: 16px;
+}
+
+@media (max-width: 768px) {
+  .logger-demo {
+    padding: var(--size-space-md);
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 </style>

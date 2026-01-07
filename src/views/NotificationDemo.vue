@@ -16,7 +16,13 @@ import {
  *
  * 展示 @ldesign/notification-vue 的所有功能
  */
-import { ref } from 'vue'
+import {
+  Bell,
+  MessageSquare,
+  Zap,
+  Maximize,
+  Sidebar
+} from 'lucide-vue-next'
 
 // ==================== Composables ====================
 const toast = useToast()
@@ -164,147 +170,135 @@ const showResizableDrawer = () => {
 
 <template>
   <div class="notification-demo page-container">
-    <h1 class="page-title">🔔 通知系统演示</h1>
-    <p class="subtitle">
-      @ldesign/notification-vue - Toast / Message / Notification / Modal / Drawer
-    </p>
-
-    <!-- Toast 演示 -->
-    <section class="section-card">
-      <h2 class="section-title">🍞 Toast 轻提示</h2>
-      <p class="section-desc">
-        轻量级的消息提示，自动消失，适合简单反馈
-      </p>
-      <div class="button-group">
-        <button class="btn success" @click="showToastSuccess">
-          成功
-        </button>
-        <button class="btn error" @click="showToastError">
-          错误
-        </button>
-        <button class="btn warning" @click="showToastWarning">
-          警告
-        </button>
-        <button class="btn info" @click="showToastInfo">
-          信息
-        </button>
-        <button class="btn loading" @click="showToastLoading">
-          加载
-        </button>
+    <div class="page-header section-card">
+      <div class="header-content">
+        <div class="header-icon">
+          <Bell class="icon-hero" />
+        </div>
+        <div>
+          <h1 class="page-title">通知系统演示</h1>
+          <p class="page-desc">@ldesign/notification-vue 全功能演示，包括 Toast 轻提示、全局 Message、通知中心、模态框和抽屉。</p>
+        </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Message 演示 -->
-    <section class="section-card">
-      <h2 class="section-title">💬 Message 消息</h2>
-      <p class="section-desc">
-        顶部居中的全局消息提示
-      </p>
-      <div class="button-group">
-        <button class="btn success" @click="showMessageSuccess">
-          成功
-        </button>
-        <button class="btn error" @click="showMessageError">
-          错误
-        </button>
-        <button class="btn warning" @click="showMessageWarning">
-          警告
-        </button>
-        <button class="btn info" @click="showMessageInfo">
-          信息
-        </button>
+    <div class="grid-layout">
+      <!-- Toast 演示 -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <Zap class="section-icon" />
+            Toast 轻提示
+          </h2>
+          <p class="section-desc">轻量级的消息提示，自动消失，适合简单反馈。</p>
+        </div>
+        <div class="button-group wrap">
+          <button class="action-btn success" @click="showToastSuccess">成功</button>
+          <button class="action-btn error" @click="showToastError">错误</button>
+          <button class="action-btn warning" @click="showToastWarning">警告</button>
+          <button class="action-btn info" @click="showToastInfo">信息</button>
+          <button class="action-btn loading" @click="showToastLoading">加载</button>
+        </div>
       </div>
-    </section>
+
+      <!-- Message 演示 -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <MessageSquare class="section-icon" />
+            Message 消息
+          </h2>
+          <p class="section-desc">顶部居中的全局消息提示。</p>
+        </div>
+        <div class="button-group wrap">
+          <button class="action-btn success" @click="showMessageSuccess">成功</button>
+          <button class="action-btn error" @click="showMessageError">错误</button>
+          <button class="action-btn warning" @click="showMessageWarning">警告</button>
+          <button class="action-btn info" @click="showMessageInfo">信息</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Notification 演示 -->
-    <section class="section-card">
-      <h2 class="section-title">📢 Notification 通知</h2>
-      <p class="section-desc">
-        带标题和内容的通知框，支持操作按钮
-      </p>
-      <div class="button-group">
-        <button class="btn success" @click="showNotificationSuccess">
-          成功通知
-        </button>
-        <button class="btn error" @click="showNotificationError">
-          错误通知
-        </button>
-        <button class="btn primary" @click="showNotificationWithActions">
-          带操作按钮
-        </button>
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Bell class="section-icon" />
+          Notification 通知
+        </h2>
+        <p class="section-desc">带标题和内容的通知框，支持操作按钮。</p>
       </div>
-    </section>
+      <div class="button-group">
+        <button class="action-btn success" @click="showNotificationSuccess">成功通知</button>
+        <button class="action-btn error" @click="showNotificationError">错误通知</button>
+        <button class="action-btn primary" @click="showNotificationWithActions">带操作按钮</button>
+      </div>
+    </div>
 
     <!-- Modal 演示 -->
-    <section class="section-card">
-      <h2 class="section-title">🪟 Modal 弹窗</h2>
-      <p class="section-desc">模态对话框，用于重要信息确认</p>
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Maximize class="section-icon" />
+          Modal 弹窗
+        </h2>
+        <p class="section-desc">模态对话框，用于重要信息确认。</p>
+      </div>
 
       <h3 class="subsection-title">基础用法</h3>
-      <div class="button-group">
-        <button class="btn primary" @click="showConfirmDialog">确认对话框</button>
-        <button class="btn warning" @click="showAlertDialog">警告对话框</button>
-        <button class="btn info" @click="showPromptDialog">输入对话框</button>
-        <button class="btn secondary" @click="showCustomModal">自定义弹窗</button>
+      <div class="button-group mb-lg">
+        <button class="action-btn primary" @click="showConfirmDialog">确认对话框</button>
+        <button class="action-btn warning" @click="showAlertDialog">警告对话框</button>
+        <button class="action-btn info" @click="showPromptDialog">输入对话框</button>
+        <button class="action-btn secondary" @click="showCustomModal">自定义弹窗</button>
       </div>
-      <p v-if="promptResult" class="result-box">输入结果: {{ promptResult }}</p>
+      <div v-if="promptResult" class="result-box">输入结果: {{ promptResult }}</div>
 
       <h3 class="subsection-title">动画效果</h3>
-      <div class="button-group">
-        <button class="btn anim" @click="showAnimationModal('fade')">淡入淡出</button>
-        <button class="btn anim" @click="showAnimationModal('scale')">缩放</button>
-        <button class="btn anim" @click="showAnimationModal('zoom')">放大</button>
-        <button class="btn anim" @click="showAnimationModal('bounce')">弹跳</button>
-        <button class="btn anim" @click="showAnimationModal('slide-top')">从上滑入</button>
-        <button class="btn anim" @click="showAnimationModal('slide-bottom')">从下滑入</button>
-        <button class="btn anim" @click="showAnimationModal('slide-left')">从左滑入</button>
-        <button class="btn anim" @click="showAnimationModal('slide-right')">从右滑入</button>
+      <div class="button-group mb-lg wrap">
+        <button class="action-btn anim" @click="showAnimationModal('fade')">淡入淡出</button>
+        <button class="action-btn anim" @click="showAnimationModal('scale')">缩放</button>
+        <button class="action-btn anim" @click="showAnimationModal('zoom')">放大</button>
+        <button class="action-btn anim" @click="showAnimationModal('bounce')">弹跳</button>
+        <button class="action-btn anim" @click="showAnimationModal('slide-top')">从上滑入</button>
+        <button class="action-btn anim" @click="showAnimationModal('slide-bottom')">从下滑入</button>
+        <button class="action-btn anim" @click="showAnimationModal('slide-left')">从左滑入</button>
+        <button class="action-btn anim" @click="showAnimationModal('slide-right')">从右滑入</button>
       </div>
 
       <h3 class="subsection-title">高级功能</h3>
       <div class="button-group">
-        <button class="btn feature" @click="maximizableModalVisible = true">可最大化</button>
-        <button class="btn feature" @click="draggableModalVisible = true">可拖动</button>
-        <button class="btn feature" @click="resizableModalVisible = true">可调整大小</button>
-        <button class="btn feature-full" @click="fullFeaturedModalVisible = true">✨ 全能弹窗</button>
+        <button class="action-btn feature" @click="maximizableModalVisible = true">可最大化</button>
+        <button class="action-btn feature" @click="draggableModalVisible = true">可拖动</button>
+        <button class="action-btn feature" @click="resizableModalVisible = true">可调整大小</button>
+        <button class="action-btn feature-full" @click="fullFeaturedModalVisible = true">✨ 全能弹窗</button>
       </div>
-    </section>
+    </div>
 
     <!-- Drawer 演示 -->
-    <section class="section-card">
-      <h2 class="section-title">🗄️ Drawer 抽屉</h2>
-      <p class="section-desc">
-        从屏幕边缘滑出的抽屉面板
-      </p>
-      <div class="button-group">
-        <button class="btn secondary" @click="showDrawer('left')">
-          ← 左侧
-        </button>
-        <button class="btn secondary" @click="showDrawer('right')">
-          右侧 →
-        </button>
-        <button class="btn secondary" @click="showDrawer('top')">
-          ↑ 顶部
-        </button>
-        <button class="btn secondary" @click="showDrawer('bottom')">
-          ↓ 底部
-        </button>
-        <button class="btn primary" @click="showDrawerWithAPI">
-          API 调用
-        </button>
-        <button class="btn info" @click="showResizableDrawer">
-          可调整大小
-        </button>
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Sidebar class="section-icon" />
+          Drawer 抽屉
+        </h2>
+        <p class="section-desc">从屏幕边缘滑出的抽屉面板。</p>
       </div>
-    </section>
+      <div class="button-group">
+        <button class="action-btn secondary" @click="showDrawer('left')">← 左侧</button>
+        <button class="action-btn secondary" @click="showDrawer('right')">右侧 →</button>
+        <button class="action-btn secondary" @click="showDrawer('top')">↑ 顶部</button>
+        <button class="action-btn secondary" @click="showDrawer('bottom')">↓ 底部</button>
+        <button class="action-btn primary" @click="showDrawerWithAPI">API 调用</button>
+        <button class="action-btn info" @click="showResizableDrawer">可调整大小</button>
+      </div>
+    </div>
 
     <!-- 渲染组件 -->
     <LToast />
     <LMessage />
     <LNotification />
-    <!-- 命令式 Modal（用于 modal.confirm/alert/prompt 等 API 调用） -->
     <LModal />
-    <!-- 命令式 Drawer（用于 drawer.open 等 API 调用） -->
     <LDrawer />
 
     <!-- 自定义 Modal -->
@@ -320,8 +314,8 @@ const showResizableDrawer = () => {
         </ul>
       </div>
       <template #footer>
-        <button class="btn secondary" @click="modalVisible = false">取消</button>
-        <button class="btn primary" @click="modalVisible = false; toast.success('确认成功')">确认</button>
+        <button class="action-btn secondary" @click="modalVisible = false">取消</button>
+        <button class="action-btn primary" @click="modalVisible = false; toast.success('确认成功')">确认</button>
       </template>
     </LModal>
 
@@ -333,7 +327,7 @@ const showResizableDrawer = () => {
         <p class="animation-desc">点击遮罩或关闭按钮查看关闭动画效果。</p>
       </div>
       <template #footer>
-        <button class="btn primary" @click="animationModalVisible = false">关闭</button>
+        <button class="action-btn primary" @click="animationModalVisible = false">关闭</button>
       </template>
     </LModal>
 
@@ -346,7 +340,7 @@ const showResizableDrawer = () => {
         <p class="tip">再次点击可以恢复原始大小。</p>
       </div>
       <template #footer>
-        <button class="btn secondary" @click="maximizableModalVisible = false">关闭</button>
+        <button class="action-btn secondary" @click="maximizableModalVisible = false">关闭</button>
       </template>
     </LModal>
 
@@ -359,7 +353,7 @@ const showResizableDrawer = () => {
         <p class="tip">试试拖动我到屏幕的其他位置！</p>
       </div>
       <template #footer>
-        <button class="btn secondary" @click="draggableModalVisible = false">关闭</button>
+        <button class="action-btn secondary" @click="draggableModalVisible = false">关闭</button>
       </template>
     </LModal>
 
@@ -372,7 +366,7 @@ const showResizableDrawer = () => {
         <p class="tip">鼠标移到右下角会出现调整光标。</p>
       </div>
       <template #footer>
-        <button class="btn secondary" @click="resizableModalVisible = false">关闭</button>
+        <button class="action-btn secondary" @click="resizableModalVisible = false">关闭</button>
       </template>
     </LModal>
 
@@ -394,8 +388,8 @@ const showResizableDrawer = () => {
         </ul>
       </div>
       <template #footer>
-        <button class="btn secondary" @click="fullFeaturedModalVisible = false">取消</button>
-        <button class="btn primary" @click="fullFeaturedModalVisible = false; toast.success('操作成功！')">
+        <button class="action-btn secondary" @click="fullFeaturedModalVisible = false">取消</button>
+        <button class="action-btn primary" @click="fullFeaturedModalVisible = false; toast.success('操作成功！')">
           确认
         </button>
       </template>
@@ -415,7 +409,7 @@ const showResizableDrawer = () => {
         </ul>
       </div>
       <template #footer>
-        <button class="btn secondary" @click="drawerVisible = false">
+        <button class="action-btn secondary" @click="drawerVisible = false">
           关闭
         </button>
       </template>
@@ -429,23 +423,23 @@ const showResizableDrawer = () => {
         <p class="tip">
           将鼠标移到抽屉左边缘，出现调整光标后拖拽即可改变宽度。
         </p>
-        <div class="feature-list">
-          <div class="feature-item">
-            <span class="icon">📏</span>
+        <div class=\"feature-list\">
+          <div class=\"feature-item\">
+            <span class=\"icon\">📏</span>
             <div>
               <strong>最小宽度</strong>
               <p>250px</p>
             </div>
           </div>
-          <div class="feature-item">
-            <span class="icon">📐</span>
+          <div class=\"feature-item\">
+            <span class=\"icon\">📐</span>
             <div>
               <strong>最大宽度</strong>
               <p>800px</p>
             </div>
           </div>
-          <div class="feature-item">
-            <span class="icon">🎯</span>
+          <div class=\"feature-item\">
+            <span class=\"icon\">🎯</span>
             <div>
               <strong>初始宽度</strong>
               <p>400px</p>
@@ -457,7 +451,7 @@ const showResizableDrawer = () => {
         </p>
       </div>
       <template #footer>
-        <button class="btn secondary" @click="resizableDrawerVisible = false">
+        <button class="action-btn secondary" @click="resizableDrawerVisible = false">
           关闭
         </button>
       </template>
@@ -467,46 +461,91 @@ const showResizableDrawer = () => {
 
 <style scoped>
 .notification-demo {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: var(--size-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-lg);
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  color: white;
+  padding: var(--size-space-xl);
+  border-radius: var(--size-radius-lg);
+  border: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-lg);
+}
+
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-round);
+  display: flex;
+}
+
+.icon-hero {
+  width: 48px;
+  height: 48px;
+  color: white;
 }
 
 .page-title {
-  text-align: center;
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-sm);
   font-size: var(--size-font-2xl);
-  font-weight: 600;
+  font-weight: 700;
+  margin: 0 0 var(--size-space-xs);
+  color: white;
 }
 
-.subtitle {
-  text-align: center;
-  color: var(--color-text-secondary);
-  margin-bottom: var(--size-space-xl);
+.page-desc {
   font-size: var(--size-font-md);
+  opacity: 0.9;
+  margin: 0;
+  max-width: 600px;
 }
 
+/* Section Card */
 .section-card {
   background: var(--color-bg-container);
   border-radius: var(--size-radius-lg);
   padding: var(--size-space-lg);
-  margin-bottom: var(--size-space-lg);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--color-border-secondary);
 }
 
+.section-header {
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
+}
+
 .section-title {
-  margin: 0 0 var(--size-space-sm);
-  color: var(--color-text-primary);
   font-size: var(--size-font-lg);
   font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+  margin: 0 0 var(--size-space-xs);
+}
+
+.section-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary-500);
 }
 
 .section-desc {
   color: var(--color-text-secondary);
   font-size: var(--size-font-sm);
-  margin: 0 0 var(--size-space-md);
+  margin: 0;
 }
 
 .subsection-title {
@@ -518,122 +557,115 @@ const showResizableDrawer = () => {
   padding-left: var(--size-space-sm);
 }
 
+/* Grid Layout */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--size-space-lg);
+}
+
+/* Button Groups */
 .button-group {
   display: flex;
   flex-wrap: wrap;
   gap: var(--size-space-md);
 }
 
-.btn {
+.mb-lg {
+  margin-bottom: var(--size-space-lg);
+}
+
+/* Buttons */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--size-radius-md);
-  font-size: var(--size-font-sm);
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: var(--color-bg-component);
+  font-size: var(--size-font-sm);
+  transition: all 0.2s;
+  font-weight: 500;
+  background: var(--color-bg-container);
   color: var(--color-text-primary);
   border: 1px solid var(--color-border);
 }
 
-.btn:hover {
+.action-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background: var(--color-bg-component-hover);
+  filter: brightness(0.95);
 }
 
-.btn:active {
+.action-btn:active {
   transform: translateY(0);
 }
 
-.btn.primary {
+.action-btn.primary {
   background: var(--color-primary-500);
   color: white;
   border-color: var(--color-primary-500);
 }
 
-.btn.primary:hover {
-  background: var(--color-primary-600);
-}
-
-.btn.success {
+.action-btn.success {
   background: var(--color-success-500);
   color: white;
   border-color: var(--color-success-500);
 }
 
-.btn.success:hover {
-  background: var(--color-success-600);
-}
-
-.btn.error {
+.action-btn.error {
   background: var(--color-error-500);
   color: white;
   border-color: var(--color-error-500);
 }
 
-.btn.error:hover {
-  background: var(--color-error-600);
-}
-
-.btn.warning {
+.action-btn.warning {
   background: var(--color-warning-500);
   color: white;
   border-color: var(--color-warning-500);
 }
 
-.btn.warning:hover {
-  background: var(--color-warning-600);
-}
-
-.btn.info {
+.action-btn.info {
   background: var(--color-info-500);
   color: white;
   border-color: var(--color-info-500);
 }
 
-.btn.info:hover {
-  background: var(--color-info-600);
-}
-
-.btn.loading {
+.action-btn.loading {
   background: var(--color-text-tertiary);
   color: white;
   border-color: var(--color-text-tertiary);
 }
 
-.btn.secondary {
+.action-btn.secondary {
   background: var(--color-bg-page);
   color: var(--color-text-primary);
 }
 
-.btn.secondary:hover {
-  background: var(--color-bg-hover);
-}
-
-.btn.anim {
+.action-btn.anim {
   background: var(--color-bg-layout);
   border-color: var(--color-primary-200);
   color: var(--color-primary-600);
 }
 
-.btn.anim:hover {
+.action-btn.anim:hover {
   background: var(--color-primary-50);
 }
 
-.btn.feature {
+.action-btn.feature {
   background: var(--color-bg-layout);
   border-color: var(--color-text-tertiary);
   color: var(--color-text-primary);
 }
 
-.btn.feature-full {
+.action-btn.feature-full {
   background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-info-500) 100%);
   color: white;
   border: none;
 }
 
+/* Result Box */
 .result-box {
   margin-top: var(--size-space-md);
   padding: var(--size-space-md);
@@ -644,6 +676,7 @@ const showResizableDrawer = () => {
   border: 1px solid var(--color-success-border);
 }
 
+/* Modal/Drawer Content Styling */
 .custom-modal-content,
 .drawer-content,
 .feature-modal-content,
@@ -773,18 +806,9 @@ const showResizableDrawer = () => {
   font-weight: 600;
 }
 
-.badge-drag {
-  background: #e0f2fe;
-  color: #0369a1;
-}
-
-.badge-resize {
-  background: #f0fdf4;
-  color: #15803d;
-}
-
-.badge-max {
-  background: #f3e8ff;
-  color: #7e22ce;
+.badge-drag { background: #e0f2fe; color: #0369a1; }
+.badge-resize { background: #f0fdf4; color: #15803d; }
+.badge-max { background: #f3e8ff; color: #7e22ce; }
+</style>
 }
 </style>

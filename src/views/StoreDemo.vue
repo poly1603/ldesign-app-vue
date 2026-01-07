@@ -178,86 +178,111 @@ const incrementAsync = async () => {
 
 
 <template>
-  <div class="store-demo page-shell section-stack">
-    <h1 class="page-title">
-      <Database class="icon-title" />
-      Store 状态管理演示
-    </h1>
-    <p class="subtitle">@ldesign/store-vue - 基于 Pinia 的增强版状态管理</p>
-
-    <!-- 计数器 Store -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <BarChart class="section-icon" />
-        计数器 Store
-      </h2>
-      <div class="demo-content">
-        <div class="counter-display">
-          <span class="count">{{ count }}</span>
-          <span class="double">双倍: {{ doubleCount }}</span>
+  <div class="store-demo page-container">
+    <div class="page-header section-card">
+      <div class="header-content">
+        <div class="header-icon">
+          <Database class="icon-hero" />
         </div>
-        <div class="button-group">
-          <button class="btn" @click="counterStore.decrement()">
-            <Minus class="btn-icon" />
-            减少
-          </button>
-          <button class="btn" @click="counterStore.increment()">
-            <Plus class="btn-icon" />
-            增加
-          </button>
-          <button class="btn primary" :disabled="isLoading" @click="incrementAsync">
-            <Clock v-if="isLoading" class="btn-icon spin" />
-            <Zap v-else class="btn-icon" />
-            {{ isLoading ? '加载中...' : '异步增加' }}
-          </button>
-          <button class="btn warning" @click="counterStore.reset()">
-            <RefreshCw class="btn-icon" />
-            重置
-          </button>
+        <div>
+          <h1 class="page-title">Store 状态管理演示</h1>
+          <p class="page-desc">
+            @ldesign/store-vue - 基于 Pinia 的增强版状态管理，支持模块化、持久化和简单状态管理。
+          </p>
         </div>
-        <p class="info-text">历史记录: {{ historyLength }} 条</p>
       </div>
-    </section>
+    </div>
 
-    <!-- 用户信息 Store -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <User class="section-icon" />
-        用户信息 Store
-      </h2>
-      <div class="demo-content">
-        <div v-if="userStore.name" class="user-info">
-          <p><strong>姓名:</strong> {{ userStore.name }}</p>
-          <p><strong>邮箱:</strong> {{ userStore.email }}</p>
-          <p><strong>主题:</strong> {{ userStore.preferences.theme }}</p>
-          <div class="button-group mt-4">
-            <button class="btn" @click="userStore.setTheme(userStore.preferences.theme === 'light' ? 'dark' : 'light')">
-              切换主题
+    <div class="grid-layout">
+      <!-- 计数器 Store -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <BarChart class="section-icon" />
+            计数器 Store
+          </h2>
+        </div>
+        <div class="demo-content">
+          <div class="counter-display">
+            <span class="count">{{ count }}</span>
+            <span class="double">双倍: {{ doubleCount }}</span>
+          </div>
+          <div class="button-group wrap">
+            <button class="action-btn" @click="counterStore.decrement()">
+              <Minus class="btn-icon" />
+              减少
             </button>
-            <button class="btn danger" @click="userStore.clearUser()">
-              <Trash2 class="btn-icon" />
-              清除用户
+            <button class="action-btn" @click="counterStore.increment()">
+              <Plus class="btn-icon" />
+              增加
+            </button>
+            <button class="action-btn primary" :disabled="isLoading" @click="incrementAsync">
+              <Clock v-if="isLoading" class="btn-icon spin" />
+              <Zap v-else class="btn-icon" />
+              {{ isLoading ? '加载中...' : '异步增加' }}
+            </button>
+            <button class="action-btn warning" @click="counterStore.reset()">
+              <RefreshCw class="btn-icon" />
+              重置
             </button>
           </div>
-        </div>
-        <div v-else class="user-form">
-          <input v-model="newUserName" placeholder="输入姓名" class="input">
-          <input v-model="newUserEmail" type="email" placeholder="输入邮箱" class="input">
-          <button class="btn primary" @click="updateUser">保存用户</button>
+          <p class="info-text">历史记录: {{ historyLength }} 条</p>
         </div>
       </div>
-    </section>
+
+      <!-- 用户信息 Store -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <User class="section-icon" />
+            用户信息 Store
+          </h2>
+        </div>
+        <div class="demo-content">
+          <div v-if="userStore.name" class="user-info">
+            <div class="info-item">
+              <span class="label">姓名:</span>
+              <span class="value">{{ userStore.name }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">邮箱:</span>
+              <span class="value">{{ userStore.email }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">主题:</span>
+              <span class="value">{{ userStore.preferences.theme }}</span>
+            </div>
+            <div class="button-group mt-md">
+              <button class="action-btn secondary" @click="userStore.setTheme(userStore.preferences.theme === 'light' ? 'dark' : 'light')">
+                切换主题
+              </button>
+              <button class="action-btn danger" @click="userStore.clearUser()">
+                <Trash2 class="btn-icon" />
+                清除用户
+              </button>
+            </div>
+          </div>
+          <div v-else class="user-form">
+            <input v-model="newUserName" placeholder="输入姓名" class="input mb-sm">
+            <input v-model="newUserEmail" type="email" placeholder="输入邮箱" class="input mb-sm">
+            <button class="action-btn primary block-btn" @click="updateUser">保存用户</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- 待办事项 Store -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <List class="section-icon" />
-        待办事项 Store
-      </h2>
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <List class="section-icon" />
+          待办事项 Store
+        </h2>
+      </div>
       <div class="demo-content">
         <div class="todo-input">
           <input v-model="newTodoText" placeholder="添加新待办..." @keyup.enter="addTodo" class="input">
-          <button class="btn primary" @click="addTodo">
+          <button class="action-btn primary" @click="addTodo">
             <Plus class="btn-icon" />
             添加
           </button>
@@ -277,7 +302,7 @@ const incrementAsync = async () => {
         <ul class="todo-list">
           <li v-for="todo in todoStore.filteredTodos" :key="todo.id" :class="{ completed: todo.completed }">
             <label class="todo-item-inner">
-              <input type="checkbox" :checked="todo.completed" @change="todoStore.toggleTodo(todo.id)">
+              <input type="checkbox" :checked="todo.completed" @change="todoStore.toggleTodo(todo.id)" class="checkbox-input">
               <span class="todo-text">{{ todo.text }}</span>
             </label>
             <button class="delete-btn" @click="todoStore.removeTodo(todo.id)">
@@ -285,98 +310,137 @@ const incrementAsync = async () => {
             </button>
           </li>
         </ul>
-        <button v-if="todoStore.completedCount > 0" class="btn danger clear-completed"
+        <button v-if="todoStore.completedCount > 0" class="action-btn danger clear-completed mt-md"
           @click="todoStore.clearCompleted()">
           <Trash2 class="btn-icon" />
           清除已完成
         </button>
       </div>
-    </section>
+    </div>
 
-    <!-- 简单 Store -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Target class="section-icon" />
-        简单 Store（无 Pinia）
-      </h2>
-      <div class="demo-content">
-        <p>消息: {{ simpleMessage }}</p>
-        <p>点击次数: {{ simpleClicks }}</p>
-        <div class="button-group mt-4">
-          <button class="btn primary" @click="setSimpleState({ clicks: simpleClicks + 1 })">点击 +1</button>
-          <button class="btn" @click="resetSimple()">重置</button>
+    <div class="grid-layout">
+      <!-- 简单 Store -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <Target class="section-icon" />
+            简单 Store（无 Pinia）
+          </h2>
+        </div>
+        <div class="demo-content">
+          <div class="info-item">
+            <span class="label">消息:</span>
+            <span class="value">{{ simpleMessage }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">点击次数:</span>
+            <span class="value">{{ simpleClicks }}</span>
+          </div>
+          <div class="button-group mt-md">
+            <button class="action-btn primary" @click="setSimpleState({ clicks: simpleClicks + 1 })">点击 +1</button>
+            <button class="action-btn secondary" @click="resetSimple()">重置</button>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- 持久化 Hook -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Save class="section-icon" />
-        持久化 Hook
-      </h2>
-      <div class="demo-content">
-        <p>页面访问次数: <strong>{{ visitsCount }}</strong></p>
-        <div class="button-group mt-4">
-          <button class="btn danger" @click="clearPersisted()">清除访问记录</button>
+      <!-- 持久化 Hook -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <Save class="section-icon" />
+            持久化 Hook
+          </h2>
         </div>
-        <p class="info-text">刷新页面后访问次数会保留</p>
+        <div class="demo-content">
+          <div class="info-item">
+            <span class="label">页面访问次数:</span>
+            <strong class="value large">{{ visitsCount }}</strong>
+          </div>
+          <div class="button-group mt-md">
+            <button class="action-btn danger" @click="clearPersisted()">清除访问记录</button>
+          </div>
+          <p class="info-text">刷新页面后访问次数会保留</p>
+        </div>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .store-demo {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: var(--size-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-lg);
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  color: white;
+  padding: var(--size-space-xl);
+  border-radius: var(--size-radius-lg);
+  border: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-lg);
+}
+
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-round);
+  display: flex;
+}
+
+.icon-hero {
+  width: 48px;
+  height: 48px;
+  color: white;
 }
 
 .page-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--size-space-sm);
-  text-align: center;
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-sm);
   font-size: var(--size-font-2xl);
-  font-weight: 600;
+  font-weight: 700;
+  margin: 0 0 var(--size-space-xs);
+  color: white;
 }
 
-.icon-title {
-  width: 32px;
-  height: 32px;
-  color: var(--color-primary-500);
-}
-
-.subtitle {
-  text-align: center;
-  color: var(--color-text-secondary);
-  margin-bottom: var(--size-space-xl);
+.page-desc {
   font-size: var(--size-font-md);
+  opacity: 0.9;
+  margin: 0;
+  max-width: 600px;
 }
 
+/* Section Card */
 .section-card {
-  margin-bottom: var(--size-space-lg);
-  padding: var(--size-space-lg);
   background: var(--color-bg-container);
   border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--color-border-secondary);
 }
 
+.section-header {
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
+}
+
 .section-title {
+  font-size: var(--size-font-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
   display: flex;
   align-items: center;
   gap: var(--size-space-sm);
-  margin-top: 0;
-  color: var(--color-text-primary);
-  border-bottom: 2px solid var(--color-primary-500);
-  padding-bottom: var(--size-space-sm);
-  font-size: var(--size-font-lg);
-  font-weight: 600;
+  margin: 0;
 }
 
 .section-icon {
@@ -385,51 +449,67 @@ const incrementAsync = async () => {
   color: var(--color-primary-500);
 }
 
-.demo-content {
-  padding: var(--size-space-md) 0;
+/* Grid Layout */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--size-space-lg);
 }
 
+.demo-content {
+  padding: var(--size-space-sm) 0;
+}
+
+/* Counter */
 .counter-display {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--size-space-lg);
-  margin-bottom: var(--size-space-md);
+  gap: var(--size-space-sm);
+  margin-bottom: var(--size-space-lg);
+  padding: var(--size-space-lg);
+  background: var(--color-bg-page);
+  border-radius: var(--size-radius-md);
+  border: 1px solid var(--color-border);
 }
 
 .count {
   font-size: 48px;
-  font-weight: bold;
+  font-weight: 700;
   color: var(--color-primary-500);
+  line-height: 1;
 }
 
 .double {
   color: var(--color-text-secondary);
-  font-size: var(--size-font-lg);
+  font-size: var(--size-font-md);
 }
 
+/* Buttons */
 .button-group {
   display: flex;
   gap: var(--size-space-md);
+}
+
+.button-group.wrap {
   flex-wrap: wrap;
+  justify-content: center;
 }
 
-.mt-4 {
-  margin-top: var(--size-space-md);
-}
-
-.btn {
+.action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--size-radius-md);
-  background: var(--color-bg-component);
-  color: var(--color-text-primary);
   cursor: pointer;
-  transition: background 0.2s;
   font-size: var(--size-font-sm);
+  transition: all 0.2s;
   font-weight: 500;
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
   border: 1px solid var(--color-border);
 }
 
@@ -438,68 +518,117 @@ const incrementAsync = async () => {
   height: 16px;
 }
 
-.btn:hover:not(:disabled) {
-  background: var(--color-bg-component-hover);
+.action-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  transform: translateY(-1px);
 }
 
-.btn:disabled {
+.action-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn.primary {
+.action-btn.primary {
   background: var(--color-primary-500);
   color: white;
   border-color: var(--color-primary-500);
 }
 
-.btn.primary:hover:not(:disabled) {
+.action-btn.primary:hover:not(:disabled) {
   background: var(--color-primary-600);
 }
 
-.btn.warning {
-  background: var(--color-warning-500);
-  color: white;
-  border-color: var(--color-warning-500);
+.action-btn.secondary {
+  background: var(--color-bg-page);
 }
 
-.btn.danger {
-  background: var(--color-error-500);
-  color: white;
-  border-color: var(--color-error-500);
+.action-btn.warning {
+  background: var(--color-warning-50);
+  color: var(--color-warning-600);
+  border-color: var(--color-warning-200);
+}
+
+.action-btn.warning:hover {
+  background: var(--color-warning-100);
+}
+
+.action-btn.danger {
+  background: var(--color-error-50);
+  color: var(--color-error-600);
+  border-color: var(--color-error-200);
+}
+
+.action-btn.danger:hover {
+  background: var(--color-error-100);
+}
+
+.block-btn {
+  display: flex;
+  width: 100%;
 }
 
 .info-text {
   color: var(--color-text-tertiary);
   font-size: var(--size-font-sm);
   margin-top: var(--size-space-md);
+  text-align: center;
 }
 
-.user-info p {
-  margin: 8px 0;
+/* User Info */
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  color: var(--color-text-secondary);
+}
+
+.value {
+  font-weight: 500;
   color: var(--color-text-primary);
+}
+
+.value.large {
+  font-size: var(--size-font-xl);
+  color: var(--color-primary-500);
 }
 
 .user-form {
   display: flex;
-  gap: var(--size-space-md);
-  flex-wrap: wrap;
+  flex-direction: column;
 }
 
 .input {
   padding: 8px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--size-radius-md);
-  flex: 1;
-  min-width: 150px;
+  font-size: var(--size-font-sm);
   background: var(--color-bg-container);
   color: var(--color-text-primary);
+  transition: all 0.2s;
 }
 
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+}
+
+/* Todo */
 .todo-input {
   display: flex;
   gap: var(--size-space-md);
   margin-bottom: var(--size-space-md);
+}
+
+.todo-input .input {
+  flex: 1;
 }
 
 .todo-filters {
@@ -516,11 +645,17 @@ const incrementAsync = async () => {
   color: var(--color-text-secondary);
   cursor: pointer;
   font-size: var(--size-font-sm);
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: var(--color-primary-300);
+  color: var(--color-primary-500);
 }
 
 .filter-btn.active {
-  background: var(--color-primary-500);
-  color: white;
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
   border-color: var(--color-primary-500);
 }
 
@@ -539,10 +674,15 @@ const incrementAsync = async () => {
   padding: 10px 16px;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-bg-container);
+  transition: background 0.2s;
 }
 
 .todo-list li:last-child {
   border-bottom: none;
+}
+
+.todo-list li:hover {
+  background: var(--color-bg-page);
 }
 
 .todo-item-inner {
@@ -553,8 +693,16 @@ const incrementAsync = async () => {
   cursor: pointer;
 }
 
+.checkbox-input {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary-500);
+}
+
 .todo-text {
   color: var(--color-text-primary);
+  transition: color 0.2s;
 }
 
 .todo-list li.completed .todo-text {
@@ -568,8 +716,9 @@ const incrementAsync = async () => {
   color: var(--color-error-500);
   cursor: pointer;
   padding: 4px;
-  font-size: 16px;
-  opacity: 0.7;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  display: flex;
 }
 
 .delete-btn:hover {
@@ -581,14 +730,36 @@ const incrementAsync = async () => {
   height: 16px;
 }
 
-.clear-completed {
-  margin-top: var(--size-space-md);
-}
-
 .spin {
   animation: spin 1s linear infinite;
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.mt-md { margin-top: var(--size-space-md); }
+.mb-sm { margin-bottom: var(--size-space-sm); }
+
+@media (max-width: 768px) {
+  .store-demo {
+    padding: var(--size-space-md);
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .grid-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .todo-filters {
+    flex-wrap: wrap;
+  }
+}
+</style>
 @keyframes spin {
   from {
     transform: rotate(0deg);

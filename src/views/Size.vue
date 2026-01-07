@@ -15,18 +15,29 @@ const currentPreset = computed(() => {
 
 <template>
   <div class="size-page page-container">
-    <h1 class="page-title">
-      <Ruler class="icon-title" />
-      尺寸管理
-    </h1>
+    <div class="page-header section-card">
+      <div class="header-content">
+        <div class="header-icon">
+          <Ruler class="icon-hero" />
+        </div>
+        <div>
+          <h1 class="page-title">尺寸管理</h1>
+          <p class="page-desc">
+            调整系统全局尺寸预设，包括间距、字体大小和组件尺寸。
+          </p>
+        </div>
+      </div>
+    </div>
 
-    <div class="size-content">
+    <div class="grid-layout">
       <!-- 当前状态 -->
-      <section class="section-card current-state">
-        <h2 class="section-title">
-          <CheckCircle class="section-icon" />
-          当前预设
-        </h2>
+      <div class="section-card current-state">
+        <div class="section-header">
+          <h2 class="section-title">
+            <CheckCircle class="section-icon" />
+            当前预设
+          </h2>
+        </div>
         <div v-if="currentPreset" class="state-info">
           <div class="info-item">
             <span class="label flex-center">
@@ -56,81 +67,127 @@ const currentPreset = computed(() => {
         <div v-else class="no-preset">
           请选择一个预设
         </div>
-      </section>
+      </div>
 
       <!-- 预设选择器 -->
-      <section class="section-card preset-selector">
-        <h2 class="section-title">
-          <Maximize class="section-icon" />
-          选择预设
-        </h2>
-        <SizePresetPicker />
-      </section>
+      <div class="section-card preset-selector">
+        <div class="section-header">
+          <h2 class="section-title">
+            <Maximize class="section-icon" />
+            选择预设
+          </h2>
+        </div>
+        <div class="picker-wrapper">
+          <SizePresetPicker />
+        </div>
+      </div>
+    </div>
 
-      <!-- 示例文本 -->
-      <section class="section-card example-text">
+    <!-- 示例文本 -->
+    <div class="section-card example-text">
+      <div class="section-header">
         <h2 class="section-title">
           <FileText class="section-icon" />
           示例文本
         </h2>
-        <div class="text-samples">
-          <p class="sample-h1">
-            标题 1 - Heading 1
-          </p>
-          <p class="sample-h2">
-            标题 2 - Heading 2
-          </p>
-          <p class="sample-h3">
-            标题 3 - Heading 3
-          </p>
-          <p class="sample-body">
-            正文文本 - Body Text. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            这是一段示例文本，用于展示当前尺寸设置的效果。
-          </p>
-          <p class="sample-small">
-            小号文本 - Small Text. 这是小号文本的示例。
-          </p>
-        </div>
-      </section>
+      </div>
+      <div class="text-samples">
+        <p class="sample-h1">
+          标题 1 - Heading 1
+        </p>
+        <p class="sample-h2">
+          标题 2 - Heading 2
+        </p>
+        <p class="sample-h3">
+          标题 3 - Heading 3
+        </p>
+        <p class="sample-body">
+          正文文本 - Body Text. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          这是一段示例文本，用于展示当前尺寸设置的效果。
+        </p>
+        <p class="sample-small">
+          小号文本 - Small Text. 这是小号文本的示例。
+        </p>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .size-page {
-  padding: var(--size-space-lg);
   max-width: 1200px;
   margin: 0 auto;
+  padding: var(--size-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-lg);
+}
+
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  color: white;
+  padding: var(--size-space-xl);
+  border-radius: var(--size-radius-lg);
+  border: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-lg);
+}
+
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-round);
+  display: flex;
+}
+
+.icon-hero {
+  width: 48px;
+  height: 48px;
+  color: white;
 }
 
 .page-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-xl);
-  text-align: center;
+  font-weight: 700;
+  margin: 0 0 var(--size-space-xs);
+  color: white;
 }
 
-.icon-title {
-  width: 32px;
-  height: 32px;
-  color: var(--color-primary-500);
+.page-desc {
+  font-size: var(--size-font-md);
+  opacity: 0.9;
+  margin: 0;
+  max-width: 600px;
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
-  font-size: var(--size-font-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
+/* Section Card */
+.section-card {
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
+}
+
+.section-header {
   margin-bottom: var(--size-space-md);
   border-bottom: 1px solid var(--color-border-secondary);
   padding-bottom: var(--size-space-sm);
+}
+
+.section-title {
+  font-size: var(--size-font-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+  margin: 0;
 }
 
 .section-icon {
@@ -139,35 +196,25 @@ const currentPreset = computed(() => {
   color: var(--color-primary-500);
 }
 
-.size-content {
+/* Grid Layout */
+.grid-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: var(--size-space-lg);
 }
 
-.section-card {
-  background: var(--color-bg-container);
-  padding: var(--size-space-lg);
-  border-radius: var(--size-radius-lg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--color-border-secondary);
-}
-
-.example-text {
-  grid-column: 1 / -1;
-}
-
+/* State Info */
 .state-info {
   display: flex;
   flex-direction: column;
-  gap: var(--size-space-sm);
+  gap: var(--size-space-md);
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--size-space-sm) var(--size-space-md);
+  padding: var(--size-space-md);
   background: var(--color-bg-page);
   border-radius: var(--size-radius-md);
   border: 1px solid var(--color-border);
@@ -195,11 +242,18 @@ const currentPreset = computed(() => {
   border-radius: var(--size-radius-md);
 }
 
+.picker-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--size-space-md) 0;
+}
+
+/* Text Samples */
 .text-samples {
   display: flex;
   flex-direction: column;
   gap: var(--size-space-md);
-  padding: var(--size-space-md);
+  padding: var(--size-space-lg);
   background: var(--color-bg-page);
   border-radius: var(--size-radius-md);
   border: 1px solid var(--color-border);
@@ -255,7 +309,16 @@ const currentPreset = computed(() => {
 }
 
 @media (max-width: 768px) {
-  .size-content {
+  .size-page {
+    padding: var(--size-space-md);
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .grid-layout {
     grid-template-columns: 1fr;
   }
 }

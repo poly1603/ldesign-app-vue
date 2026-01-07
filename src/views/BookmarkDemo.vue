@@ -22,7 +22,8 @@ import {
   Layout,
   Moon,
   Sun,
-  MousePointer2
+  MousePointer2,
+  Activity
 } from 'lucide-vue-next'
 
 // 示例书签数据
@@ -176,77 +177,113 @@ function collapseAll(): void {
 </script>
 
 <template>
-  <div class="bookmark-demo page-shell section-stack">
-    <div class="header-section">
-      <h1 class="page-title">
-        <Bookmark class="icon-title" />
-        书签系统演示
-      </h1>
-      <p class="page-desc">展示 LDesign 书签系统的完整功能，支持拖拽排序、多级文件夹和右键菜单。</p>
+  <div class="bookmark-demo page-container">
+    <div class="page-header section-card">
+      <div class="header-content">
+        <div class="header-icon">
+          <Bookmark class="icon-hero" />
+        </div>
+        <div>
+          <h1 class="page-title">书签系统</h1>
+          <p class="page-desc">全功能书签管理演示，支持多级文件夹、拖拽排序、右键菜单和持久化存储。</p>
+        </div>
+      </div>
     </div>
 
     <!-- 控制面板 -->
     <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Settings class="section-icon" />
+          控制面板
+        </h2>
+      </div>
       <div class="control-group">
         <button class="action-btn" @click="toggleMode">
           <Layout class="btn-icon" />
-          {{ mode === 'horizontal' ? '水平模式' : '垂直模式' }}
+          {{ mode === 'horizontal' ? '切换垂直模式' : '切换水平模式' }}
         </button>
         <button class="action-btn" @click="toggleTheme">
           <component :is="theme === 'light' ? Moon : Sun" class="btn-icon" />
-          {{ theme === 'light' ? '深色主题' : '浅色主题' }}
+          {{ theme === 'light' ? '切换深色' : '切换浅色' }}
         </button>
+        <div class="divider-v"></div>
         <button class="action-btn primary" @click="addBookmark">
           <Plus class="btn-icon" />
           添加书签
         </button>
-        <button class="action-btn" @click="expandAll">
+        <button class="action-btn secondary" @click="expandAll">
           <FolderOpen class="btn-icon" />
-          展开全部
+          展开
         </button>
-        <button class="action-btn" @click="collapseAll">
+        <button class="action-btn secondary" @click="collapseAll">
           <Folder class="btn-icon" />
-          收起全部
+          收起
         </button>
         <label class="checkbox-label">
-          <input v-model="draggable" type="checkbox">
-          <MousePointer2 class="label-icon" />
-          允许拖拽
+          <input v-model="draggable" type="checkbox" class="checkbox-input">
+          <span>允许拖拽</span>
         </label>
       </div>
     </div>
 
     <!-- 书签栏 -->
     <div class="section-card">
-      <h2 class="section-title">
-        <Layout class="section-icon" />
-        书签栏预览
-      </h2>
-      <div class="bookmark-preview" :class="[theme === 'dark' ? 'theme-dark' : 'theme-light']">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Monitor class="section-icon" />
+          预览效果
+        </h2>
+      </div>
+      <div class="bookmark-preview-container" :class="[theme === 'dark' ? 'theme-dark' : 'theme-light']">
         <BookmarkBar ref="bookmarkBarRef" :items="store.items.value" :mode="mode" :theme="theme" :draggable="draggable"
           @select="handleSelect" @contextmenu="handleContextMenu" />
       </div>
     </div>
 
-    <!-- 选中信息 -->
-    <div v-if="selectedBookmark" class="section-card">
-      <h3 class="section-title">
-        <MousePointer2 class="section-icon" />
-        选中的书签
-      </h3>
-      <pre class="code-block">{{ JSON.stringify(selectedBookmark, null, 2) }}</pre>
-    </div>
+    <div class="grid-layout">
+      <!-- 选中信息 -->
+      <div class="section-card" v-if="selectedBookmark">
+        <div class="section-header">
+          <h3 class="section-title small">
+            <MousePointer2 class="section-icon" />
+            当前选中
+          </h3>
+        </div>
+        <div class="info-box">
+          <div class="info-row">
+            <span class="label">标题:</span>
+            <span class="value">{{ selectedBookmark.title }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">ID:</span>
+            <code class="code-badge">{{ selectedBookmark.id }}</code>
+          </div>
+          <div class="info-row" v-if="selectedBookmark.url">
+            <span class="label">URL:</span>
+            <a :href="selectedBookmark.url" target="_blank" class="link-value">{{ selectedBookmark.url }}</a>
+          </div>
+        </div>
+      </div>
 
-    <!-- 状态信息 -->
-    <div class="section-card">
-      <h3 class="section-title">
-        <Monitor class="section-icon" />
-        当前状态
-      </h3>
-      <div class="info-list">
-        <p><strong>选中 ID:</strong> {{ store.selectedId.value || '无' }}</p>
-        <p><strong>展开的文件夹:</strong> {{ store.expandedIds.value.join(', ') || '无' }}</p>
-        <p><strong>书签数量:</strong> {{ store.items.value.length }}</p>
+      <!-- 状态信息 -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3 class="section-title small">
+            <Activity class="section-icon" />
+            系统状态
+          </h3>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-label">总数</span>
+            <span class="stat-value">{{ store.items.value.length }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">展开</span>
+            <span class="stat-value">{{ store.expandedIds.value.length }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -257,79 +294,80 @@ function collapseAll(): void {
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--size-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-lg);
 }
 
-.header-section {
-  margin-bottom: var(--size-space-xl);
+/* Page Header (Hero Style) */
+.page-header {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  color: white;
+  padding: var(--size-space-xl);
+  border-radius: var(--size-radius-lg);
+  border: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-lg);
+}
+
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-round);
+  display: flex;
+}
+
+.icon-hero {
+  width: 48px;
+  height: 48px;
+  color: white;
 }
 
 .page-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-xs);
-}
-
-.icon-title {
-  width: 32px;
-  height: 32px;
-  color: var(--color-primary-500);
+  font-weight: 700;
+  margin: 0 0 var(--size-space-xs);
+  color: white;
 }
 
 .page-desc {
-  color: var(--color-text-secondary);
   font-size: var(--size-font-md);
+  opacity: 0.9;
+  margin: 0;
+  max-width: 600px;
 }
 
-/* 使用全局 .section-card 样式 */
-
-.control-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--size-space-md);
-  align-items: center;
+/* Section Card */
+.section-card {
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-/* 使用全局 .action-btn 样式 */
-
-.btn-icon {
-  width: 16px;
-  height: 16px;
+.section-header {
+  margin-bottom: var(--size-space-md);
+  border-bottom: 1px solid var(--color-border-secondary);
+  padding-bottom: var(--size-space-sm);
 }
-
-/* 交互样式沿用全局 */
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  color: var(--color-text-primary);
-  font-size: var(--size-font-sm);
-  margin-left: var(--size-space-sm);
-}
-
-.label-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--color-text-secondary);
-}
-
-/* 使用全局 .section-card */
 
 .section-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
   font-size: var(--size-font-lg);
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--size-space-md);
-  padding-bottom: var(--size-space-sm);
-  border-bottom: 1px solid var(--color-border-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+  margin: 0;
+}
+
+.section-title.small {
+  font-size: var(--size-font-md);
 }
 
 .section-icon {
@@ -338,43 +376,198 @@ function collapseAll(): void {
   color: var(--color-primary-500);
 }
 
-.bookmark-preview {
-  padding: var(--size-space-lg);
+/* Controls */
+.control-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-space-md);
+  align-items: center;
+}
+
+.divider-v {
+  width: 1px;
+  height: 24px;
+  background-color: var(--color-border);
+  margin: 0 var(--size-space-xs);
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--size-radius-md);
+  font-size: var(--size-font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-container);
+  color: var(--color-text-primary);
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-hover);
+  transform: translateY(-1px);
+}
+
+.action-btn.primary {
+  background: var(--color-primary-500);
+  color: white;
+  border-color: var(--color-primary-500);
+}
+
+.action-btn.primary:hover {
+  background: var(--color-primary-600);
+}
+
+.action-btn.secondary {
+  background: var(--color-bg-page);
+}
+
+.btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: var(--size-font-sm);
+  color: var(--color-text-primary);
+  user-select: none;
+}
+
+.checkbox-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--color-primary-500);
+}
+
+/* Preview */
+.bookmark-preview-container {
+  padding: var(--size-space-xl);
   border-radius: var(--size-radius-md);
   border: 1px solid var(--color-border);
-  min-height: 120px;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
 }
 
 .theme-light {
-  background: var(--color-bg-container);
-  border-color: var(--color-border);
+  background: #f8fafc;
 }
 
 .theme-dark {
-  background: var(--color-bg-container);
-  border-color: var(--color-border);
+  background: #1e293b;
+  border-color: #334155;
 }
 
-.code-block {
-  background: var(--color-bg-layout);
-  padding: var(--size-space-md);
-  border-radius: var(--size-radius-md);
-  overflow-x: auto;
-  font-family: monospace;
-  font-size: var(--size-font-xs);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
+/* Grid Layout for Bottom Info */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--size-space-lg);
 }
 
-.info-list p {
-  margin: 8px 0;
-  color: var(--color-text-primary);
+/* Info Box */
+.info-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-sm);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--color-border-secondary);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  color: var(--color-text-secondary);
   font-size: var(--size-font-sm);
 }
 
-.info-list strong {
+.value {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.code-badge {
+  background: var(--color-bg-page);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--color-primary-600);
+}
+
+.link-value {
+  color: var(--color-primary-500);
+  text-decoration: none;
+}
+
+.link-value:hover {
+  text-decoration: underline;
+}
+
+/* Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--size-space-md);
+}
+
+.stat-item {
+  background: var(--color-bg-page);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: var(--size-font-xs);
   color: var(--color-text-secondary);
-  margin-right: 8px;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: var(--size-font-xl);
+  font-weight: 700;
+  color: var(--color-primary-500);
+}
+
+@media (max-width: 768px) {
+  .bookmark-demo {
+    padding: var(--size-space-md);
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .control-group {
+    justify-content: center;
+  }
+  
+  .divider-v {
+    display: none;
+  }
 }
 </style>

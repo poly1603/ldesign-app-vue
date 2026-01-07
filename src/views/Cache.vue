@@ -141,21 +141,27 @@ function incrementCounter() {
 </script>
 
 <template>
-  <div class="cache-demo page-shell section-stack">
-    <div class="header-section">
-      <h1 class="page-title">
-        <Database class="icon-title" />
-        缓存功能演示
-      </h1>
-      <p class="page-desc">展示 @ldesign/cache 的使用方法，包括基础读写、统计信息和响应式缓存。</p>
+  <div class="cache-demo page-container">
+    <div class="page-header section-card">
+      <div class="header-content">
+        <div class="header-icon">
+          <Database class="icon-hero" />
+        </div>
+        <div>
+          <h1 class="page-title">缓存管理</h1>
+          <p class="page-desc">展示 @ldesign/cache 的使用方法，包括基础读写、统计信息和响应式缓存。</p>
+        </div>
+      </div>
     </div>
 
     <!-- 缓存统计 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Activity class="section-icon" />
-        缓存统计
-      </h2>
+    <div class="section-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <Activity class="section-icon" />
+          缓存统计
+        </h2>
+      </div>
       <div v-if="stats" class="stats-grid">
         <div class="stat-item">
           <span class="label">
@@ -182,124 +188,161 @@ function incrementCounter() {
           <span class="value">{{ hitRatePercent }}%</span>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- 基础操作 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Database class="section-icon" />
-        基础操作
-      </h2>
-      <div class="form-group">
-        <input v-model="formData.key" placeholder="缓存键" class="input">
-        <input v-model="formData.value" placeholder="缓存值" class="input">
+    <div class="grid-layout">
+      <!-- 基础操作 -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <Database class="section-icon" />
+            基础操作
+          </h2>
+        </div>
+        <div class="form-group">
+          <input v-model="formData.key" placeholder="缓存键" class="input">
+          <input v-model="formData.value" placeholder="缓存值" class="input">
+        </div>
+        <div class="button-group">
+          <button class="action-btn primary" @click="handleSet">
+            <Save class="btn-icon" />
+            设置
+          </button>
+          <button class="action-btn secondary" @click="handleGet">
+            <Search class="btn-icon" />
+            获取
+          </button>
+          <button class="action-btn danger" @click="handleClear">
+            <Trash2 class="btn-icon" />
+            清空
+          </button>
+        </div>
+        <div v-if="result" class="result-box">
+          {{ result }}
+        </div>
       </div>
-      <div class="button-group">
-        <button class="btn primary" @click="handleSet">
-          <Save class="btn-icon" />
-          设置
-        </button>
-        <button class="btn" @click="handleGet">
-          <Search class="btn-icon" />
-          获取
-        </button>
-        <button class="btn danger" @click="handleClear">
-          <Trash2 class="btn-icon" />
-          清空
-        </button>
-      </div>
-      <div v-if="result" class="result-box">
-        {{ result }}
-      </div>
-    </section>
 
-    <!-- 用户缓存示例 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <User class="section-icon" />
-        用户缓存示例
-      </h2>
-      <div class="info-card">
-        <template v-if="userCache.name">
-          <p>
-            <strong>姓名:</strong> {{ userCache.name }}
-          </p>
-          <p>
-            <strong>年龄:</strong> {{ userCache.age }}
-          </p>
-        </template>
-        <template v-else>
-          <p class="empty-text">暂无用户数据</p>
-        </template>
+      <!-- 用户缓存示例 -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <User class="section-icon" />
+            用户缓存示例
+          </h2>
+        </div>
+        <div class="info-card">
+          <template v-if="userCache.name">
+            <div class="info-row">
+              <strong>姓名:</strong> {{ userCache.name }}
+            </div>
+            <div class="info-row">
+              <strong>年龄:</strong> {{ userCache.age }}
+            </div>
+          </template>
+          <template v-else>
+            <p class="empty-text">暂无用户数据</p>
+          </template>
+        </div>
+        <button class="action-btn primary block-btn" @click="updateUser">
+          <RotateCcw class="btn-icon" />
+          随机更新用户
+        </button>
       </div>
-      <button class="btn primary" @click="updateUser">
-        <RotateCcw class="btn-icon" />
-        随机更新用户
-      </button>
-    </section>
 
-    <!-- 计数器示例 -->
-    <section class="section-card">
-      <h2 class="section-title">
-        <Zap class="section-icon" />
-        计数器示例
-      </h2>
-      <div class="counter-display">
-        <span class="counter-value">{{ counter ?? 0 }}</span>
+      <!-- 计数器示例 -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2 class="section-title">
+            <Zap class="section-icon" />
+            计数器示例
+          </h2>
+        </div>
+        <div class="counter-display">
+          <span class="counter-value">{{ counter ?? 0 }}</span>
+        </div>
+        <button class="action-btn secondary block-btn" @click="incrementCounter">
+          +1 增加计数
+        </button>
       </div>
-      <button class="btn primary block-btn" @click="incrementCounter">
-        +1 增加计数
-      </button>
-    </section>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .cache-demo {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: var(--size-space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-space-lg);
 }
 
-.header-section {
-  margin-bottom: var(--size-space-xl);
+/* Page Header */
+.page-header {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  color: white;
+  padding: var(--size-space-xl);
+  border-radius: var(--size-radius-lg);
+  border: none;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-lg);
+}
+
+.header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--size-space-md);
+  border-radius: var(--size-radius-round);
+  display: flex;
+}
+
+.icon-hero {
+  width: 48px;
+  height: 48px;
+  color: white;
 }
 
 .page-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
   font-size: var(--size-font-2xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--size-space-xs);
-}
-
-.icon-title {
-  width: 32px;
-  height: 32px;
-  color: var(--color-primary-500);
+  font-weight: 700;
+  margin: 0 0 var(--size-space-xs);
+  color: white;
 }
 
 .page-desc {
-  color: var(--color-text-secondary);
   font-size: var(--size-font-md);
+  opacity: 0.9;
+  margin: 0;
+  max-width: 600px;
 }
 
+/* Section Card */
 .section-card {
-  margin-bottom: var(--size-space-lg);
+  background: var(--color-bg-container);
+  border-radius: var(--size-radius-lg);
+  padding: var(--size-space-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border-secondary);
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
-  font-size: var(--size-font-lg);
-  color: var(--color-text-primary);
+.section-header {
   margin-bottom: var(--size-space-md);
   border-bottom: 1px solid var(--color-border-secondary);
   padding-bottom: var(--size-space-sm);
+}
+
+.section-title {
+  font-size: var(--size-font-lg);
   font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm);
+  margin: 0;
 }
 
 .section-icon {
@@ -308,20 +351,27 @@ function incrementCounter() {
   color: var(--color-primary-500);
 }
 
+/* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--size-space-md);
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
-  padding: var(--size-space-md);
+  padding: var(--size-space-lg);
   background: var(--color-bg-page);
   border-radius: var(--size-radius-md);
   text-align: center;
   border: 1px solid var(--color-border);
+  transition: transform 0.2s;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary-200);
 }
 
 .stat-item .label {
@@ -331,7 +381,7 @@ function incrementCounter() {
   gap: 6px;
   color: var(--color-text-secondary);
   font-size: var(--size-font-sm);
-  margin-bottom: var(--size-space-xs);
+  margin-bottom: var(--size-space-sm);
 }
 
 .stat-icon {
@@ -345,11 +395,19 @@ function incrementCounter() {
 }
 
 .stat-item .value {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary-500);
-  font-size: var(--size-font-xl);
+  font-size: var(--size-font-2xl);
 }
 
+/* Grid Layout */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--size-space-lg);
+}
+
+/* Form & Inputs */
 .form-group {
   display: flex;
   gap: var(--size-space-md);
@@ -364,14 +422,22 @@ function incrementCounter() {
   font-size: var(--size-font-sm);
   background: var(--color-bg-container);
   color: var(--color-text-primary);
+  transition: all 0.2s;
 }
 
+.input:focus {
+  border-color: var(--color-primary-500);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-100);
+}
+
+/* Buttons */
 .button-group {
   display: flex;
   gap: var(--size-space-md);
 }
 
-.btn {
+.action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -379,12 +445,14 @@ function incrementCounter() {
   padding: 8px 16px;
   border: none;
   border-radius: var(--size-radius-md);
-  background: var(--color-bg-component);
+  background: var(--color-bg-container);
+  border: 1px solid var(--color-border);
   color: var(--color-text-primary);
   cursor: pointer;
   font-size: var(--size-font-sm);
   transition: all 0.2s;
   font-weight: 500;
+  flex: 1;
 }
 
 .btn-icon {
@@ -392,54 +460,69 @@ function incrementCounter() {
   height: 16px;
 }
 
-.btn:hover {
-  background: var(--color-bg-component-hover);
+.action-btn:hover {
+  background: var(--color-bg-hover);
+  transform: translateY(-1px);
 }
 
-.btn.primary {
+.action-btn.primary {
   background: var(--color-primary-500);
   color: white;
+  border-color: var(--color-primary-500);
 }
 
-.btn.primary:hover {
+.action-btn.primary:hover {
   background: var(--color-primary-600);
 }
 
-.btn.danger {
-  background: var(--color-error-500);
-  color: white;
+.action-btn.secondary {
+  background: var(--color-bg-page);
 }
 
-.btn.danger:hover {
-  background: var(--color-error-600);
+.action-btn.danger {
+  background: var(--color-error-50);
+  color: var(--color-error-600);
+  border-color: var(--color-error-200);
+}
+
+.action-btn.danger:hover {
+  background: var(--color-error-100);
 }
 
 .block-btn {
-  display: block;
+  display: flex;
   width: 100%;
 }
 
+/* Result Box */
 .result-box {
   margin-top: var(--size-space-md);
   padding: var(--size-space-md);
-  background: var(--color-bg-page);
+  background: var(--color-primary-50);
   border-radius: var(--size-radius-md);
-  color: var(--color-text-primary);
+  color: var(--color-primary-700);
   font-size: var(--size-font-sm);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-primary-100);
+  text-align: center;
 }
 
+/* Info Card */
 .info-card {
   margin-bottom: var(--size-space-md);
-  padding: var(--size-space-md);
+  padding: var(--size-space-lg);
   background: var(--color-bg-page);
   border-radius: var(--size-radius-md);
   border: 1px solid var(--color-border);
 }
 
-.info-card p {
-  margin: 4px 0;
+.info-row {
+  margin-bottom: 8px;
   color: var(--color-text-primary);
+}
+
+.info-row strong {
+  color: var(--color-text-secondary);
+  margin-right: 8px;
 }
 
 .empty-text {
@@ -448,6 +531,7 @@ function incrementCounter() {
   font-style: italic;
 }
 
+/* Counter */
 .counter-display {
   text-align: center;
   margin-bottom: var(--size-space-md);
@@ -459,7 +543,27 @@ function incrementCounter() {
 
 .counter-value {
   font-size: 48px;
-  font-weight: bold;
+  font-weight: 700;
   color: var(--color-primary-500);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+  .cache-demo {
+    padding: var(--size-space-md);
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .form-group {
+    flex-direction: column;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
 }
 </style>
