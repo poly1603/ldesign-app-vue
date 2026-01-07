@@ -6,13 +6,16 @@
  * - 自动检测设备类型（desktop/tablet/mobile）
  * - 当浏览器窗口大小变化时自动切换到对应设备的模板
  * - 工具栏 slot 支持语言/主题/尺寸切换
+ * - 集成 LEAP 系统认证接口
  */
+import { onMounted, ref } from 'vue'
 import { useEngine, useRouterService } from '@ldesign/engine-vue3'
 import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
 import { useI18n, LanguageSwitcher } from '@ldesign/i18n-vue'
 import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
 import { SizeSwitcher } from '@ldesign/size-vue'
 import { Loader2 } from 'lucide-vue-next'
+import { useAuth } from '../composables/useAuth'
 
 /** 登录数据类型 */
 interface LoginData {
@@ -27,6 +30,12 @@ interface LoginData {
 const engine = useEngine()
 const router = useRouterService()
 const { t } = useI18n()
+
+// 认证状态管理
+const auth = useAuth()
+
+// 错误消息
+const errorMessage = ref('')
 
 /**
  * 使用 useTemplate 动态加载模板组件
@@ -44,16 +53,64 @@ const {
 } = useTemplate('login', { immediate: true })
 
 /**
+ * 页面加载时准备登录
+ * - 获取 SID
+ * - 获取验证码
+ */
+onMounted(async () => {
+  try {
+    await auth.prepareLogin()
+    console.log('[Login] 准备登录完成, captchaUrl:', auth.captchaUrl.value)
+  } catch (e) {
+    console.error('[Login] 准备登录失败:', e)
+    errorMessage.value = '获取登录信息失败，请刷新页面重试'
+  }
+})
+
+/**
  * 处理登录提交
  */
-function handleLogin(data: LoginData): void {
-  console.log('[Login]', data)
+async function handleLogin(data: LoginData): Promise<void> {
+  console.log('[Login] 登录数据:', data)
+  errorMessage.value = ''
 
-  // 模拟登录成功
-  engine.events.emit('user:login', { username: data.username || data.phone })
+  // 只支持用户名密码登录
+  if (data.loginType !== 'username') {
+    errorMessage.value = '暂不支持手机号登录'
+    return
+  }
 
-  // 跳转到首页
-  router.push('/')
+  if (!data.username || !data.password) {
+    errorMessage.value = '请输入用户名和密码'
+    return
+  }
+
+  try {
+    const result = await auth.login({
+      username: data.username,
+      password: data.password,
+      captcha: data.captcha,
+    })
+
+    if (result.type === 'success') {
+      // 登录成功
+      alert('登录成功！')
+      engine.events.emit('user:login', {
+        username: auth.username.value,
+        userInfo: auth.userInfo.value,
+      })
+
+      // 跳转到首页
+      router.push('/')
+    } else {
+      // 登录失败，弹出错误消息
+      alert(result.message)
+      errorMessage.value = result.message
+    }
+  } catch (e) {
+    console.error('[Login] 登录错误:', e)
+    errorMessage.value = '登录失败，请重试'
+  }
 }
 
 /**
@@ -92,6 +149,7 @@ function handleSocialLogin(provider: string): void {
     </div>
     <component v-else-if="currentTemplate" :is="currentTemplate" title="登录" :on-submit="handleLogin"
       :on-forgot-password="handleForgotPassword" :on-register="handleRegister" :on-social-login="handleSocialLogin"
+      :captcha-url="auth.captchaUrl.value" :on-refresh-captcha="auth.refreshCaptcha"
       :category="'login'" :device="deviceType" :message="disabledMessage">
       <!-- 工具栏 slot：语言/主题/尺寸切换 -->
       <template #toolbar>

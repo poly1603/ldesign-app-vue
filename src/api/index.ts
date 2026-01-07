@@ -9,6 +9,7 @@ export {
   jsonApiServer,
   lpomServer,
   lroaServer,
+  szwsldServer,
   servers,
 } from './config'
 
@@ -24,7 +25,7 @@ export type {
   User,
   Post,
   MonthWorkdayData,
-  LeapUserInfo,
+  LeapUserInfo as LegacyLeapUserInfo,
   ModuleOperation,
 } from './config'
 
@@ -34,6 +35,36 @@ export {
   getCurrentUserApi,
   getModuleOperationsApi,
 } from './config'
+
+// 导出 SZWSLD LEAP API
+export {
+  // API 函数
+  fetchSid,
+  getCaptchaUrl,
+  loginByPassword,
+  fetchUserInfo,
+  fetchMenuList,
+  logout,
+  // Session 管理
+  getSid,
+  getLid,
+  saveSid,
+  saveLid,
+  saveUserInfo,
+  getUserInfoFromStorage,
+  clearSession,
+  isLoggedIn,
+  // API 集合
+  authApis,
+} from './leap'
+
+// LEAP 类型
+export type {
+  LoginParams,
+  LoginResult,
+  UserInfo as LeapUserInfo,
+  MenuItem as LeapMenuItem,
+} from './leap'
 
 // 导出所有 API 列表
 export { apis } from './config'

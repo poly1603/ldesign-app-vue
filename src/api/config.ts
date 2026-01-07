@@ -72,9 +72,32 @@ export const lroaServer = defineLeapServer(
 )
 
 /**
+ * SZWSLD LEAP 服务器（深圳志愿者信息服务平台）
+ *
+ * 用于调用志愿者系统的 LEAP RPC 接口
+ */
+export const szwsldServer = defineLeapServer(
+  'szwsld',
+  import.meta.env.VITE_SZWSLD_BASE_URL || 'https://wuhan.yxybb.com',
+  {
+    timeout: 30000,
+    leap: {
+      systemPrefix: `/${import.meta.env.VITE_SZWSLD_CONTEXT || 'SZWSLD'}`,
+      rpcPath: import.meta.env.VITE_SZWSLD_RPC_PATH || '/LEAP/Service/RPC/RPC.DO',
+      sysName: 'SZWSLD',
+      sysArea: Number(import.meta.env.VITE_SZWSLD_AREA) || 4403,
+      defaultService: 'leap',
+      // 会话信息从 sessionStorage 获取
+      getSid: () => sessionStorage.getItem('SZWSLD_SID') || '',
+      getLid: () => sessionStorage.getItem('SZWSLD_LID') || '',
+    },
+  }
+)
+
+/**
  * 所有服务器列表
  */
-export const servers = [jsonApiServer, lpomServer, lroaServer]
+export const servers = [jsonApiServer, lpomServer, lroaServer, szwsldServer]
 
 // ============================================================================
 // RESTful API 定义

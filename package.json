@@ -102,6 +102,9 @@
   "@ldesign/color-vue": "workspace:*",
 
   
+  "@ldesign/crypto-core": "workspace:*",
+
+  
   "@ldesign/crypto-vue": "workspace:*",
 
   

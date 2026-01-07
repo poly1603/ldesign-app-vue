@@ -53,6 +53,19 @@ export default defineConfig({
           'Origin': 'https://pm.longrise.cn',
         },
       },
+      // SZWSLD LEAP 系统代理（深圳志愿者信息服务平台）
+      // 注意：开发时需要本地 8084 服务运行（ldesign-all 项目）
+      '/SZWSLD': {
+        target: 'http://localhost:8084',
+        changeOrigin: true,
+        secure: false,
+      },
+      // SZVSF LEAP 系统代理（志愿服务联合会）
+      '/SZVSF': {
+        target: 'http://localhost:8084',
+        changeOrigin: true,
+        secure: false,
+      },
     },
 
     // HMR 配置

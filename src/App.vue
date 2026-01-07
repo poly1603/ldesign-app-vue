@@ -6,8 +6,9 @@
  * - 自动检测设备类型（desktop/tablet/mobile）
  * - 集成 TemplateSelector 组件，支持用户手动选择布局模板
  * - 与 Login.vue 使用相同的模板管理方式
+ * - 集成 LEAP 系统认证和菜单
  */
-import { computed, markRaw, ref, watch } from 'vue'
+import { computed, markRaw, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
 import { LanguageSwitcher, useI18n } from '@ldesign/i18n-vue'
@@ -30,18 +31,28 @@ import {
   KeyRound, // 用于登录按钮图标
   LayoutDashboard as LayoutDashboardIcon,
   Lock,
+  LogOut, // 用于登出按钮图标
   Package,
   Palette,
   Ruler,
   Smartphone,
+  User, // 用于用户头像图标
 } from 'lucide-vue-next'
 
 import { provideApiManager } from '@ldesign/api-vue'
 import { servers, apis } from './api'
 import httpClient from './api/http'
+import { useAuth } from './composables/useAuth'
 
 /** 登录按钮图标组件 */
 const LoginIcon = markRaw(KeyRound)
+/** 登出按钮图标组件 */
+const LogoutIcon = markRaw(LogOut)
+/** 用户图标组件 */
+const UserIcon = markRaw(User)
+
+// 认证状态管理
+const auth = useAuth()
 
 provideApiManager({
   servers,
@@ -293,6 +304,23 @@ function goToLogin() {
   router.push('/login')
 }
 
+/** 登出登录 */
+async function handleLogout() {
+  await auth.logout()
+  router.push('/login')
+}
+
+/**
+ * 页面加载时初始化认证状态
+ * 如果已登录，获取用户信息和菜单
+ */
+onMounted(async () => {
+  if (!isFullscreenPage.value) {
+    await auth.initAuth()
+    console.log('[App] 认证初始化完成, 登录状态:', auth.loggedIn.value)
+  }
+})
+
 /**
  * 处理面包屑点击事件
  */
@@ -366,7 +394,20 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
         <SizeSwitcher :variant="variant" :translate="t" :locale="locale" />
         <TemplateSwitcher :variant="variant" category="layout" :translate="t" />
 
-        <button class="login-btn" @click="goToLogin">
+        <!-- 已登录时显示用户信息和登出按钮 -->
+        <template v-if="auth.loggedIn.value">
+          <div class="user-info">
+            <component :is="UserIcon" :size="16" />
+            <span class="username">{{ auth.username.value || '用户' }}</span>
+          </div>
+          <button class="logout-btn" @click="handleLogout">
+            <component :is="LogoutIcon" :size="16" />
+            登出
+          </button>
+        </template>
+
+        <!-- 未登录时显示登录按钮 -->
+        <button v-else class="login-btn" @click="goToLogin">
           <component :is="LoginIcon" :size="16" />
           {{ t('nav.login') }}
         </button>
@@ -411,5 +452,45 @@ body {
   display: flex;
   align-items: center;
   gap: var(--size-spacing-large);
+}
+
+/* 用户信息样式 */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-xs, 4px);
+  padding: var(--size-space-xs, 4px) var(--size-space-sm, 8px);
+  border-radius: var(--size-radius-sm, 4px);
+  background: var(--color-bg-container-secondary, #f5f5f5);
+  color: var(--color-text-secondary, #666);
+  font-size: var(--size-font-sm, 14px);
+}
+
+.user-info .username {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 登出按钮样式 */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-xs, 4px);
+  padding: var(--size-space-xs, 4px) var(--size-space-sm, 8px);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: var(--size-radius-sm, 4px);
+  background: var(--color-bg-container, #fff);
+  color: var(--color-text-secondary, #666);
+  font-size: var(--size-font-sm, 14px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  border-color: var(--color-error-500, #ef4444);
+  color: var(--color-error-500, #ef4444);
+  background: var(--color-error-50, #fef2f2);
 }
 </style>
