@@ -225,14 +225,16 @@ export interface MenuItem {
   id: string
   /** 父菜单 ID */
   parentId?: string | null
-  /** 菜单名称（路由名） */
+  /** 菜单名称（路由名，PascalCase） */
   name: string
   /** 菜单标题（显示名） */
   title: string
-  /** 菜单路径 */
+  /** 菜单路径（路由 path，kebab-case） */
   path: string
-  /** 组件路径 */
+  /** Vue 组件路径（用于动态导入） */
   component?: string
+  /** 组件名称 */
+  componentName?: string
   /** 图标 */
   icon?: string
   /** 排序 */
@@ -241,15 +243,23 @@ export interface MenuItem {
   hasChild?: boolean
   /** 子菜单 */
   children?: MenuItem[]
+  /** 资源类型 */
+  resourceType?: string
   /** 元数据 */
   meta?: {
     id?: string
     title?: string
     icon?: string
+    /** Vue 组件路径 */
     component?: string
+    /** 组件名称 */
+    componentName?: string
     hasChild?: boolean
     resourcetype?: string
+    /** 自定义配置 */
     props?: Record<string, unknown>
+    /** 集群名 */
+    clusterName?: string
     [key: string]: unknown
   }
   /** 其他属性 */
@@ -504,12 +514,22 @@ function sortByOrderId<T extends { orderid?: number | string }>(arr: T[]): T[] {
 
 /**
  * 转换原始菜单项为标准格式
+ * 
+ * 字段映射：
+ * - name: 原始 name 转 PascalCase（用于路由名）
+ * - path: 基于父路径 + name 拼接（kebab-case）
+ * - component: vmodulepath（Vue 组件路径）
+ * - componentName: vmodulename（组件名称）
  */
 function convertMenuItem(raw: RawMenuItem, parent?: MenuItem): MenuItem {
   const name = toPascalCase(raw.name || '')
   const title = (raw.showname || raw.text || raw.name || '').replace(/\s+/g, '')
   const parentPath = parent?.path || ''
+  // 路由路径：基于父路径 + 当前 name 拼接
   const path = parentPath ? `${parentPath}/${toKebabCase(name)}` : `/${toKebabCase(name)}`
+  
+  // 解析自定义配置
+  const customProps = parseJsonSafely(raw.customize || '{}')
   
   return {
     id: raw.id || '',
@@ -517,18 +537,28 @@ function convertMenuItem(raw: RawMenuItem, parent?: MenuItem): MenuItem {
     name,
     title,
     path,
+    // Vue 组件路径（用于动态 import）
     component: raw.vmodulepath || undefined,
+    // 组件名称
+    componentName: raw.vmodulename || undefined,
     icon: raw.icon || undefined,
     order: Number(raw.orderid || 0),
     hasChild: raw.haschild === '1',
+    resourceType: raw.resourcetype || undefined,
     meta: {
       id: raw.id,
       title,
       icon: raw.icon,
+      // Vue 组件路径
       component: raw.vmodulepath,
+      // 组件名称
+      componentName: raw.vmodulename,
       hasChild: raw.haschild === '1',
       resourcetype: raw.resourcetype,
-      props: parseJsonSafely(raw.customize || '{}'),
+      // 自定义配置
+      props: customProps,
+      // 集群名
+      clusterName: raw.clustername,
     },
   }
 }

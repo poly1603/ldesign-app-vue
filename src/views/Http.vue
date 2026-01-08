@@ -11,16 +11,21 @@ import {
   CheckCircle,
   XCircle,
   User as UserIcon,
-  Mail
+  Mail,
+  ArrowRight,
+  ArrowLeft,
+  Clock,
+  Play,
+  Square
 } from 'lucide-vue-next'
 
 // 标签页状态
 const activeTab = ref('basic')
 const tabs = [
-  { id: 'basic', label: '基础请求' },
-  { id: 'mutation', label: '变更请求' },
-  { id: 'pagination', label: '分页请求' },
-  { id: 'polling', label: '轮询请求' },
+  { id: 'basic', label: '基础请求', icon: Database },
+  { id: 'mutation', label: '变更请求', icon: Activity },
+  { id: 'pagination', label: '分页请求', icon: FileText },
+  { id: 'polling', label: '轮询请求', icon: RefreshCw },
 ]
 
 // ==================== 1. 基础请求示例 ====================
@@ -51,7 +56,6 @@ async function handleCreateUser() {
       body: newUser.value,
     })
     console.log('✅ 用户创建成功')
-    // 重置表单
     newUser.value = { name: '', email: '', username: '' }
   }
   catch (error) {
@@ -67,7 +71,7 @@ const {
   execute: fetchPosts,
 } = useRestfulApi(postApis.list)
 const currentPage = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(6)
 const hasNextPage = ref(true)
 const hasPrevPage = ref(false)
 
@@ -80,7 +84,6 @@ async function loadPosts() {
   })
 
   const data = posts.value ?? []
-  // 简单判断：如果返回的数据少于 pageSize，说明没有下一页了
   hasNextPage.value = data.length >= pageSize.value
   hasPrevPage.value = currentPage.value > 1
 }
@@ -121,18 +124,14 @@ async function pollData() {
 }
 
 function startPolling() {
-  if (isPolling.value)
-    return
+  if (isPolling.value) return
   isPolling.value = true
-  // 立即执行一次
   pollData()
-  // 然后每 5 秒执行一次
   pollingTimer = setInterval(pollData, 5000)
 }
 
 function stopPolling() {
-  if (!isPolling.value)
-    return
+  if (!isPolling.value) return
   isPolling.value = false
   if (pollingTimer) {
     clearInterval(pollingTimer)
@@ -143,646 +142,431 @@ function stopPolling() {
 function togglePolling() {
   if (isPolling.value) {
     stopPolling()
-  }
-  else {
+  } else {
     startPolling()
   }
 }
 
 // 组件挂载时初始化数据
 onMounted(() => {
-  // 延迟一下，确保 HTTP 客户端已经初始化
   setTimeout(() => {
     loadPosts()
   }, 100)
 })
 
-// 组件卸载时清理定时器
 onUnmounted(() => {
   stopPolling()
 })
 </script>
 
 <template>
-  <div class="http-demo page-container">
-    <div class="page-header section-card">
-      <div class="header-content">
-        <div class="header-icon">
-          <Globe class="icon-hero" />
-        </div>
-        <div>
-          <h1 class="page-title">HTTP 请求示例</h1>
-          <p class="page-desc">
-            演示 @ldesign/http-vue 的各种功能，包括基础请求、查询、变更、分页等
-          </p>
+  <div class="page-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-bg">
+        <div class="hero-gradient" />
+        <div class="hero-pattern" />
+        <div class="hero-orbs">
+          <div class="orb orb-1" />
+          <div class="orb orb-2" />
         </div>
       </div>
-    </div>
+      <div class="hero-content">
+        <span class="hero-badge">
+          <Globe class="w-3.5 h-3.5" />
+          Network
+        </span>
+        <h1 class="hero-title">HTTP 请求</h1>
+        <p class="hero-subtitle">
+          演示 @ldesign/http-vue 的各种功能，包括基础请求、查询、变更、分页及自动轮询。
+        </p>
+      </div>
+    </section>
 
     <!-- 标签页切换 -->
-    <div class="tabs-container">
+    <div class="tabs-wrapper">
       <div class="tabs">
-        <button v-for="tab in tabs" :key="tab.id" class="tab" :class="[{ active: activeTab === tab.id }]"
+        <button v-for="tab in tabs" :key="tab.id" class="tab-btn" :class="{ active: activeTab === tab.id }"
           @click="activeTab = tab.id">
+          <component :is="tab.icon" class="w-4 h-4 mr-2" />
           {{ tab.label }}
         </button>
       </div>
     </div>
 
     <!-- 基础请求示例 -->
-    <div v-if="activeTab === 'basic'" class="tab-content">
-      <div class="section-card">
-        <div class="section-header">
-          <h2 class="section-title">
-            <Database class="section-icon" />
-            1. 基础请求 (useQuery)
-          </h2>
-          <p class="section-desc">使用 useQuery 获取用户列表，支持自动缓存和重试</p>
-        </div>
-
-        <div class="demo-section">
-          <button class="action-btn primary" :disabled="isLoadingUsers" @click="refetchUsers">
-            <RefreshCw class="btn-icon" :class="{ 'spin': isLoadingUsers }" />
-            {{ isLoadingUsers ? '加载中...' : '刷新用户列表' }}
-          </button>
-
-          <div v-if="isLoadingUsers" class="loading">
-            <div class="spinner" />
-            <p>加载中...</p>
-          </div>
-
-          <div v-else-if="usersError" class="error-box">
-            <p class="flex-center">
-              <XCircle class="inline-icon" /> 错误: {{ usersError.message }}
-            </p>
-            <button class="action-btn secondary" @click="refetchUsers">
-              <RotateCw class="btn-icon" />
-              重试
+    <transition name="fade" mode="out-in">
+      <div v-if="activeTab === 'basic'" class="tab-content">
+        <section class="demo-card">
+          <div class="card-header">
+            <div class="icon-wrapper primary">
+              <Database class="w-5 h-5" />
+            </div>
+            <div class="flex-1">
+              <h2 class="card-title">用户列表</h2>
+              <p class="card-desc">useQuery 基础用法，支持自动缓存</p>
+            </div>
+            <button class="btn btn-primary" :disabled="isLoadingUsers" @click="refetchUsers">
+              <RefreshCw class="w-4 h-4 mr-2" :class="{ 'spin': isLoadingUsers }" />
+              {{ isLoadingUsers ? '加载中...' : '刷新列表' }}
             </button>
           </div>
 
-          <div v-else-if="users" class="success">
-            <p class="success-text flex-center">
-              <CheckCircle class="inline-icon" /> 成功加载 {{ users.length }} 个用户
-            </p>
-            <div class="user-list">
-              <div v-for="user in users.slice(0, 5)" :key="user.id" class="user-card">
-                <h3>
-                  <UserIcon class="card-icon" />
-                  {{ user.name }}
-                </h3>
-                <p class="flex-center">
-                  <Mail class="mini-icon" /> {{ user.email }}
-                </p>
-                <p>{{ user.company.name }}</p>
+          <div v-if="isLoadingUsers" class="loading-state">
+            <div class="spinner" />
+            <p>正在获取数据...</p>
+          </div>
+
+          <div v-else-if="usersError" class="error-state">
+            <XCircle class="w-8 h-8 mb-2" />
+            <p>加载失败: {{ usersError.message }}</p>
+            <button class="btn btn-outline mt-2" @click="refetchUsers">重试</button>
+          </div>
+
+          <div v-else-if="users" class="success-state">
+            <div class="user-grid">
+              <div v-for="user in users.slice(0, 6)" :key="user.id" class="user-item">
+                <div class="user-avatar">
+                  {{ user.name.charAt(0) }}
+                </div>
+                <div class="user-info">
+                  <h3>{{ user.name }}</h3>
+                  <p class="email">
+                    <Mail class="w-3 h-3 mr-1" /> {{ user.email }}
+                  </p>
+                  <span class="company-tag">{{ user.company.name }}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
 
-    <!-- 变更请求示例 -->
-    <div v-if="activeTab === 'mutation'" class="tab-content">
-      <div class="section-card">
-        <div class="section-header">
-          <h2 class="section-title">
-            <Activity class="section-icon" />
-            2. 变更请求 (useMutation)
-          </h2>
-          <p class="section-desc">使用 useMutation 创建新用户</p>
-        </div>
-
-        <div class="demo-section">
-          <form class="form" @submit.prevent="handleCreateUser">
-            <div class="form-group">
-              <label>姓名:</label>
-              <input v-model="newUser.name" type="text" class="input" required>
+      <!-- 变更请求示例 -->
+      <div v-else-if="activeTab === 'mutation'" class="tab-content">
+        <section class="demo-card">
+          <div class="card-header">
+            <div class="icon-wrapper warning">
+              <Activity class="w-5 h-5" />
             </div>
-            <div class="form-group">
-              <label>邮箱:</label>
-              <input v-model="newUser.email" type="email" class="input" required>
+            <div>
+              <h2 class="card-title">创建用户</h2>
+              <p class="card-desc">useMutation 数据变更操作</p>
             </div>
-            <div class="form-group">
-              <label>用户名:</label>
-              <input v-model="newUser.username" type="text" class="input" required>
-            </div>
-            <button type="submit" class="action-btn primary" :disabled="isCreating">
-              {{ isCreating ? '创建中...' : '创建用户' }}
-            </button>
-          </form>
-
-          <div v-if="createError" class="error-box">
-            <p class="flex-center">
-              <XCircle class="inline-icon" /> 创建失败: {{ createError.message }}
-            </p>
           </div>
 
-          <div v-if="createdUser" class="success-box">
-            <p class="flex-center">
-              <CheckCircle class="inline-icon" /> 用户创建成功!
-            </p>
-            <pre class="code-block">{{ JSON.stringify(createdUser, null, 2) }}</pre>
-          </div>
-        </div>
-      </div>
-    </div>
+          <div class="mutation-layout">
+            <form class="mutation-form" @submit.prevent="handleCreateUser">
+              <div class="form-group">
+                <label>姓名</label>
+                <input v-model="newUser.name" type="text" class="custom-input" placeholder="输入姓名" required>
+              </div>
+              <div class="form-group">
+                <label>邮箱</label>
+                <input v-model="newUser.email" type="email" class="custom-input" placeholder="输入邮箱" required>
+              </div>
+              <div class="form-group">
+                <label>用户名</label>
+                <input v-model="newUser.username" type="text" class="custom-input" placeholder="输入用户名" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-full" :disabled="isCreating">
+                <RotateCw v-if="isCreating" class="w-4 h-4 mr-2 spin" />
+                <CheckCircle v-else class="w-4 h-4 mr-2" />
+                {{ isCreating ? '创建中...' : '提交创建' }}
+              </button>
+            </form>
 
-    <!-- 分页请求示例 -->
-    <div v-if="activeTab === 'pagination'" class="tab-content">
-      <div class="section-card">
-        <div class="section-header">
-          <h2 class="section-title">
-            <FileText class="section-icon" />
-            3. 分页请求 (usePagination)
-          </h2>
-          <p class="section-desc">使用 usePagination 实现文章列表分页</p>
-        </div>
-
-        <div class="demo-section">
-          <div class="pagination-controls">
-            <button class="action-btn secondary" :disabled="!hasPrevPage || isLoadingPosts" @click="prevPage">
-              上一页
-            </button>
-            <span>第 {{ currentPage }} 页</span>
-            <button class="action-btn secondary" :disabled="!hasNextPage || isLoadingPosts" @click="nextPage">
-              下一页
-            </button>
-          </div>
-
-          <div v-if="isLoadingPosts" class="loading">
-            <div class="spinner" />
-            <p>加载中...</p>
-          </div>
-
-          <div v-else-if="postsError" class="error-box">
-            <p class="flex-center">
-              <XCircle class="inline-icon" /> 错误: {{ postsError.message }}
-            </p>
-          </div>
-
-          <div v-else-if="posts" class="success">
-            <div class="post-list">
-              <div v-for="post in posts" :key="post.id" class="post-card">
-                <h3>{{ post.title }}</h3>
-                <p>{{ post.body }}</p>
+            <div class="mutation-result">
+              <div v-if="createError" class="result-box error">
+                <XCircle class="w-5 h-5 text-red-500 mb-2" />
+                <h4>创建失败</h4>
+                <p>{{ createError.message }}</p>
+              </div>
+              <div v-else-if="createdUser" class="result-box success">
+                <CheckCircle class="w-5 h-5 text-green-500 mb-2" />
+                <h4>创建成功</h4>
+                <pre class="code-block">{{ JSON.stringify(createdUser, null, 2) }}</pre>
+              </div>
+              <div v-else class="result-box empty">
+                <p>提交表单后在此查看结果</p>
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </div>
-    </div>
 
-    <!-- 轮询请求示例 -->
-    <div v-if="activeTab === 'polling'" class="tab-content">
-      <div class="section-card">
-        <div class="section-header">
-          <h2 class="section-title">
-            <RefreshCw class="section-icon" />
-            4. 轮询请求 (usePolling)
-          </h2>
-          <p class="section-desc">使用 usePolling 定时获取数据</p>
-        </div>
+      <!-- 分页请求示例 -->
+      <div v-else-if="activeTab === 'pagination'" class="tab-content">
+        <section class="demo-card">
+          <div class="card-header">
+            <div class="icon-wrapper info">
+              <FileText class="w-5 h-5" />
+            </div>
+            <div class="flex-1">
+              <h2 class="card-title">文章列表</h2>
+              <p class="card-desc">分页加载数据</p>
+            </div>
+            <div class="pagination-controls">
+              <button class="icon-btn" :disabled="!hasPrevPage || isLoadingPosts" @click="prevPage">
+                <ArrowLeft class="w-4 h-4" />
+              </button>
+              <span class="page-indicator">Page {{ currentPage }}</span>
+              <button class="icon-btn" :disabled="!hasNextPage || isLoadingPosts" @click="nextPage">
+                <ArrowRight class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
 
-        <div class="demo-section">
-          <div class="polling-controls">
-            <button class="action-btn" :class="isPolling ? 'warning' : 'primary'" @click="togglePolling">
-              <RefreshCw class="btn-icon" :class="{ 'spin': isPolling }" />
+          <div v-if="isLoadingPosts" class="loading-state min-h-200">
+            <div class="spinner" />
+          </div>
+
+          <div v-else-if="posts" class="post-grid">
+            <div v-for="post in posts" :key="post.id" class="post-item">
+              <h3>{{ post.title.slice(0, 30) }}...</h3>
+              <p>{{ post.body.slice(0, 80) }}...</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 轮询请求示例 -->
+      <div v-else-if="activeTab === 'polling'" class="tab-content">
+        <section class="demo-card">
+          <div class="card-header">
+            <div class="icon-wrapper purple">
+              <RefreshCw class="w-5 h-5" />
+            </div>
+            <div class="flex-1">
+              <h2 class="card-title">实时数据</h2>
+              <p class="card-desc">自动轮询更新 (5s)</p>
+            </div>
+            <button class="btn" :class="isPolling ? 'btn-danger-ghost' : 'btn-primary'" @click="togglePolling">
+              <component :is="isPolling ? Square : Play" class="w-4 h-4 mr-2" :class="{'fill-current': isPolling}" />
               {{ isPolling ? '停止轮询' : '开始轮询' }}
             </button>
-            <span v-if="isPolling" class="polling-status flex-center">
-              <Activity class="inline-icon spin" />
-              轮询中... (每 5 秒)
-            </span>
           </div>
 
-          <div v-if="pollingData" class="success-box">
-            <p class="flex-center">
-              <CheckCircle class="inline-icon" /> 最后更新: {{ new Date().toLocaleTimeString() }}
-            </p>
-            <pre class="code-block">{{ JSON.stringify(pollingData, null, 2) }}</pre>
+          <div class="polling-status-bar" :class="{ active: isPolling }">
+            <div class="status-indicator">
+              <span class="dot"></span>
+              {{ isPolling ? '正在轮询数据...' : '轮询已暂停' }}
+            </div>
+            <div class="last-update" v-if="pollingData">
+              <Clock class="w-3.5 h-3.5 mr-1" />
+              {{ new Date().toLocaleTimeString() }}
+            </div>
           </div>
-        </div>
+
+          <div v-if="pollingData" class="json-viewer">
+            <pre>{{ JSON.stringify(pollingData, null, 2) }}</pre>
+          </div>
+        </section>
       </div>
-    </div>
+    </transition>
   </div>
 </template>
 
 <style scoped>
-.http-demo {
-  max-width: 1000px;
+/* Layout */
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: var(--size-space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-space-lg);
 }
 
-/* Page Header */
-.page-header {
-  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+/* Hero Section */
+.hero-section {
+  position: relative;
+  padding: 48px 40px;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  background: linear-gradient(135deg, var(--color-primary-600, #4f46e5) 0%, var(--color-primary-900, #312e81) 100%);
   color: white;
-  padding: var(--size-space-xl);
-  border-radius: var(--size-radius-lg);
-  border: none;
+  box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.3);
 }
 
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-lg);
-}
+.hero-bg { position: absolute; inset: 0; }
+.hero-pattern { position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.hero-orbs .orb { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.1); filter: blur(40px); animation: float 10s infinite ease-in-out; }
+.orb-1 { width: 300px; height: 300px; top: -100px; right: -50px; }
+.orb-2 { width: 200px; height: 200px; bottom: -50px; left: 10%; animation-delay: -5s; }
+.hero-content { position: relative; z-index: 1; }
+.hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); border-radius: 99px; font-size: 13px; font-weight: 600; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.2); }
+.hero-title { font-size: 36px; font-weight: 700; margin: 0 0 12px; letter-spacing: -0.02em; }
+.hero-subtitle { font-size: 16px; opacity: 0.85; max-width: 600px; line-height: 1.6; }
 
-.header-icon {
-  background: rgba(255, 255, 255, 0.2);
-  padding: var(--size-space-md);
-  border-radius: var(--size-radius-round);
-  display: flex;
-}
-
-.icon-hero {
-  width: 48px;
-  height: 48px;
-  color: white;
-}
-
-.page-title {
-  font-size: var(--size-font-2xl);
-  font-weight: 700;
-  margin: 0 0 var(--size-space-xs);
-  color: white;
-}
-
-.page-desc {
-  font-size: var(--size-font-md);
-  opacity: 0.9;
-  margin: 0;
-  max-width: 600px;
-}
-
-/* Section Card */
-.section-card {
-  background: var(--color-bg-container);
-  border-radius: var(--size-radius-lg);
-  padding: var(--size-space-lg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--color-border-secondary);
-}
-
-.section-header {
-  margin-bottom: var(--size-space-md);
-  border-bottom: 1px solid var(--color-border-secondary);
-  padding-bottom: var(--size-space-sm);
-}
-
-.section-title {
-  font-size: var(--size-font-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-sm);
-  margin: 0 0 var(--size-space-xs);
-}
-
-.section-icon {
-  width: 20px;
-  height: 20px;
-  color: var(--color-primary-500);
-}
-
-.section-desc {
-  color: var(--color-text-secondary);
-  font-size: var(--size-font-sm);
-  margin: 0;
-}
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
 
 /* Tabs */
-.tabs-container {
-  margin-bottom: var(--size-space-md);
-  border-bottom: 1px solid var(--color-border);
+.tabs-wrapper {
+  margin-bottom: 24px;
+  overflow-x: auto;
 }
 
 .tabs {
-  display: flex;
-  gap: var(--size-space-md);
-}
-
-.tab {
-  padding: var(--size-space-sm) var(--size-space-md);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  font-size: var(--size-font-md);
-  color: var(--color-text-secondary);
-  transition: all 0.2s;
-  font-weight: 500;
-}
-
-.tab:hover {
-  color: var(--color-primary-500);
-}
-
-.tab.active {
-  color: var(--color-primary-500);
-  border-bottom-color: var(--color-primary-500);
-}
-
-/* Tab Content Animation */
-.tab-content {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Buttons */
-.action-btn {
   display: inline-flex;
+  background: var(--color-bg-container);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border-secondary);
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.tab-btn.active {
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+/* Demo Card */
+.demo-card {
+  background: var(--color-bg-container, #fff);
+  border: 1px solid var(--color-border-secondary, #e5e7eb);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.demo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-primary-200, #bfdbfe);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.icon-wrapper { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.icon-wrapper.primary { background: var(--color-primary-50, #eff6ff); color: var(--color-primary-600, #2563eb); }
+.icon-wrapper.info { background: var(--color-info-50, #f0f9ff); color: var(--color-info-600, #0284c7); }
+.icon-wrapper.warning { background: var(--color-warning-50, #fffbeb); color: var(--color-warning-600, #d97706); }
+.icon-wrapper.purple { background: #f3e8ff; color: #7e22ce; }
+
+.card-title { font-size: 18px; font-weight: 600; color: var(--color-text-primary); margin: 0; }
+.card-desc { font-size: 13px; color: var(--color-text-tertiary); margin: 4px 0 0; }
+
+/* User Grid */
+.user-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--color-bg-layout);
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.user-item:hover {
+  background: var(--color-bg-container);
+  border-color: var(--color-primary-200);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary-100);
+  color: var(--color-primary-600);
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: var(--size-radius-md);
-  cursor: pointer;
-  font-size: var(--size-font-sm);
-  transition: all 0.2s;
-  font-weight: 500;
-  background: var(--color-bg-container);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
+  font-weight: 700;
 }
 
-.btn-icon {
-  width: 16px;
-  height: 16px;
-}
+.user-info h3 { margin: 0 0 4px; font-size: 14px; color: var(--color-text-primary); }
+.user-info .email { margin: 0 0 4px; font-size: 12px; color: var(--color-text-tertiary); display: flex; align-items: center; }
+.company-tag { font-size: 11px; padding: 2px 6px; background: var(--color-bg-container); border-radius: 4px; color: var(--color-text-secondary); border: 1px solid var(--color-border-secondary); }
 
-.action-btn:hover:not(:disabled) {
-  background: var(--color-bg-hover);
-  transform: translateY(-1px);
-}
+/* States */
+.loading-state, .error-state, .empty-state { text-align: center; padding: 40px; color: var(--color-text-tertiary); }
+.min-h-200 { min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.error-state { color: var(--color-error-500); }
+.success-state { animation: fadeIn 0.3s ease; }
 
-.action-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.spinner { width: 32px; height: 32px; border: 3px solid var(--color-border-secondary); border-top-color: var(--color-primary-500); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.action-btn.primary {
-  background: var(--color-primary-500);
-  color: white;
-  border-color: var(--color-primary-500);
-}
+/* Mutation */
+.mutation-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 768px) { .mutation-layout { grid-template-columns: 1fr; } }
 
-.action-btn.primary:hover:not(:disabled) {
-  background: var(--color-primary-600);
-}
+.mutation-form { display: flex; flex-direction: column; gap: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--color-text-secondary); }
+.custom-input { width: 100%; padding: 10px 16px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-bg-layout); transition: all 0.2s; }
+.custom-input:focus { outline: none; border-color: var(--color-primary-500); background: var(--color-bg-container); box-shadow: 0 0 0 3px var(--color-primary-50); }
 
-.action-btn.secondary {
-  background: var(--color-bg-page);
-}
-
-.action-btn.warning {
-  background: var(--color-warning-500);
-  color: white;
-  border-color: var(--color-warning-500);
-}
-
-/* Loading */
-.loading {
-  text-align: center;
-  padding: var(--size-space-xl);
-  color: var(--color-text-secondary);
-}
-
-.spinner {
-  width: 24px;
-  height: 24px;
-  margin: 0 auto var(--size-space-md);
-  border: 2px solid var(--color-border);
-  border-top: 2px solid var(--color-primary-500);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-/* Status Boxes */
-.error-box {
-  background: var(--color-error-bg);
-  border: 1px solid var(--color-error-border);
-  border-radius: var(--size-radius-md);
-  padding: var(--size-space-md);
-  margin-top: var(--size-space-md);
-  color: var(--color-error-text);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.success-text {
-  margin-top: var(--size-space-md);
-  color: var(--color-success-500);
-  font-weight: 500;
-}
-
-.success-box {
-  margin-top: var(--size-space-md);
-  padding: var(--size-space-md);
-  background: var(--color-success-bg);
-  border: 1px solid var(--color-success-border);
-  border-radius: var(--size-radius-md);
-  color: var(--color-success-text);
-}
-
-/* User List */
-.user-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: var(--size-space-md);
-  margin-top: var(--size-space-md);
-}
-
-.user-card {
-  background: var(--color-bg-page);
-  padding: var(--size-space-md);
-  border-radius: var(--size-radius-md);
-  border: 1px solid var(--color-border);
-  transition: transform 0.2s;
-}
-
-.user-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--color-primary-200);
-}
-
-.user-card h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 var(--size-space-xs) 0;
-  color: var(--color-text-primary);
-  font-size: var(--size-font-md);
-  font-weight: 600;
-}
-
-.card-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--color-primary-500);
-}
-
-.user-card p {
-  margin: 4px 0;
-  color: var(--color-text-secondary);
-  font-size: var(--size-font-sm);
-}
-
-.mini-icon {
-  width: 14px;
-  height: 14px;
-  margin-right: 4px;
-}
-
-/* Form */
-.form {
-  background: var(--color-bg-page);
-  padding: var(--size-space-lg);
-  border-radius: var(--size-radius-md);
-  margin-bottom: var(--size-space-md);
-  border: 1px solid var(--color-border);
-}
-
-.form-group {
-  margin-bottom: var(--size-space-md);
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: var(--size-space-xs);
-  color: var(--color-text-primary);
-  font-weight: 500;
-  font-size: var(--size-font-sm);
-}
-
-.input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--size-radius-md);
-  font-size: var(--size-font-sm);
-  background: var(--color-bg-container);
-  color: var(--color-text-primary);
-  transition: all 0.2s;
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 2px var(--color-primary-100);
-}
-
-/* Code Block */
-.code-block {
-  background: var(--color-bg-layout);
-  padding: var(--size-space-md);
-  border-radius: var(--size-radius-sm);
-  overflow-x: auto;
-  font-size: var(--size-font-xs);
-  color: var(--color-text-primary);
-  font-family: monospace;
-  margin: var(--size-space-sm) 0 0;
-  border: 1px solid var(--color-border);
-}
-
-/* Post List */
-.post-list {
-  display: grid;
-  gap: var(--size-space-md);
-  margin-top: var(--size-space-md);
-}
-
-.post-card {
-  background: var(--color-bg-page);
-  padding: var(--size-space-md);
-  border-radius: var(--size-radius-md);
-  border: 1px solid var(--color-border);
-}
-
-.post-card h3 {
-  margin: 0 0 var(--size-space-xs) 0;
-  color: var(--color-text-primary);
-  font-size: var(--size-font-md);
-  font-weight: 600;
-}
-
-.post-card p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  font-size: var(--size-font-sm);
-}
+.mutation-result { background: var(--color-bg-layout); border-radius: 12px; padding: 16px; }
+.result-box { text-align: center; padding: 20px; }
+.result-box.success { color: var(--color-success-600); }
+.result-box.error { color: var(--color-error-600); }
+.result-box.empty { color: var(--color-text-tertiary); font-style: italic; display: flex; align-items: center; justify-content: center; height: 100%; }
+.code-block { text-align: left; background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 8px; font-size: 12px; margin-top: 12px; overflow-x: auto; }
 
 /* Pagination */
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-md);
-  margin-bottom: var(--size-space-md);
-}
+.pagination-controls { display: flex; align-items: center; gap: 12px; }
+.icon-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-bg-container); cursor: pointer; color: var(--color-text-secondary); transition: all 0.2s; }
+.icon-btn:hover:not(:disabled) { border-color: var(--color-primary-500); color: var(--color-primary-500); }
+.icon-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.page-indicator { font-size: 13px; font-weight: 600; color: var(--color-text-primary); }
 
-.pagination-controls span {
-  color: var(--color-text-secondary);
-  font-weight: 500;
-  font-size: var(--size-font-sm);
-}
+.post-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.post-item { background: var(--color-bg-layout); padding: 16px; border-radius: 12px; border: 1px solid transparent; transition: all 0.2s; }
+.post-item:hover { border-color: var(--color-border); background: var(--color-bg-container); }
+.post-item h3 { font-size: 15px; margin: 0 0 8px; color: var(--color-text-primary); }
+.post-item p { font-size: 13px; color: var(--color-text-tertiary); margin: 0; line-height: 1.5; }
 
 /* Polling */
-.polling-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--size-space-md);
-  margin-bottom: var(--size-space-md);
-}
+.polling-status-bar { display: flex; align-items: center; justify-content: space-between; background: var(--color-bg-layout); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border: 1px dashed var(--color-border); }
+.polling-status-bar.active { background: var(--color-success-50); border-color: var(--color-success-200); }
+.status-indicator { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-secondary); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-text-tertiary); }
+.active .dot { background: var(--color-success-500); box-shadow: 0 0 0 3px var(--color-success-100); }
+.last-update { font-size: 12px; color: var(--color-text-tertiary); display: flex; align-items: center; }
+.json-viewer { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 12px; font-family: monospace; font-size: 12px; overflow-x: auto; max-height: 300px; }
 
-.polling-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-primary-500);
-  font-weight: 500;
-  font-size: var(--size-font-sm);
-}
+/* Common Buttons */
+.btn { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+.btn:hover { transform: translateY(-1px); }
+.btn-primary { background: var(--color-primary-600); color: white; }
+.btn-outline { background: transparent; border: 1px solid var(--color-border); color: var(--color-text-secondary); }
+.btn-outline:hover { border-color: var(--color-primary-500); color: var(--color-primary-500); }
+.btn-danger-ghost { background: #fee2e2; color: #dc2626; }
+.btn-danger-ghost:hover { background: #fecaca; }
 
-.flex-center {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.inline-icon {
-  width: 16px;
-  height: 16px;
-}
-
-@media (max-width: 768px) {
-  .http-demo {
-    padding: var(--size-space-md);
-  }
-  
-  .header-content {
-    flex-direction: column;
-    text-align: center;
-  }
-}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

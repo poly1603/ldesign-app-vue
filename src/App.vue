@@ -12,7 +12,7 @@ import { computed, markRaw, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ThemeColorPicker, ThemeModeSwitcher } from '@ldesign/color-vue'
 import { LanguageSwitcher, useI18n } from '@ldesign/i18n-vue'
-import { LMenu, LMenuItem, LSubMenu } from '@ldesign/menu-vue'
+import { LMenu } from '@ldesign/menu-vue'
 import '@ldesign/menu-vue/styles'
 import { SizeSwitcher } from '@ldesign/size-vue'
 import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
@@ -113,70 +113,162 @@ const {
   },
 })
 
-/** 图标组件映射 */
-const iconMap = {
-  home: markRaw(Home),
-  palette: markRaw(Palette),
-  ruler: markRaw(Ruler),
-  globe: markRaw(Globe),
-  smartphone: markRaw(Smartphone),
-  database: markRaw(Database),
-  lock: markRaw(Lock),
-  archive: markRaw(Archive),
-  fileText: markRaw(FileText),
-  bell: markRaw(Bell),
-  layoutDashboard: markRaw(LayoutDashboardIcon),
-  package: markRaw(Package),
-}
+/** 图标组件映射 - 使用 markRaw 避免响应式警告 */
+const HomeIcon = markRaw(Home)
+const PaletteIcon = markRaw(Palette)
+const RulerIcon = markRaw(Ruler)
+const GlobeIcon = markRaw(Globe)
+const SmartphoneIcon = markRaw(Smartphone)
+const DatabaseIcon = markRaw(Database)
+const LockIcon = markRaw(Lock)
+const ArchiveIcon = markRaw(Archive)
+const FileTextIcon = markRaw(FileText)
+const BellIcon = markRaw(Bell)
+const LayoutDashboardIconComp = markRaw(LayoutDashboardIcon)
+const PackageIcon = markRaw(Package)
 
-/** 菜单项接口 */
-interface AppMenuItem {
-  key: string
-  label: string
-  icon?: string
-  disabled?: boolean
-  children?: AppMenuItem[]
+const iconComponents: Record<string, any> = {
+  home: HomeIcon,
+  palette: PaletteIcon,
+  ruler: RulerIcon,
+  globe: GlobeIcon,
+  smartphone: SmartphoneIcon,
+  database: DatabaseIcon,
+  lock: LockIcon,
+  archive: ArchiveIcon,
+  fileText: FileTextIcon,
+  bell: BellIcon,
+  layoutDashboard: LayoutDashboardIconComp,
+  package: PackageIcon,
 }
 
 /**
- * 侧边栏导航菜单数据
- * 支持多层级菜单结构
+ * 根据图标名称获取组件
+ * 支持 Lucide 图标名称或 iconComponents 中的 key
  */
-const menuItems: AppMenuItem[] = [
-  { key: '/', label: 'nav.home', icon: 'home' },
+function getIconComponent(iconName?: string): any {
+  if (!iconName) return undefined
+  // 尝试从映射中获取
+  return iconComponents[iconName] || iconComponents[iconName.toLowerCase()] || undefined
+}
+
+/**
+ * LMenu 菜单项接口
+ * 符合 @ldesign/menu-vue 的 MenuItem 结构
+ * 扩展 meta 字段用于存储路由注册所需信息
+ */
+interface LMenuItemData {
+  key: string
+  label: string
+  type?: 'item' | 'submenu' | 'group' | 'divider'
+  icon?: any
+  disabled?: boolean
+  children?: LMenuItemData[]
+  /** 扩展元数据，用于路由注册 */
+  meta?: {
+    /** 菜单 ID */
+    id?: string
+    /** 路由名称 (PascalCase) */
+    name?: string
+    /** Vue 组件路径 */
+    component?: string
+    /** 组件名称 */
+    componentName?: string
+    /** 资源类型 */
+    resourceType?: string
+    /** 自定义配置 */
+    props?: Record<string, unknown>
+  }
+}
+
+/**
+ * 本地默认菜单 - 工作空间功能展示
+ * 未登录或 API 菜单为空时使用
+ */
+const defaultMenuItems: LMenuItemData[] = [
+  { key: '/', label: '首页', icon: HomeIcon, type: 'item' },
   {
     key: 'appearance',
     label: '外观设置',
-    icon: 'palette',
+    icon: PaletteIcon,
+    type: 'submenu',
     children: [
-      { key: '/theme', label: '主题管理' },
-      { key: '/size', label: '尺寸管理' },
+      { key: '/theme', label: '主题管理', type: 'item' },
+      { key: '/size', label: '尺寸管理', type: 'item' },
     ],
   },
   {
     key: 'system',
     label: '系统功能',
-    icon: 'smartphone',
+    icon: SmartphoneIcon,
+    type: 'submenu',
     children: [
-      { key: '/http', label: 'HTTP 请求' },
-      { key: '/device', label: '设备信息' },
-      { key: '/cache', label: '缓存管理' },
-      { key: '/crypto', label: '加密功能' },
+      { key: '/http', label: 'HTTP 请求', type: 'item' },
+      { key: '/device', label: '设备信息', type: 'item' },
+      { key: '/cache', label: '缓存管理', type: 'item' },
+      { key: '/crypto', label: '加密功能', type: 'item' },
+      { key: '/logger', label: '日志系统', type: 'item' },
+      { key: '/store', label: '状态管理', type: 'item' },
     ],
   },
   {
-    key: 'data',
-    label: '数据管理',
-    icon: 'database',
+    key: 'components',
+    label: '组件展示',
+    icon: PackageIcon,
+    type: 'submenu',
     children: [
-      { key: '/store', label: '状态管理' },
-      { key: '/logger', label: '日志系统' },
-      { key: '/notification', label: '通知系统' },
+      { key: '/menu', label: '菜单组件', type: 'item' },
+      { key: '/breadcrumb', label: '面包屑组件', type: 'item' },
+      { key: '/bookmark', label: '书签组件', type: 'item' },
+      { key: '/notification', label: '通知组件', type: 'item' },
     ],
   },
-  { key: '/layout', label: '布局系统', icon: 'layoutDashboard' },
-  { key: '/breadcrumb', label: '面包屑组件', icon: 'fileText' },
+  { key: '/leap', label: 'LEAP 接口', icon: GlobeIcon, type: 'item' },
 ]
+
+/**
+ * 将 API 返回的菜单数据转换为 LMenu 需要的格式
+ */
+function transformApiMenuToLMenu(apiMenus: any[]): LMenuItemData[] {
+  if (!apiMenus || apiMenus.length === 0) return []
+  
+  return apiMenus.map(item => {
+    const hasChildren = item.children && item.children.length > 0
+    
+    const menuItem: LMenuItemData = {
+      key: item.path || item.id || '',
+      label: item.title || item.name || '',
+      type: hasChildren ? 'submenu' : 'item',
+      icon: getIconComponent(item.icon),
+      meta: {
+        id: item.id,
+        name: item.name,
+        component: item.component,
+        componentName: item.componentName,
+        resourceType: item.resourceType,
+        props: item.meta?.props,
+      },
+    }
+    
+    if (hasChildren) {
+      menuItem.children = transformApiMenuToLMenu(item.children)
+    }
+    
+    return menuItem
+  })
+}
+
+/**
+ * 菜单数据
+ * - 已登录且有 API 菜单：使用 API 菜单
+ * - 否则：使用本地默认菜单
+ */
+const menuItems = computed<LMenuItemData[]>(() => {
+  if (auth.loggedIn.value && auth.menuList.value && auth.menuList.value.length > 0) {
+    return transformApiMenuToLMenu(auth.menuList.value as any[])
+  }
+  return defaultMenuItems
+})
 
 /** 当前选中的菜单项 key */
 const selectedMenuKey = computed(() => route.path)
@@ -189,10 +281,10 @@ const selectedMenuKey = computed(() => route.path)
 function findParentKeys(path: string): string[] {
   const parentKeys: string[] = []
 
-  for (const item of menuItems) {
+  for (const item of menuItems.value) {
     if (item.children) {
       const hasChild = item.children.some(child => child.key === path)
-      if (hasChild) {
+      if (hasChild && item.key) {
         parentKeys.push(item.key)
       }
     }
@@ -219,20 +311,20 @@ function buildBreadcrumbItems(currentPath: string, currentRoute: typeof route) {
   }
 
   // 查找当前路由对应的菜单项
-  for (const item of menuItems) {
+  for (const item of menuItems.value) {
     if (item.children) {
       const child = item.children.find(c => c.key === currentPath)
       if (child) {
         // 添加父级菜单
-        items.push({ key: item.key, label: getMenuLabel(item.label) })
+        items.push({ key: item.key, label: item.label })
         // 添加当前页
-        items.push({ key: child.key, label: getMenuLabel(child.label), path: child.key })
+        items.push({ key: child.key, label: child.label, path: child.key })
         return items
       }
     }
     else if (item.key === currentPath) {
       // 一级菜单
-      items.push({ key: item.key, label: getMenuLabel(item.label), path: item.key })
+      items.push({ key: item.key, label: item.label, path: item.key })
       return items
     }
   }
@@ -296,11 +388,59 @@ function handleOpenChange(keys: string[]) {
 }
 
 /**
- * 获取菜单项显示文本
+ * Mix 布局 - 当前选中的一级菜单 key
+ * 用于在 Mix 布局中展示对应的子菜单
  */
-function getMenuLabel(label: string): string {
-  return label.startsWith('nav.') ? t(label) : label
+const selectedRootKey = ref<string>('')
+
+/**
+ * Mix 布局 / DualColumn 布局 - 处理顶部一级菜单点击
+ */
+function handleRootSelect(params: { key: string }) {
+  const key = params.key
+  selectedRootKey.value = key
+  // 如果是路由项（以 / 开头），直接导航
+  if (key.startsWith('/')) {
+    router.push(key)
+  }
 }
+
+/**
+ * 根据当前路由自动设置选中的一级菜单
+ */
+function updateSelectedRootKey() {
+  const path = route.path
+  // 查找当前路由属于哪个一级菜单
+  for (const item of menuItems.value) {
+    if (item.key === path) {
+      selectedRootKey.value = item.key
+      return
+    }
+    if (item.children) {
+      if (item.children.some(child => child.key === path)) {
+        selectedRootKey.value = item.key
+        return
+      }
+    }
+  }
+}
+
+// 监听路由变化更新选中的一级菜单
+watch(() => route.path, updateSelectedRootKey, { immediate: true })
+
+/**
+ * 判断当前模板类型
+ * 用于根据不同模板渲染不同的菜单配置
+ */
+const templateType = computed(() => {
+  const name = currentTemplateMeta.value?.name || ''
+  console.log('[App] 当前模板名称:', name)
+  if (name.includes('mix')) return 'mix'
+  if (name.includes('top-menu')) return 'top-menu'
+  if (name.includes('dual-column')) return 'dual-column'
+  return 'sidebar' // 默认侧边栏模式
+})
+
 
 /** 跳转到登录页 */
 function goToLogin() {
@@ -391,29 +531,74 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
       </div>
     </template>
 
-    <!-- 侧边栏菜单 - 使用 @ldesign/menu-vue 组件，自动继承布局颜色 -->
+    <!-- ============ 顶部横向菜单 (top-menu 布局) ============ -->
+    <template #menu>
+      <LMenu
+        v-if="templateType === 'top-menu'"
+        mode="horizontal"
+        :items="menuItems"
+        :selected-key="selectedMenuKey"
+        :open-keys="openKeys"
+        :inherit-color="true"
+        @select="handleMenuSelect"
+        @open-change="handleOpenChange"
+      />
+    </template>
+
+    <!-- ============ Mix 布局顶部一级菜单 ============ -->
+    <template #top-menu>
+      <LMenu
+        v-if="templateType === 'mix'"
+        mode="horizontal"
+        render-mode="rootOnly"
+        :items="menuItems"
+        :selected-key="selectedRootKey"
+        :inherit-color="true"
+        @select="handleRootSelect"
+      />
+    </template>
+
+    <!-- ============ 图标栏 (dual-column 布局) ============ -->
+    <template #icon-bar>
+      <LMenu
+        v-if="templateType === 'dual-column'"
+        mode="vertical"
+        render-mode="rootOnly"
+        :items="menuItems"
+        :selected-key="selectedRootKey"
+        :collapsed="true"
+        :collapsed-width="60"
+        :inherit-color="true"
+        @select="handleRootSelect"
+      />
+    </template>
+
+    <!-- ============ 侧边栏菜单 ============ -->
     <template #sider="{ collapsed }">
-      <LMenu :collapsed="collapsed" :selected-key="selectedMenuKey" :open-keys="openKeys"
-        @select="handleMenuSelect" @open-change="handleOpenChange">
-        <template v-for="item in menuItems" :key="item.key">
-          <!-- 有子菜单的项 -->
-          <LSubMenu v-if="item.children" :item-key="item.key" :label="getMenuLabel(item.label)">
-            <template #icon>
-              <component v-if="item.icon" :is="iconMap[item.icon as keyof typeof iconMap]" :size="20" />
-            </template>
-            <LMenuItem v-for="child in item.children" :key="child.key" :item-key="child.key" :disabled="child.disabled">
-              {{ getMenuLabel(child.label) }}
-            </LMenuItem>
-          </LSubMenu>
-          <!-- 无子菜单的项 -->
-          <LMenuItem v-else :item-key="item.key" :disabled="item.disabled">
-            <template #icon>
-              <component v-if="item.icon" :is="iconMap[item.icon as keyof typeof iconMap]" :size="20" />
-            </template>
-            {{ getMenuLabel(item.label) }}
-          </LMenuItem>
-        </template>
-      </LMenu>
+      <LMenu
+        v-if="menuItems.length > 0"
+        :items="menuItems"
+        :collapsed="collapsed"
+        :selected-key="selectedMenuKey"
+        :open-keys="collapsed ? [] : openKeys"
+        :expand-mode="collapsed ? 'popup' : 'inline'"
+        :inherit-color="false"
+        theme="dark"
+        @select="handleMenuSelect"
+        @open-change="handleOpenChange"
+      />
+    </template>
+
+    <!-- ============ 移动端抽屉菜单 ============ -->
+    <template #drawer>
+      <LMenu
+        :items="menuItems"
+        :selected-key="selectedMenuKey"
+        :open-keys="openKeys"
+        theme="dark"
+        @select="handleMenuSelect"
+        @open-change="handleOpenChange"
+      />
     </template>
 
     <!-- 页签栏插槽 - 使用 @ldesign/bookmark-vue 的 ChromeTabs 组件 -->
@@ -542,5 +727,65 @@ body {
   border-color: var(--color-error-500, #ef4444);
   color: var(--color-error-500, #ef4444);
   background: var(--color-error-50, #fef2f2);
+}
+
+/* ==================== Logo 样式 ==================== */
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-sm, 8px);
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-logo .logo-icon {
+  flex-shrink: 0;
+}
+
+.app-logo .logo-text {
+  font-size: var(--size-font-lg, 18px);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ==================== 登录按钮样式 ==================== */
+.login-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--size-space-xs, 4px);
+  padding: var(--size-space-xs, 4px) var(--size-space-sm, 8px);
+  border: 1px solid var(--color-primary-500, #3b82f6);
+  border-radius: var(--size-radius-sm, 4px);
+  background: var(--color-primary-500, #3b82f6);
+  color: #fff;
+  font-size: var(--size-font-sm, 14px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.login-btn:hover {
+  background: var(--color-primary-600, #2563eb);
+  border-color: var(--color-primary-600, #2563eb);
+}
+
+/* ==================== 面包屑样式 ==================== */
+.page-breadcrumb {
+  padding: var(--size-space-md, 12px) var(--size-space-lg, 16px);
+  margin-bottom: var(--size-space-md, 12px);
+}
+
+/* ==================== 布局加载中 ==================== */
+.layout-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: var(--size-font-lg, 18px);
+  color: var(--color-text-secondary, #666);
+}
+
+/* ==================== 全屏页面 ==================== */
+.fullscreen-page {
+  min-height: 100vh;
 }
 </style>
