@@ -84,17 +84,17 @@ export default defineConfig({
    * 生产环境也应该与开发环境保持一致，确保构建后的代码能正确解析所有引用
    */
   resolve: {
-    alias: {
-      '@': '/src',
-      '@components': '/src/components',
-      '@views': '/src/views',
-      '@utils': '/src/utils',
-      '@assets': '/src/assets',
-      '@styles': '/src/styles',
-      '@test': '/src/test',
-      '@lib': '/src/lib',
-      '@hooks4': '/src/hooks',
-    },
+    alias: [
+      { find: '@', replacement: '/src' },
+      { find: '@components', replacement: '/src/components' },
+      { find: '@views', replacement: '/src/views' },
+      { find: '@utils', replacement: '/src/utils' },
+      { find: '@assets', replacement: '/src/assets' },
+      { find: '@styles', replacement: '/src/styles' },
+      { find: '@test', replacement: '/src/test' },
+      { find: '@lib', replacement: '/src/lib' },
+      { find: '@hooks4', replacement: '/src/hooks' },
+    ],
     // 关键：避免重复依赖导致的 Symbol 注入失败（生产环境同样需要）
     dedupe: ['vue', '@ldesign/i18n-vue', '@ldesign/engine-vue3', '@ldesign/router-vue', '@ldesign/i18n-core'],
   },
@@ -133,17 +133,11 @@ export default defineConfig({
    */
   launcher: {
     logLevel: 'warn', // 生产环境只显示警告和错误
-    clearScreen: true, // 清屏，保持输出简洁
 
     // 环境变量校验
     env: {
       required: [
         'VITE_API_BASE_URL', // 生产环境必须提供 API 地址
-      ],
-      optional: [
-        'VITE_APP_TITLE',
-        'VITE_SENTRY_DSN',
-        'VITE_GA_ID',
       ],
     },
   },

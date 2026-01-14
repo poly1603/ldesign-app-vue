@@ -1,5 +1,7 @@
 import { defineConfig } from '@ldesign/launcher'
 
+const SZWSLD_PROXY_TARGET = process.env.VITE_SZWSLD_PROXY_TARGET || 'https://wuhan.yxybb.com'
+
 /**
  * 开发环境 Launcher 配置
  *
@@ -56,13 +58,13 @@ export default defineConfig({
       // SZWSLD LEAP 系统代理（深圳志愿者信息服务平台）
       // 注意：开发时需要本地 8084 服务运行（ldesign-all 项目）
       '/SZWSLD': {
-        target: 'http://localhost:8084',
+        target: SZWSLD_PROXY_TARGET,
         changeOrigin: true,
         secure: false,
       },
       // SZVSF LEAP 系统代理（志愿服务联合会）
       '/SZVSF': {
-        target: 'http://localhost:8084',
+        target: SZWSLD_PROXY_TARGET,
         changeOrigin: true,
         secure: false,
       },
@@ -178,16 +180,10 @@ export default defineConfig({
   launcher: {
     autoRestart: true, // 开发环境启用配置文件监听和自动重启
     logLevel: 'debug', // 开发环境详细日志
-    clearScreen: false, // 不清屏，保留历史日志
 
     // 环境变量校验
     env: {
       required: [], // 开发环境不强制要求环境变量
-      optional: [
-        'VITE_API_BASE_URL',
-        'VITE_APP_TITLE',
-        'VITE_ENABLE_MOCK',
-      ],
     },
   },
 

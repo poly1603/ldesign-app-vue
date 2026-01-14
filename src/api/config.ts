@@ -87,9 +87,9 @@ export const szwsldServer = defineLeapServer(
       sysName: 'SZWSLD',
       sysArea: Number(import.meta.env.VITE_SZWSLD_AREA) || 4403,
       defaultService: 'leap',
-      // 会话信息从 sessionStorage 获取
-      getSid: () => sessionStorage.getItem('SZWSLD_SID') || '',
-      getLid: () => sessionStorage.getItem('SZWSLD_LID') || '',
+      // 会话信息与 app-vue/src/api/leap/request.ts 保持一致
+      getSid: () => localStorage.getItem(`${import.meta.env.VITE_SZWSLD_CONTEXT || 'SZWSLD'}__sid`) || '',
+      getLid: () => sessionStorage.getItem('__lid') || sessionStorage.getItem(`${import.meta.env.VITE_SZWSLD_CONTEXT || 'SZWSLD'}__lid`) || '',
     },
   }
 )
@@ -143,17 +143,17 @@ export interface Post {
 /**
  * 用户 CRUD API
  */
-export const userApis = createCrudApis<User>('jsonApi', 'user', '/users')
+export const userApis = createCrudApis('jsonApi', 'user', '/users')
 
 /**
  * 文章 CRUD API
  */
-export const postApis = createCrudApis<Post>('jsonApi', 'post', '/posts')
+export const postApis = createCrudApis('jsonApi', 'post', '/posts')
 
 /**
  * 获取用户文章 API
  */
-export const getUserPostsApi = defineRestfulApi<{ userId: number }, Post[]>(
+export const getUserPostsApi = defineRestfulApi(
   'jsonApi',
   'getUserPosts',
   'GET',
@@ -179,10 +179,7 @@ export interface MonthWorkdayData {
 /**
  * 获取月工作日 API
  */
-export const getMonthWorkdayApi = defineLeapApi<
-  { month: string; u?: number; i?: number },
-  MonthWorkdayData
->('lpom', 'getMonthWorkday', 'loap_monthworkday')
+export const getMonthWorkdayApi = defineLeapApi('lpom', 'getMonthWorkday', 'loap_monthworkday')
   .describe('获取指定月份的工作日信息')
   .build()
 
@@ -200,7 +197,7 @@ export interface LeapUserInfo {
 /**
  * 获取当前用户信息 API
  */
-export const getCurrentUserApi = defineLeapApi<void, LeapUserInfo>(
+export const getCurrentUserApi = defineLeapApi(
   'lpom',
   'getCurrentUser',
   'app_getCurrentUser'
@@ -221,10 +218,7 @@ export interface ModuleOperation {
 /**
  * 获取模块操作列表 API
  */
-export const getModuleOperationsApi = defineLeapApi<
-  { n: string; g?: boolean; r?: boolean },
-  ModuleOperation[]
->('lpom', 'getModuleOperations', 'app_getLogicModuleOperations')
+export const getModuleOperationsApi = defineLeapApi('lpom', 'getModuleOperations', 'app_getLogicModuleOperations')
   .describe('获取逻辑模块的操作列表')
   .build()
 

@@ -108,14 +108,14 @@ export default defineConfig({
    * 路径别名配置
    */
   resolve: {
-    alias: {
-      '@': '/src',
-      '@components': '/src/components',
-      '@views': '/src/views',
-      '@utils': '/src/utils',
-      '@assets': '/src/assets',
-      '@styles': '/src/styles',
-    },
+    alias: [
+      { find: '@', replacement: '/src' },
+      { find: '@components', replacement: '/src/components' },
+      { find: '@views', replacement: '/src/views' },
+      { find: '@utils', replacement: '/src/utils' },
+      { find: '@assets', replacement: '/src/assets' },
+      { find: '@styles', replacement: '/src/styles' },
+    ],
   },
 
   /**
@@ -152,16 +152,11 @@ export default defineConfig({
    */
   launcher: {
     logLevel: 'info', // 预发布环境显示信息级别日志
-    clearScreen: false,
 
     // 环境变量校验
     env: {
       required: [
         'VITE_API_BASE_URL',
-      ],
-      optional: [
-        'VITE_APP_TITLE',
-        'VITE_SENTRY_DSN',
       ],
     },
   },

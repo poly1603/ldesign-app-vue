@@ -18,7 +18,6 @@ import {
   clearSession,
   isLoggedIn,
   getRandomId,
-  getUuid,
   Md5Code,
 } from './request'
 
@@ -316,7 +315,7 @@ function getLoginMessage(code: string): LoginResult {
  */
 export function transformLeapUserInfo(raw: LeapRawUserInfo): UserInfo {
   const detail = raw.detail || {}
-  
+
   // 解析 extinfo JSON
   let extinfo: Record<string, unknown> = {}
   if (detail.extinfo) {
@@ -326,7 +325,7 @@ export function transformLeapUserInfo(raw: LeapRawUserInfo): UserInfo {
       // 忽略解析失败
     }
   }
-  
+
   // 性别转换
   const genderMap: Record<string, 'male' | 'female' | 'unknown'> = {
     '1': 'male',
@@ -337,7 +336,7 @@ export function transformLeapUserInfo(raw: LeapRawUserInfo): UserInfo {
     '女': 'female',
   }
   const gender = detail.sex ? (genderMap[detail.sex] || 'unknown') : undefined
-  
+
   // 账号状态转换
   let status: UserInfo['status'] = 'active'
   if (raw.isstoped === 1) {
@@ -347,57 +346,57 @@ export function transformLeapUserInfo(raw: LeapRawUserInfo): UserInfo {
   } else if (detail.isvalid === '0') {
     status = 'locked'
   }
-  
+
   // 转换角色
   const roles = raw.roles?.map(r => ({
     id: r.id || '',
     name: r.name || '',
     code: r.id,
   })).filter(r => r.id) || []
-  
+
   // 转换职位（取第一个）
   const position = raw.positions?.[0]
     ? {
-        id: raw.positions[0].id || '',
-        name: raw.positions[0].name || '',
-      }
+      id: raw.positions[0].id || '',
+      name: raw.positions[0].name || '',
+    }
     : undefined
-  
+
   return {
     // 基本信息
     id: detail.id || '',
     username: detail.userflag || detail.usercode || '',
     displayName: raw.fullName || detail.fullname || detail.userflag || '',
-    
+
     // 联系信息
     phone: raw.mobilephone || detail.mobilephone,
     email: undefined, // LEAP 中无邮箱字段
     avatar: detail.photo,
-    
+
     // 个人信息
     gender,
     birthday: detail.birthday,
-    
+
     // 组织信息
     organization: raw.orgid
       ? {
-          id: raw.orgid,
-          name: raw.orgCNName || raw.orgENName || '',
-          code: raw.orgsyscode,
-        }
+        id: raw.orgid,
+        name: raw.orgCNName || raw.orgENName || '',
+        code: raw.orgsyscode,
+      }
       : undefined,
-    
+
     // 职位和角色
     position,
     roles,
     permissions: [], // LEAP 权限需要单独获取
-    
+
     // 状态信息
     status,
     createdAt: detail.createtime,
     updatedAt: detail.updatetime,
     lastLoginAt: detail.lastlogintime,
-    
+
     // 扩展信息（保留 LEAP 特有数据）
     extra: {
       // LEAP 特有字段
@@ -427,24 +426,24 @@ export function transformLeapUserInfo(raw: LeapRawUserInfo): UserInfo {
  */
 function getRealSyscode(syscode: string | null): string {
   if (syscode == null || syscode.trim() === '') return ''
-  
+
   if (syscode.includes('.')) {
     const pre = syscode.substring(0, syscode.indexOf('.'))
     let sub = syscode.substring(syscode.indexOf('.') + 1)
-    
+
     // 补齐到3的倍数
     while (sub.length % 3 !== 0) {
       sub += '0'
     }
-    
+
     // 去除末尾的 "000"
     while (sub.length > 0 && sub.substring(sub.length - 3) === '000') {
       sub = sub.substring(0, sub.length - 3)
     }
-    
+
     return sub === '' ? pre : `${pre}.${sub}`
   }
-  
+
   return syscode
 }
 
@@ -455,15 +454,15 @@ function getRealSyscode(syscode: string | null): string {
  */
 function getParentSyscode(syscode: string | null): string {
   if (!syscode || !syscode.includes('.')) return ''
-  
+
   // 删除最后3位
   const ret = syscode.substring(0, syscode.length - 3)
-  
+
   // 如果最后一个字符是 '.'  ，去除它
   if (ret.charAt(ret.length - 1) === '.') {
     return ret.substring(0, ret.length - 1)
   }
-  
+
   return ret
 }
 
@@ -527,10 +526,10 @@ function convertMenuItem(raw: RawMenuItem, parent?: MenuItem): MenuItem {
   const parentPath = parent?.path || ''
   // 路由路径：基于父路径 + 当前 name 拼接
   const path = parentPath ? `${parentPath}/${toKebabCase(name)}` : `/${toKebabCase(name)}`
-  
+
   // 解析自定义配置
   const customProps = parseJsonSafely(raw.customize || '{}')
-  
+
   return {
     id: raw.id || '',
     parentId: raw.refid || null,
@@ -568,45 +567,45 @@ function convertMenuItem(raw: RawMenuItem, parent?: MenuItem): MenuItem {
  */
 export function transformMenuList(rawMenus: RawMenuItem[]): MenuItem[] {
   if (!rawMenus || rawMenus.length === 0) return []
-  
+
   console.log('[transformMenuList] Input menus count:', rawMenus.length)
-  
+
   // 1. 排序
   const sorted = sortByOrderId(rawMenus)
-  
+
   // 2. 添加 realCode 和 parentCode
   const codeMap = new Map<string, RawMenuItem>()
   for (const menu of sorted) {
     const realCode = getRealSyscode(menu.syscode || null)
     if (realCode) {
-      ;(menu as any).realCode = realCode
+      ; (menu as any).realCode = realCode
       codeMap.set(realCode, menu)
     }
   }
-  
+
   console.log('[transformMenuList] codeMap size:', codeMap.size)
   console.log('[transformMenuList] Sample syscodes:', sorted.slice(0, 3).map(m => ({ name: m.name, syscode: m.syscode, realCode: (m as any).realCode })))
-  
+
   for (const menu of sorted) {
     const realCode = (menu as any).realCode
     if (realCode) {
       const parentCode = getParentSyscode(realCode)
       if (parentCode) {
-        ;(menu as any).parentCode = parentCode
+        ; (menu as any).parentCode = parentCode
       }
     }
   }
-  
+
   console.log('[transformMenuList] Sample parent codes:', sorted.slice(0, 5).map(m => ({ name: m.name, realCode: (m as any).realCode, parentCode: (m as any).parentCode })))
-  
+
   // 3. 构建父子关系映射
   const childrenMap = new Map<string, RawMenuItem[]>()
   const topMenus: RawMenuItem[] = []
-  
+
   for (const menu of sorted) {
     const parentCode = (menu as any).parentCode
     const hasParentInMap = parentCode && codeMap.has(parentCode)
-    
+
     if (!parentCode || !hasParentInMap || menu.refid) {
       // 顶级菜单
       topMenus.push(menu)
@@ -620,29 +619,29 @@ export function transformMenuList(rawMenus: RawMenuItem[]): MenuItem[] {
       }
     }
   }
-  
+
   console.log('[transformMenuList] Top menus count:', topMenus.length)
   console.log('[transformMenuList] Top menus:', topMenus.map(m => m.name))
   console.log('[transformMenuList] childrenMap size:', childrenMap.size)
-  
+
   // 4. 递归构建菜单树
   function buildTree(rawMenu: RawMenuItem, parent?: MenuItem): MenuItem {
     const menuItem = convertMenuItem(rawMenu, parent)
     const childRaws = childrenMap.get(rawMenu.id || '')
-    
+
     if (childRaws && childRaws.length > 0) {
       menuItem.children = childRaws.map(child => buildTree(child, menuItem))
     }
-    
+
     return menuItem
   }
-  
+
   // 5. 构建所有顶级菜单
   const result = topMenus.map(menu => buildTree(menu))
-  
+
   console.log('[transformMenuList] Result count:', result.length)
   console.log('[transformMenuList] Result with children:', result.map(m => ({ name: m.name, childrenCount: m.children?.length || 0 })))
-  
+
   // 6. 过滤掉特定类型的菜单（如资源类型 22, 18）
   return result.filter(menu => !['22', '18'].includes(menu.meta?.resourcetype || ''))
 }
@@ -684,11 +683,19 @@ export async function fetchSid(): Promise<{ sid: string; lid: string }> {
   // 清理旧数据（和原始实现一致）
   localStorage.removeItem(`${leapConfig.context}__sid`)
   localStorage.removeItem(`${leapConfig.context}__servertime`)
-  
+
   // 使用专门的 getSid 请求函数
   const response = await leapGetSidRequest()
 
   const text = await response.text()
+
+  if (!response.ok) {
+    const url = `/${leapConfig.context}/${leapConfig.rpcPath}`
+    throw new Error(
+      `[LEAP] fetchSid failed: ${response.status} ${response.statusText}, url=${url}, response=${text.substring(0, 200)}`
+    )
+  }
+
   // 响应格式: "sid:serverTime"
   const sid = text.split(':')[0] || ''
 
@@ -749,10 +756,10 @@ export async function loginByPassword(params: LoginParams): Promise<LoginResult>
   // 构建请求数据 - 关键格式
   const requestData = `['${username}', '${passwordMd5}', '${leapConfig.systemName}', 0, '${captcha}', '${leapConfig.area}']`
   console.log('[Login] requestData:', requestData)
-  
+
   const encodedData = encodeURIComponent(encodeURIComponent(escape(requestData)))
   console.log('[Login] encodedData:', encodedData)
-  
+
   const randomId = getRandomId()
 
   // 构建 URL 查询参数
@@ -852,19 +859,19 @@ export async function fetchMenuList(
       ],
     }
     console.log('[Auth] fetchMenuList params:', params)
-    
+
     // 获取原始菜单数据
     const rawMenuList = await leapRpcRequest<RawMenuItem[]>('studiov6_getUIResource', params)
     console.log('[Auth] fetchMenuList raw result:', rawMenuList)
-    
+
     if (!rawMenuList || rawMenuList.length === 0) {
       return []
     }
-    
+
     // 转换为树形结构（使用 children 字段）
     const transformedMenus = transformMenuList(rawMenuList)
     console.log('[Auth] fetchMenuList transformed:', transformedMenus)
-    
+
     return transformedMenus
   } catch (e) {
     console.error('[Auth] fetchMenuList error:', e)
