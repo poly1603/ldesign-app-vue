@@ -17,7 +17,7 @@ export const routes = [
     component: () => import('../views/Login.vue'),
     meta: { title: '登录', requiresAuth: false },
   },
-  
+
   // ============ 外观设置 ============
   {
     path: '/theme',
@@ -31,7 +31,7 @@ export const routes = [
     component: () => import('../views/Size.vue'),
     meta: { title: '尺寸管理' },
   },
-  
+
   // ============ 系统功能 ============
   {
     path: '/http',
@@ -69,7 +69,7 @@ export const routes = [
     component: () => import('../views/StoreDemo.vue'),
     meta: { title: '状态管理' },
   },
-  
+
   // ============ 组件展示 ============
   {
     path: '/menu',
@@ -95,7 +95,7 @@ export const routes = [
     component: () => import('../views/NotificationDemo.vue'),
     meta: { title: '通知组件' },
   },
-  
+
   // ============ LEAP 接口 ============
   {
     path: '/leap',
@@ -103,12 +103,18 @@ export const routes = [
     component: () => import('../views/LeapDemo.vue'),
     meta: { title: 'LEAP 接口' },
   },
-  
+
   // ============ 404 ============
+  {
+    path: '/404',
+    name: 'NotFoundPage',
+    component: () => import('../views/NotFound.vue'),
+    meta: { title: '页面不存在', requiresAuth: false },
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('../views/Home.vue'),
+    component: () => import('../views/NotFound.vue'),
     meta: { title: '页面不存在' },
   },
 ]

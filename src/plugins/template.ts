@@ -29,9 +29,9 @@ export function createTemplatePlugin() {
       },
       dashboard: {
         defaults: {
-          desktop: 'full',
-          tablet: 'compact',
-          mobile: 'minimal',
+          desktop: 'default',
+          tablet: 'default',
+          mobile: 'default',
         },
       },
       layout: {
@@ -45,7 +45,7 @@ export function createTemplatePlugin() {
 
     // 模板选择器配置
     selector: {
-      enabled: true,
+      enabled: false,
       position: 'top-right',
       showPreview: true,
       showDescription: true,
@@ -91,20 +91,6 @@ export function createTemplatePlugin() {
       //     device: info.device,
       //     templateName: info.templateName,
       //   })
-      // }
-    },
-
-    // 初始化完成回调
-    onReady: (context) => {
-      console.log('[Template Plugin] 初始化完成')
-      console.log('[Template Plugin] 已注册模板数量:', context.getTemplateCount())
-      console.log('[Template Plugin] layout 模板:', context.getTemplatesByCategory('layout').map(t => t.id))
-      console.log('[Template Plugin] login 模板:', context.getTemplatesByCategory('login').map(t => t.id))
-
-      // 示例: 从服务器加载用户模板偏好
-      // const userPreferences = await api.getUserTemplatePreferences()
-      // if (userPreferences?.layout) {
-      //   // 应用用户保存的布局模板
       // }
     },
   })

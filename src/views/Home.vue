@@ -276,6 +276,20 @@ const greeting = computed(() => {
 </template>
 
 <style scoped>
+.dashboard-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  font-size: var(--size-font-lg, 18px);
+  color: var(--color-text-secondary, #666);
+}
+
+.dashboard-disabled {
+  padding: var(--size-space-lg, 24px);
+  color: var(--color-text-secondary, #666);
+}
+
 .home-page {
   padding: var(--size-space-lg, 24px);
   max-width: 1400px;
