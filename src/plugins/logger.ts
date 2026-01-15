@@ -7,6 +7,7 @@ import {
   ConsoleTransport,
   DevBridgeTransport,
   LogLevel,
+  type LogTransport,
 } from '@ldesign/logger-core'
 
 /** 是否为开发环境 */
@@ -30,13 +31,13 @@ export function createLoggerPlugin() {
   })
 
   // 创建传输器列表
-  const transports = [consoleTransport]
+  const transports: LogTransport[] = [consoleTransport]
 
   // 开发模式添加桥接传输器（用于与 launcher 通信）
   if (isDev) {
     const devBridgeTransport = new DevBridgeTransport({
       level: LogLevel.DEBUG,
-      wsUrl: 'ws://localhost:9527/__dev_logger',
+      wsUrl: 'ws://localhost:9528/__dev_logger',
       autoReconnect: true,
       batchSize: 20,
       batchInterval: 500,

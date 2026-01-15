@@ -110,11 +110,6 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@', replacement: '/src' },
-      { find: '@components', replacement: '/src/components' },
-      { find: '@views', replacement: '/src/views' },
-      { find: '@utils', replacement: '/src/utils' },
-      { find: '@assets', replacement: '/src/assets' },
-      { find: '@styles', replacement: '/src/styles' },
     ],
   },
 

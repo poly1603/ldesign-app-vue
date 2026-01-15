@@ -86,14 +86,6 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@', replacement: '/src' },
-      { find: '@components', replacement: '/src/components' },
-      { find: '@views', replacement: '/src/views' },
-      { find: '@utils', replacement: '/src/utils' },
-      { find: '@assets', replacement: '/src/assets' },
-      { find: '@styles', replacement: '/src/styles' },
-      { find: '@test', replacement: '/src/test' },
-      { find: '@lib', replacement: '/src/lib' },
-      { find: '@hooks4', replacement: '/src/hooks' },
     ],
     // 关键：避免重复依赖导致的 Symbol 注入失败（生产环境同样需要）
     dedupe: ['vue', '@ldesign/i18n-vue', '@ldesign/engine-vue3', '@ldesign/router-vue', '@ldesign/i18n-core'],

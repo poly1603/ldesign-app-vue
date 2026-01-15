@@ -15,37 +15,22 @@ import { LanguageSwitcher, useI18n } from '@ldesign/i18n-vue'
 import { LMenu } from '@ldesign/menu-vue'
 import '@ldesign/menu-vue/styles'
 import { SizeSwitcher } from '@ldesign/size-vue'
-import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
-import { ChromeTabs, useRouteTabs } from '@ldesign/bookmark-vue'
-import { LBreadcrumb } from '@ldesign/breadcrumb-vue'
-import '@ldesign/breadcrumb-vue/styles'
+import { useTemplate } from '@ldesign/template-vue'
+import { TemplateSwitcher } from '@ldesign/template-vue'
 import { useNotification, LNotification, LToast, LMessage } from '@ldesign/notification-vue'
 import LogoutModal from './components/LogoutModal.vue'
 
 // 导入 Lucide 图标组件
 import {
-  Archive,
-  Bell,
-  Database,
-  FileText,
-  Globe,
-  Home,
   KeyRound, // 用于登录按钮图标
-  LayoutDashboard as LayoutDashboardIcon,
-  Lock,
   LogOut, // 用于登出按钮图标
-  Package,
   Palette,
-  Ruler,
-  Smartphone,
   User, // 用于用户头像图标
 } from 'lucide-vue-next'
 import { provideApiManager } from '@ldesign/api-vue'
 import { servers, apis } from './api'
 import httpClient from './api/http'
 import { useAuth } from './composables/useAuth'
-
-const MAX_TABBAR_PRIMARY = 4
 
 /** 登录按钮图标组件 */
 const LoginIcon = markRaw(KeyRound)
@@ -58,68 +43,19 @@ const UserIcon = markRaw(User)
 const auth = useAuth()
 const notification = useNotification()
 
+const { t, locale } = useI18n()
+
 provideApiManager({
   servers,
   apis,
   httpClientFactory: async () => httpClient,
 })
-
-const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-/**
- * 路由页签管理
- * 自动监听路由变化，管理页签的添加、删除、切换
- */
-const {
-  tabs,
-  activeKey,
-  refreshKey,
-  switchTab,
-  removeTab,
-  closeOthers,
-  closeLeft,
-  closeRight,
-  closeAll,
-  refreshTab,
-  togglePin,
-} = useRouteTabs({
-  router,
-  homePath: '/',
-  homeTitle: '首页',
-  excludes: ['/login', '/404', '/403', '/500'],
-})
-
 /** 判断是否为全屏页面 */
-function isPathInMenu(path: string): boolean {
-  const dfs = (items: LMenuItemData[] | undefined): boolean => {
-    if (!items || items.length === 0) return false
-    for (const it of items) {
-      if (it.key === path) return true
-      if (dfs(it.children)) return true
-    }
-    return false
-  }
-  return dfs(menuItems.value)
-}
-
-const isNotFoundRoute = computed(() => {
-  if (route.path === '/404') return true
-  return route.matched.length === 1 && route.matched[0]?.name === 'NotFound'
-})
-
 const isFullscreenPage = computed(() => {
-  if (route.path === '/login') return true
-  if (!isNotFoundRoute.value) return false
-
-  // 菜单/认证未准备好时，先保留布局，避免菜单路由短暂未注册导致全屏 404
-  if (!auth.initialized.value) return false
-  if (!auth.loggedIn.value) return true
-  if (!menuItems.value || menuItems.value.length === 0) return false
-
-  // 已登录且菜单已加载：菜单路由未注册 => 内容区 404；其他未知路由 => 全屏 404
-  return !isPathInMenu(route.path)
+  return route.path === '/login'
 })
 
 /**
@@ -138,52 +74,15 @@ const {
 } = useTemplate('layout', {
   immediate: true,
   onChange: (info) => {
-    console.log('[App] 模板切换:', info)
+    if (import.meta.env.DEV) {
+      console.log('[App] 模板切换:', info)
+    }
   },
 })
 
-const viewModules = import.meta.glob('./views/**/*.vue')
-const pageModules = import.meta.glob('./pages/**/*.vue')
-const allPageModules: Record<string, any> = { ...viewModules, ...pageModules }
+const LogoIcon = markRaw(Palette)
 
-/** 图标组件映射 - 使用 markRaw 避免响应式警告 */
-const HomeIcon = markRaw(Home)
-const PaletteIcon = markRaw(Palette)
-const RulerIcon = markRaw(Ruler)
-const GlobeIcon = markRaw(Globe)
-const SmartphoneIcon = markRaw(Smartphone)
-const DatabaseIcon = markRaw(Database)
-const LockIcon = markRaw(Lock)
-const ArchiveIcon = markRaw(Archive)
-const FileTextIcon = markRaw(FileText)
-const BellIcon = markRaw(Bell)
-const LayoutDashboardIconComp = markRaw(LayoutDashboardIcon)
-const PackageIcon = markRaw(Package)
-
-const iconComponents: Record<string, any> = {
-  home: HomeIcon,
-  palette: PaletteIcon,
-  ruler: RulerIcon,
-  globe: GlobeIcon,
-  smartphone: SmartphoneIcon,
-  database: DatabaseIcon,
-  lock: LockIcon,
-  archive: ArchiveIcon,
-  fileText: FileTextIcon,
-  bell: BellIcon,
-  layoutDashboard: LayoutDashboardIconComp,
-  package: PackageIcon,
-}
-
-/**
- * 根据图标名称获取组件
- * 支持 Lucide 图标名称或 iconComponents 中的 key
- */
-function getIconComponent(iconName?: string): any {
-  if (!iconName) return undefined
-  // 尝试从映射中获取
-  return iconComponents[iconName] || iconComponents[iconName.toLowerCase()] || undefined
-}
+const MAX_TABBAR_PRIMARY = 4
 
 /**
  * LMenu 菜单项接口
@@ -248,7 +147,7 @@ function transformApiMenuToLMenu(apiMenus: any[], parentKey = 'root'): LMenuItem
       key: normalizedKey,
       label: item.title || item.name || '',
       type: hasChildren ? 'submenu' : 'item',
-      icon: getIconComponent(item.icon),
+      icon: undefined,
       meta: {
         id: item.id,
         name: item.name,
@@ -277,6 +176,86 @@ const menuItems = computed<LMenuItemData[]>(() => {
   if (!auth.menuList.value || auth.menuList.value.length === 0) return []
   return transformApiMenuToLMenu(auth.menuList.value as any[])
 })
+
+const templateType = computed(() => {
+  const n = String(currentTemplateMeta.value?.name || '').toLowerCase()
+
+  // 优先使用模板元信息的 name（最稳定）
+  if (n === 'mix') return 'mix'
+  if (n === 'dual-column') return 'dual-column'
+  if (n === 'tab-bar') return 'tab-bar'
+  if (n === 'drawer') return 'drawer'
+  if (n === 'top-menu') return 'top-menu'
+  if (n === 'sidebar') return 'sidebar'
+
+  // fallback：极端情况下 name 不存在时，才从组件名猜测
+  const compName = String((LayoutComponent.value as any)?.name || (LayoutComponent.value as any)?.__name || '').toLowerCase()
+  const raw = `${n} ${compName}`
+  if (raw.includes('mix')) return 'mix'
+  if (raw.includes('dual')) return 'dual-column'
+  if (raw.includes('tab')) return 'tab-bar'
+  if (raw.includes('drawer')) return 'drawer'
+  if (raw.includes('top')) return 'top-menu'
+  return 'sidebar'
+})
+
+const topMenuMode = computed(() => (deviceType.value === 'mobile' ? 'vertical' : 'horizontal'))
+const topMenuTheme = computed(() => (deviceType.value === 'mobile' ? 'light' : 'dark'))
+const topMenuExpandMode = computed(() => (deviceType.value === 'mobile' ? 'inline' : 'popup'))
+const topMenuInheritColor = computed(() => deviceType.value !== 'mobile')
+const topMenuAccordion = computed(() => deviceType.value === 'mobile')
+
+const siderMenuTheme = computed(() => {
+  if (templateType.value === 'sidebar' && deviceType.value === 'desktop') return 'dark'
+  return 'light'
+})
+
+const selectedRootKey = ref<string>('')
+
+function findNodeByKey(items: LMenuItemData[] | undefined, targetKey: string): LMenuItemData | undefined {
+  if (!items || items.length === 0) return undefined
+  for (const it of items) {
+    if (it.key === targetKey) return it
+    const found = findNodeByKey(it.children, targetKey)
+    if (found) return found
+  }
+  return undefined
+}
+
+function findRootKeyByPath(path: string): string | undefined {
+  if (!path.startsWith('/')) return undefined
+  for (const root of menuItems.value) {
+    if (root.key === path) return root.key
+    const hit = findNodeByKey(root.children, path)
+    if (hit) return root.key
+  }
+  return undefined
+}
+
+function findFirstLeafRouteKey(nodes: LMenuItemData[] | undefined): string | undefined {
+  if (!nodes || nodes.length === 0) return undefined
+  for (const n of nodes) {
+    const children = n.children
+    const inChildren = findFirstLeafRouteKey(children)
+    if (inChildren) return inChildren
+    const hasChildren = Array.isArray(children) && children.length > 0
+    if (!hasChildren && typeof n.key === 'string' && n.key.startsWith('/')) return n.key
+  }
+  return undefined
+}
+
+function syncSelectedRootKeyFromRoute() {
+  const root = findRootKeyByPath(route.path)
+  selectedRootKey.value = root || menuItems.value[0]?.key || ''
+}
+
+watch(
+  [() => route.path, () => menuItems.value],
+  () => {
+    syncSelectedRootKeyFromRoute()
+  },
+  { immediate: true, deep: true },
+)
 
 /** 当前选中的菜单项 key */
 const selectedMenuKey = computed(() => route.path)
@@ -309,74 +288,6 @@ function findParentKeys(path: string): string[] {
 }
 
 /**
- * 根据当前路由生成面包屑数据
- * @param currentPath - 当前路由路径
- * @param currentRoute - 当前路由对象（用于获取 meta 信息）
- * @returns 面包屑项数组
- */
-function buildBreadcrumbItems(currentPath: string, currentRoute: typeof route) {
-  const items: Array<{ key: string, label: string, path?: string }> = []
-
-  // 首页始终显示
-  items.push({ key: '/', label: t('nav.home'), path: '/' })
-
-  // 如果当前就是首页，直接返回
-  if (currentPath === '/') {
-    return items
-  }
-
-  // 递归查找当前路由对应的菜单路径
-  const pathItems: LMenuItemData[] = []
-
-  function dfs(items: LMenuItemData[]): boolean {
-    for (const item of items) {
-      pathItems.push(item)
-      if (item.key === currentPath) {
-        return true
-      }
-      if (item.children && item.children.length > 0) {
-        const found = dfs(item.children)
-        if (found) return true
-      }
-      pathItems.pop()
-    }
-    return false
-  }
-
-  if (dfs(menuItems.value) && pathItems.length > 0) {
-    for (let i = 0; i < pathItems.length; i++) {
-      const it = pathItems[i]
-      const isLast = i === pathItems.length - 1
-      items.push({
-        key: it.key,
-        label: it.label,
-        path: isLast ? it.key : undefined,
-      })
-    }
-    return items
-  }
-
-  // 如果没找到匹配的菜单，显示路由的 meta.title
-  if (currentRoute.meta?.title) {
-    items.push({ key: currentPath, label: String(currentRoute.meta.title), path: currentPath })
-  }
-
-  return items
-}
-
-/** 面包屑项列表（响应路由变化） */
-const breadcrumbItems = ref(buildBreadcrumbItems(route.path, route))
-
-// 监听路由变化更新面包屑
-watch(
-  () => route.path,
-  (newPath) => {
-    breadcrumbItems.value = buildBreadcrumbItems(newPath, route)
-  },
-  { immediate: true },
-)
-
-/**
  * 当前展开的菜单项 key 列表
  * 在组件创建时立即根据当前路由初始化展开状态
  */
@@ -399,54 +310,6 @@ watch(
   },
   { immediate: true }
 )
-
-function resolveMenuComponentLoader(componentPath?: string, componentName?: string) {
-  const normalize = (p: string) => p.replace(/\\/g, '/').trim()
-
-  const candidates: string[] = []
-
-  const addCandidate = (p: string) => {
-    const s = p.trim()
-    if (!s) return
-    candidates.push(s)
-  }
-
-  const fromComponentPath = (raw: string) => {
-    let p = normalize(raw)
-    if (p.startsWith('/')) p = p.slice(1)
-    if (p.startsWith('src/')) p = p.slice(3)
-    if (!p.endsWith('.vue')) p = `${p}.vue`
-
-    if (p.startsWith('./')) addCandidate(p)
-    addCandidate(`./${p}`)
-    addCandidate(`./views/${p.replace(/^\.\/?/, '')}`)
-    addCandidate(`./pages/${p.replace(/^\.\/?/, '')}`)
-  }
-
-  if (typeof componentPath === 'string' && componentPath.trim().length > 0) {
-    fromComponentPath(componentPath)
-  }
-
-  if (typeof componentName === 'string' && componentName.trim().length > 0) {
-    const base = `${componentName.trim()}.vue`
-    const hit = Object.keys(allPageModules).find(k => k.endsWith(`/${base}`))
-    if (hit) addCandidate(hit)
-  }
-
-  for (const key of candidates) {
-    if (allPageModules[key]) return allPageModules[key]
-  }
-
-  // fuzzy fallback
-  if (typeof componentPath === 'string' && componentPath.trim().length > 0) {
-    const base = normalize(componentPath).split('/').filter(Boolean).pop() || ''
-    const baseVue = base.endsWith('.vue') ? base : `${base}.vue`
-    const hit = Object.keys(allPageModules).find(k => k.endsWith(`/${baseVue}`))
-    if (hit) return allPageModules[hit]
-  }
-
-  return undefined
-}
 
 function registerMenuRoutes(items: LMenuItemData[]): void {
   const existing = new Set(router.getRoutes().map(r => r.path))
@@ -472,13 +335,12 @@ function registerMenuRoutes(items: LMenuItemData[]): void {
 
       const compPath = (n as any)?.meta?.component as string | undefined
       const compName = (n as any)?.meta?.componentName as string | undefined
-      const loader = resolveMenuComponentLoader(compPath, compName)
 
       const safeName = `menu_${key.replace(/[^a-zA-Z0-9_]/g, '_')}`
       router.addRoute({
         path: key,
         name: safeName,
-        component: loader ? loader : () => import('./views/NotFound.vue'),
+        component: () => import('./views/MenuPage.vue'),
         meta: {
           title: n.label || key,
           menu: true,
@@ -498,15 +360,6 @@ function ensureMenuRoutesReady(): void {
   if (!menuItems.value || menuItems.value.length === 0) return
 
   registerMenuRoutes(menuItems.value)
-
-  // 如果当前是 NotFound，但菜单路由刚注册成功，则刷新一次匹配
-  if (isNotFoundRoute.value && isPathInMenu(route.path)) {
-    const resolved = router.resolve(route.fullPath)
-    const stillNotFound = resolved.matched.length === 1 && resolved.matched[0]?.name === 'NotFound'
-    if (!stillNotFound) {
-      router.replace(route.fullPath)
-    }
-  }
 }
 
 /**
@@ -533,48 +386,48 @@ function handleOpenChange(keys: string[]) {
   openKeys.value = keys
 }
 
-/**
- * Mix/DualColumn 布局 - 当前选中的一级菜单 key
- */
-const selectedRootKey = ref<string>('')
+const siderRenderMode = computed<'full' | 'childrenOf'>(() => {
+  if (templateType.value === 'mix' || templateType.value === 'dual-column') return 'childrenOf'
+  return 'full'
+})
 
-/**
- * Mix 布局 / DualColumn 布局 - 处理顶部一级菜单点击
- */
+const siderParentKey = computed(() => {
+  if (siderRenderMode.value === 'childrenOf') return selectedRootKey.value
+  return undefined
+})
+
+const siderMenuItems = computed<LMenuItemData[]>(() => {
+  if (siderRenderMode.value !== 'childrenOf') return menuItems.value
+  const root = selectedRootKey.value
+  const node = root ? findNodeByKey(menuItems.value, root) : undefined
+  return node?.children || []
+})
+
+const siderOpenKeys = computed(() => {
+  if (siderRenderMode.value !== 'childrenOf' || !siderParentKey.value) return openKeys.value
+
+  const valid = new Set<string>()
+  const walk = (nodes: LMenuItemData[]) => {
+    for (const n of nodes) {
+      if (n.children && n.children.length > 0) {
+        valid.add(n.key)
+        walk(n.children)
+      }
+    }
+  }
+  walk(siderMenuItems.value)
+
+  return openKeys.value.filter(k => k !== siderParentKey.value && valid.has(k))
+})
+
 function handleRootSelect(params: any, itemArg?: any) {
   ensureMenuRoutesReady()
   const key = typeof params === 'string' ? params : params?.key
   if (!key) return
   selectedRootKey.value = key
 
-  const findNodeByKey = (items: LMenuItemData[] | undefined, targetKey: string): LMenuItemData | undefined => {
-    if (!items || items.length === 0) return undefined
-    for (const it of items) {
-      if (it.key === targetKey) return it
-      const found = findNodeByKey(it.children, targetKey)
-      if (found) return found
-    }
-    return undefined
-  }
-
-  const rootNode = findNodeByKey(menuItems.value, key)
-  const item = rootNode || itemArg || (typeof params === 'string' ? undefined : params?.item)
-
-  const findFirstLeafRouteKey = (nodes: any[] | undefined): string | undefined => {
-    if (!nodes || nodes.length === 0) return undefined
-    for (const n of nodes) {
-      const children = n?.children
-      const leafInChildren = findFirstLeafRouteKey(children)
-      if (leafInChildren) return leafInChildren
-
-      const k = n?.key
-      const hasChildren = Array.isArray(children) && children.length > 0
-      if (typeof k === 'string' && k.startsWith('/') && !hasChildren) return k
-    }
-    return undefined
-  }
-
-  const firstLeafRoute = findFirstLeafRouteKey(item?.children)
+  const node = findNodeByKey(menuItems.value, key) || itemArg || (typeof params === 'string' ? undefined : params?.item)
+  const firstLeafRoute = findFirstLeafRouteKey((node as any)?.children as LMenuItemData[] | undefined)
   if (firstLeafRoute) {
     openKeys.value = findParentKeys(firstLeafRoute)
     router.push(firstLeafRoute)
@@ -592,92 +445,9 @@ function handleRootSelect(params: any, itemArg?: any) {
   })
 }
 
-const siderMenuItems = computed<LMenuItemData[]>(() => {
-  if (templateType.value === 'mix' || templateType.value === 'dual-column') {
-    return menuItems.value
-  }
-  return menuItems.value
-})
-
-/**
- * 根据当前路由自动设置选中的一级菜单
- */
-function updateSelectedRootKey() {
-  const path = route.path
-
-  const findInChildren = (items: LMenuItemData[] | undefined): boolean => {
-    if (!items || items.length === 0) return false
-    for (const it of items) {
-      if (it.key === path) return true
-      if (findInChildren(it.children)) return true
-    }
-    return false
-  }
-
-  for (const root of menuItems.value) {
-    if (root.key === path) {
-      selectedRootKey.value = root.key
-      return
-    }
-    if (findInChildren(root.children)) {
-      selectedRootKey.value = root.key
-      return
-    }
-  }
-
-  selectedRootKey.value = menuItems.value[0]?.key || ''
-}
-
-// 监听路由变化更新选中的一级菜单
-watch(() => route.path, updateSelectedRootKey, { immediate: true })
-
-watch(
-  [() => auth.loggedIn.value, () => auth.menuList.value],
-  () => {
-    ensureMenuRoutesReady()
-    openKeys.value = findParentKeys(route.path)
-    updateSelectedRootKey()
-  },
-  { immediate: true, deep: true },
-)
-
-/**
- * 判断当前模板类型
- * 用于根据不同模板渲染不同的菜单配置
- */
-const templateType = computed(() => {
-  const name = currentTemplateMeta.value?.name || ''
-  console.log('[App] 当前模板名称:', name)
-  if (name.includes('mix')) return 'mix'
-  if (name.includes('top-menu')) return 'top-menu'
-  if (name.includes('tab-bar')) return 'tab-bar'
-  if (name.includes('drawer')) return 'drawer'
-  if (name.includes('dual-column')) return 'dual-column'
-  return 'sidebar' // 默认侧边栏模式
-})
-
-const topMenuMode = computed(() => (deviceType.value === 'mobile' ? 'vertical' : 'horizontal'))
-const topMenuTheme = computed(() => (deviceType.value === 'mobile' ? 'light' : 'dark'))
-const topMenuExpandMode = computed(() => (deviceType.value === 'mobile' ? 'inline' : 'popup'))
-const topMenuInheritColor = computed(() => deviceType.value !== 'mobile')
-const topMenuAccordion = computed(() => deviceType.value === 'mobile')
-
-const siderMenuTheme = computed(() => {
-  if (templateType.value === 'sidebar' && deviceType.value === 'desktop') return 'dark'
-  return 'light'
-})
-
-const drawerMenuTheme = computed(() => 'light')
-
+const tabBarPrimaryItems = computed(() => (menuItems.value || []).slice(0, MAX_TABBAR_PRIMARY))
+const tabBarMoreItems = computed(() => (menuItems.value || []).slice(MAX_TABBAR_PRIMARY))
 const tabBarMoreVisible = ref(false)
-
-const tabBarPrimaryItems = computed(() => {
-  return (menuItems.value || []).slice(0, MAX_TABBAR_PRIMARY)
-})
-
-const tabBarMoreItems = computed(() => {
-  return (menuItems.value || []).slice(MAX_TABBAR_PRIMARY)
-})
 
 function openTabBarMore() {
   tabBarMoreVisible.value = true
@@ -688,61 +458,6 @@ function closeTabBarMore() {
   tabBarMoreVisible.value = false
   document.body.style.overflow = ''
 }
-
-function handleTabBarPrimarySelect(item: LMenuItemData) {
-  handleRootSelect({ key: item.key, item })
-}
-
-function handleTabBarMoreSelect(params: any) {
-  handleMenuSelect(params)
-  closeTabBarMore()
-}
-
-const siderRenderMode = computed<'full' | 'childrenOf'>(() => {
-  if (templateType.value === 'mix' || templateType.value === 'dual-column') {
-    return 'childrenOf'
-  }
-  return 'full'
-})
-
-const siderParentKey = computed(() => {
-  if (siderRenderMode.value === 'childrenOf') {
-    return selectedRootKey.value
-  }
-  return undefined
-})
-
-const siderOpenKeys = computed(() => {
-  if (siderRenderMode.value !== 'childrenOf' || !siderParentKey.value) {
-    return openKeys.value
-  }
-
-  const findChildren = (items: LMenuItemData[], targetKey: string): LMenuItemData[] => {
-    for (const it of items) {
-      if (it.key === targetKey) return it.children || []
-      if (it.children && it.children.length > 0) {
-        const found = findChildren(it.children, targetKey)
-        if (found.length > 0) return found
-      }
-    }
-    return []
-  }
-
-  const subtree = findChildren(menuItems.value, siderParentKey.value)
-  const valid = new Set<string>()
-  const walk = (nodes: LMenuItemData[]) => {
-    for (const n of nodes) {
-      if (n.children && n.children.length > 0) {
-        valid.add(n.key)
-        walk(n.children)
-      }
-    }
-  }
-  walk(subtree)
-
-  return openKeys.value.filter(k => k !== siderParentKey.value && valid.has(k))
-})
-
 
 /** 跳转到登录页 */
 function goToLogin() {
@@ -785,7 +500,9 @@ async function confirmLogout() {
 onMounted(async () => {
   if (route.path !== '/login') {
     const result = await auth.initAuth()
-    console.log('[App] 认证初始化完成:', result)
+    if (import.meta.env.DEV) {
+      console.log('[App] 认证初始化完成:', result)
+    }
 
     // 如果登录已过期或获取用户信息失败，提示用户并跳转到登录页
     if (!result.success) {
@@ -803,13 +520,16 @@ onMounted(async () => {
 })
 
 /**
- * 处理面包屑点击事件
+ * 布局 / DualColumn 布局 - 处理顶部一级菜单点击
  */
-function handleBreadcrumbClick(item: { key: string, path?: string }) {
-  if (item.path) {
-    router.push(item.path)
-  }
-}
+watch(
+  [() => auth.loggedIn.value, () => auth.menuList.value],
+  () => {
+    ensureMenuRoutesReady()
+    openKeys.value = findParentKeys(route.path)
+  },
+  { immediate: true, deep: true },
+)
 </script>
 
 <template>
@@ -824,17 +544,17 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
   </div>
 
   <!-- 动态渲染布局模板组件 -->
-  <component v-else-if="LayoutComponent" :is="LayoutComponent" :show-tabs="true" :show-footer="false"
+  <component v-else-if="LayoutComponent" :is="LayoutComponent" :show-tabs="false" :show-footer="false"
     :category="'layout'" :device="deviceType">
     <!-- Logo 插槽 -->
     <template #logo="{ collapsed }">
       <div class="app-logo">
-        <Palette class="logo-icon" :size="24" />
+        <component :is="LogoIcon" class="logo-icon" :size="24" />
         <span v-if="!collapsed" class="logo-text">LDesign</span>
       </div>
     </template>
 
-    <!-- ============ 顶部横向菜单 (top-menu 布局) ============ -->
+    <!-- 顶部横向菜单 (top-menu 布局) -->
     <template #menu>
       <LMenu v-if="templateType === 'top-menu' && menuItems.length > 0" :mode="topMenuMode" :theme="topMenuTheme"
         :expand-mode="topMenuExpandMode" :accordion="topMenuAccordion" :items="menuItems"
@@ -842,13 +562,13 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
         @select="handleMenuSelect" @open-change="handleOpenChange" />
     </template>
 
-    <!-- ============ Mix 布局顶部一级菜单 ============ -->
+    <!-- Mix 布局顶部一级菜单 -->
     <template #top-menu>
       <LMenu v-if="templateType === 'mix' && menuItems.length > 0" mode="horizontal" render-mode="rootOnly" theme="dark"
         :items="menuItems" :selected-key="selectedRootKey" :inherit-color="true" @root-select="handleRootSelect" />
     </template>
 
-    <!-- ============ 图标栏 (dual-column 布局) ============ -->
+    <!-- DualColumn 图标栏（一级菜单） -->
     <template #icon-bar>
       <LMenu v-if="templateType === 'dual-column' && menuItems.length > 0" mode="vertical" render-mode="rootOnly"
         theme="dark" :items="menuItems" :selected-key="selectedRootKey" :collapsed="true" :collapsed-width="60"
@@ -857,23 +577,25 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
 
     <!-- ============ 侧边栏菜单 ============ -->
     <template #sider="{ collapsed }">
-      <LMenu v-if="menuItems.length > 0" :items="siderMenuItems" :render-mode="siderRenderMode"
-        :parent-key="siderParentKey" :collapsed="collapsed" :selected-key="selectedMenuKey"
-        :open-keys="collapsed ? [] : siderOpenKeys" :expand-mode="collapsed ? 'popup' : 'inline'" :inherit-color="false"
-        :theme="siderMenuTheme" @select="handleMenuSelect" @open-change="handleOpenChange" />
+      <LMenu v-if="menuItems.length > 0" :items="menuItems" :render-mode="siderRenderMode" :parent-key="siderParentKey"
+        :collapsed="collapsed" :selected-key="selectedMenuKey" :open-keys="collapsed ? [] : siderOpenKeys"
+        :expand-mode="collapsed ? 'popup' : 'inline'" :inherit-color="false" :theme="siderMenuTheme"
+        @select="handleMenuSelect" @open-change="handleOpenChange" />
     </template>
 
     <!-- ============ 移动端抽屉菜单 ============ -->
     <template #drawer>
       <LMenu v-if="menuItems.length > 0" :items="menuItems" :selected-key="selectedMenuKey" :open-keys="openKeys"
-        :theme="drawerMenuTheme" :inherit-color="false" @select="handleMenuSelect" @open-change="handleOpenChange" />
+        theme="light" :inherit-color="false" @select="handleMenuSelect" @open-change="handleOpenChange" />
     </template>
 
+    <!-- 移动端 TabBar 布局：一级菜单 -->
     <template #tab-bar>
-      <div v-if="menuItems.length > 0" class="app-tabbar">
+      <div v-if="templateType === 'tab-bar' && menuItems.length > 0" class="app-tabbar">
         <div class="app-tabbar__primary">
           <button v-for="it in tabBarPrimaryItems" :key="it.key" class="app-tabbar__item"
-            :class="{ 'is-active': selectedRootKey === it.key }" @click="handleTabBarPrimarySelect(it)" type="button">
+            :class="{ 'is-active': selectedRootKey === it.key }" @click="handleRootSelect({ key: it.key, item: it })"
+            type="button">
             <span class="app-tabbar__label">{{ it.label }}</span>
           </button>
 
@@ -896,19 +618,12 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
               <div class="app-tabbar__sheet-body">
                 <LMenu v-if="tabBarMoreItems.length > 0" mode="vertical" expand-mode="inline" :accordion="true"
                   :items="tabBarMoreItems" :selected-key="selectedMenuKey" :open-keys="openKeys" theme="light"
-                  :inherit-color="false" @select="handleTabBarMoreSelect" @open-change="handleOpenChange" />
+                  :inherit-color="false" @select="handleMenuSelect" @open-change="handleOpenChange" />
               </div>
             </div>
           </Transition>
         </Teleport>
       </div>
-    </template>
-
-    <!-- 页签栏插槽 - 使用 @ldesign/bookmark-vue 的 ChromeTabs 组件 -->
-    <template #tabs>
-      <ChromeTabs v-model:tabs="tabs" :active-key="activeKey" variant="chrome" @change="switchTab" @close="removeTab"
-        @toggle-pin="togglePin" @refresh="refreshTab" @close-left="closeLeft" @close-right="closeRight"
-        @close-others="closeOthers" @close-all="closeAll" />
     </template>
 
     <!-- 顶栏右侧操作区 -->
@@ -935,19 +650,15 @@ function handleBreadcrumbClick(item: { key: string, path?: string }) {
         <!-- 未登录时显示登录按钮 -->
         <button v-else class="login-btn" @click="goToLogin">
           <component :is="LoginIcon" :size="16" />
-          {{ t('nav.login') }}
+          登录
         </button>
       </div>
     </template>
 
     <!-- 主内容区 -->
     <template #default>
-      <!-- 面包屑导航 -->
-      <div class="page-breadcrumb">
-        <LBreadcrumb :items="breadcrumbItems" separator="/" :show-home="false" @click="handleBreadcrumbClick" />
-      </div>
       <!-- 页面内容 -->
-      <router-view :key="`${route.fullPath}-${refreshKey}`" />
+      <router-view />
     </template>
   </component>
 
@@ -1065,12 +776,6 @@ body {
 .login-btn:hover {
   background: var(--color-primary-600, #2563eb);
   border-color: var(--color-primary-600, #2563eb);
-}
-
-/* ==================== 面包屑样式 ==================== */
-.page-breadcrumb {
-  padding: var(--size-space-md, 12px) var(--size-space-lg, 16px);
-  margin-bottom: var(--size-space-md, 12px);
 }
 
 /* ==================== 布局加载中 ==================== */

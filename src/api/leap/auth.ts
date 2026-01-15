@@ -21,6 +21,12 @@ import {
   Md5Code,
 } from './request'
 
+const debugLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) {
+    console.log(...(args as any[]))
+  }
+}
+
 // ============================================================================
 // 类型定义
 // ============================================================================
@@ -568,7 +574,7 @@ function convertMenuItem(raw: RawMenuItem, parent?: MenuItem): MenuItem {
 export function transformMenuList(rawMenus: RawMenuItem[]): MenuItem[] {
   if (!rawMenus || rawMenus.length === 0) return []
 
-  console.log('[transformMenuList] Input menus count:', rawMenus.length)
+  debugLog('[transformMenuList] Input menus count:', rawMenus.length)
 
   // 1. 排序
   const sorted = sortByOrderId(rawMenus)
@@ -583,8 +589,8 @@ export function transformMenuList(rawMenus: RawMenuItem[]): MenuItem[] {
     }
   }
 
-  console.log('[transformMenuList] codeMap size:', codeMap.size)
-  console.log('[transformMenuList] Sample syscodes:', sorted.slice(0, 3).map(m => ({ name: m.name, syscode: m.syscode, realCode: (m as any).realCode })))
+  debugLog('[transformMenuList] codeMap size:', codeMap.size)
+  debugLog('[transformMenuList] Sample syscodes:', sorted.slice(0, 3).map(m => ({ name: m.name, syscode: m.syscode, realCode: (m as any).realCode })))
 
   for (const menu of sorted) {
     const realCode = (menu as any).realCode
@@ -596,7 +602,7 @@ export function transformMenuList(rawMenus: RawMenuItem[]): MenuItem[] {
     }
   }
 
-  console.log('[transformMenuList] Sample parent codes:', sorted.slice(0, 5).map(m => ({ name: m.name, realCode: (m as any).realCode, parentCode: (m as any).parentCode })))
+  debugLog('[transformMenuList] Sample parent codes:', sorted.slice(0, 5).map(m => ({ name: m.name, realCode: (m as any).realCode, parentCode: (m as any).parentCode })))
 
   // 3. 构建父子关系映射
   const childrenMap = new Map<string, RawMenuItem[]>()
@@ -620,9 +626,9 @@ export function transformMenuList(rawMenus: RawMenuItem[]): MenuItem[] {
     }
   }
 
-  console.log('[transformMenuList] Top menus count:', topMenus.length)
-  console.log('[transformMenuList] Top menus:', topMenus.map(m => m.name))
-  console.log('[transformMenuList] childrenMap size:', childrenMap.size)
+  debugLog('[transformMenuList] Top menus count:', topMenus.length)
+  debugLog('[transformMenuList] Top menus:', topMenus.map(m => m.name))
+  debugLog('[transformMenuList] childrenMap size:', childrenMap.size)
 
   // 4. 递归构建菜单树
   function buildTree(rawMenu: RawMenuItem, parent?: MenuItem): MenuItem {
@@ -639,8 +645,8 @@ export function transformMenuList(rawMenus: RawMenuItem[]): MenuItem[] {
   // 5. 构建所有顶级菜单
   const result = topMenus.map(menu => buildTree(menu))
 
-  console.log('[transformMenuList] Result count:', result.length)
-  console.log('[transformMenuList] Result with children:', result.map(m => ({ name: m.name, childrenCount: m.children?.length || 0 })))
+  debugLog('[transformMenuList] Result count:', result.length)
+  debugLog('[transformMenuList] Result with children:', result.map(m => ({ name: m.name, childrenCount: m.children?.length || 0 })))
 
   // 6. 过滤掉特定类型的菜单（如资源类型 22, 18）
   return result.filter(menu => !['22', '18'].includes(menu.meta?.resourcetype || ''))
@@ -690,9 +696,8 @@ export async function fetchSid(): Promise<{ sid: string; lid: string }> {
   const text = await response.text()
 
   if (!response.ok) {
-    const url = `/${leapConfig.context}/${leapConfig.rpcPath}`
     throw new Error(
-      `[LEAP] fetchSid failed: ${response.status} ${response.statusText}, url=${url}, response=${text.substring(0, 200)}`
+      `[LEAP] fetchSid failed: ${response.status} ${response.statusText}, url=${response.url}, response=${text.substring(0, 200)}`
     )
   }
 
@@ -750,15 +755,15 @@ export async function loginByPassword(params: LoginParams): Promise<LoginResult>
 
   // MD5 加密密码 - 使用 LEAP 专用的 Md5Code
   const passwordMd5 = new Md5Code(password).getValue()
-  console.log('[Login] 原始密码:', password)
-  console.log('[Login] MD5加密后:', passwordMd5)
+  debugLog('[Login] 原始密码:', password)
+  debugLog('[Login] MD5加密后:', passwordMd5)
 
   // 构建请求数据 - 关键格式
   const requestData = `['${username}', '${passwordMd5}', '${leapConfig.systemName}', 0, '${captcha}', '${leapConfig.area}']`
-  console.log('[Login] requestData:', requestData)
+  debugLog('[Login] requestData:', requestData)
 
-  const encodedData = encodeURIComponent(encodeURIComponent(escape(requestData)))
-  console.log('[Login] encodedData:', encodedData)
+  const encodedData = encodeURIComponent(encodeURIComponent(encodeURIComponent(requestData)))
+  debugLog('[Login] encodedData:', encodedData)
 
   const randomId = getRandomId()
 
@@ -772,27 +777,40 @@ export async function loginByPassword(params: LoginParams): Promise<LoginResult>
     `clientID=${randomId}`,
     `requestData=${encodedData}`,
   ].join('&')
-  console.log('[Login] 完整URL参数:', queryParams)
+  debugLog('[Login] 完整URL参数:', queryParams)
 
   // 关键：登录请求发送到 RPC 端点，参数在 URL query string 中
   const response = await leapLoginRequest(queryParams)
   const responseType = response.headers.get('resptype')
   const text = await response.text()
 
-  console.log('[Login] 响应头 resptype:', responseType)
-  console.log('[Login] 原始响应:', text)
+  debugLog('[Login] 响应头 resptype:', responseType)
+  debugLog('[Login] 原始响应:', text)
 
   // 如果响应是编码的，需要解码
   let result: string = text
   if (responseType === '1') {
     const decoded = decodeLeapResponse<string | number>(text)
     result = String(decoded)
-    console.log('[Login] 解码后:', result)
+    debugLog('[Login] 解码后:', result)
+  }
+
+  // 关键：对齐 ldesign-all
+  // 有些环境登录成功会直接返回一个 token 字符串（不带逗号），而不是 "1,xxx" 这种 code 格式。
+  // 如果按 code 解析会把 token 当作 code，从而被误判为失败。
+  const raw = typeof result === 'string' ? result.trim() : `${result}`
+  const isTokenLike = typeof raw === 'string'
+    && !raw.includes(',')
+    && raw.length >= 12
+    && /^[0-9A-Za-z_=-]+$/.test(raw)
+
+  if (isTokenLike) {
+    return getLoginMessage('1')
   }
 
   // 解析登录结果，处理可能的逗号分隔情况（如 "1,xxx"）
   const code = result.includes(',') ? result.split(',')[0] : result
-  console.log('[Login] 最终结果 code:', code)
+  debugLog('[Login] 最终结果 code:', code)
   return getLoginMessage(code)
 }
 
@@ -813,8 +831,8 @@ export async function fetchUserInfo(): Promise<UserInfo | null> {
     if (rawUserInfo) {
       // 转换为通用格式
       const userInfo = transformLeapUserInfo(rawUserInfo)
-      console.log('[Auth] fetchUserInfo raw:', rawUserInfo)
-      console.log('[Auth] fetchUserInfo transformed:', userInfo)
+      debugLog('[Auth] fetchUserInfo raw:', rawUserInfo)
+      debugLog('[Auth] fetchUserInfo transformed:', userInfo)
       saveUserInfo(userInfo)
       return userInfo
     }
@@ -858,11 +876,11 @@ export async function fetchMenuList(
         'rescolor',
       ],
     }
-    console.log('[Auth] fetchMenuList params:', params)
+    debugLog('[Auth] fetchMenuList params:', params)
 
     // 获取原始菜单数据
     const rawMenuList = await leapRpcRequest<RawMenuItem[]>('studiov6_getUIResource', params)
-    console.log('[Auth] fetchMenuList raw result:', rawMenuList)
+    debugLog('[Auth] fetchMenuList raw result:', rawMenuList)
 
     if (!rawMenuList || rawMenuList.length === 0) {
       return []
@@ -870,7 +888,7 @@ export async function fetchMenuList(
 
     // 转换为树形结构（使用 children 字段）
     const transformedMenus = transformMenuList(rawMenuList)
-    console.log('[Auth] fetchMenuList transformed:', transformedMenus)
+    debugLog('[Auth] fetchMenuList transformed:', transformedMenus)
 
     return transformedMenus
   } catch (e) {

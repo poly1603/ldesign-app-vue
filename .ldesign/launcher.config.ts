@@ -14,6 +14,10 @@ import { defineConfig, devLoggerPlugin } from '@ldesign/launcher'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const SZWSLD_PROXY_TARGET = process.env.VITE_SZWSLD_PROXY_TARGET
+  || process.env.VITE_SZWSLD_BASE_URL
+  || 'http://localhost:8084'
+
 // 计算 monorepo 根目录
 const monorepoRoot = resolve(__dirname, '../../..')
 console.log('📁 Monorepo 根目录:', monorepoRoot)
@@ -25,7 +29,7 @@ export default defineConfig({
    */
   plugins: [
     devLoggerPlugin({
-      port: 9527,
+      port: 9528,
       path: '/__dev_logger',
       logDir: resolve(__dirname, '../logs'),
       maxFileSize: 10 * 1024 * 1024, // 10MB
@@ -45,6 +49,18 @@ export default defineConfig({
     port: 8080,
     open: false,
     cors: true,
+    proxy: {
+      '/SZWSLD': {
+        target: SZWSLD_PROXY_TARGET,
+        changeOrigin: true,
+        secure: false,
+      },
+      '/SZVSF': {
+        target: SZWSLD_PROXY_TARGET,
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 
   /**

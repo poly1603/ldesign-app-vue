@@ -77,7 +77,7 @@
   "format": "prettier --write \"src/**/*.{js,ts,vue,json,css,scss,md}\"",
 
   
-  "clean": "rimraf dist node_modules/.vite .ldesign/.cache"
+  "clean": "rimraf dist node_modules/.vite node_modules/.cache/jiti .ldesign/.cache"
 
   },
 

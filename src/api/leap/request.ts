@@ -10,16 +10,20 @@
 // ============================================================================
 
 /** 系统上下文 - 从环境变量读取或使用默认值 */
-const CONTEXT = import.meta.env.VITE_SZWSLD_CONTEXT || 'SZWSLD'
+export const SYSTEM_NAME = import.meta.env.VITE_SZWSLD_SYSTEM_NAME
+  || import.meta.env.VITE_SZWSLD_CONTEXT
+  || 'SZWSLD'
+export const AREA = import.meta.env.VITE_SZWSLD_AREA || '4403'
+export const CONTEXT = import.meta.env.VITE_SZWSLD_CONTEXT || 'SZWSLD'
+export const RPC_PATH = import.meta.env.VITE_SZWSLD_RPC_PATH || 'LEAP/Service/RPC/RPC.DO'
 
-/** RPC 路径 */
-const RPC_PATH = 'LEAP/Service/RPC/RPC.DO'
+const NORMALIZED_RPC_PATH = RPC_PATH.startsWith('/') ? RPC_PATH.slice(1) : RPC_PATH
 
-/** 系统区域 */
-const AREA = import.meta.env.VITE_SZWSLD_AREA || '4403'
-
-/** 系统名称 */
-const SYSTEM_NAME = 'SZWSLD'
+const debugLog = (...args: unknown[]) => {
+  if (import.meta.env.DEV) {
+    console.log(...(args as any[]))
+  }
+}
 
 // ============================================================================
 // 存储管理
@@ -106,7 +110,6 @@ function getUuid(): string {
 export class Md5Code {
   private q: string
   private i = 1
-  private Z = ''
   private p = 8
 
   constructor(q: string) {
@@ -265,6 +268,7 @@ export class Md5Code {
 const DEFAULT_LEAP_HEADERS: Record<string, string> = {
   'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
   'Accept': '*/*',
+  'GETLID': '1',
   'Accept-Language': 'zh-Hans-CN,zh-Hans;q=0.5',
   'Data-Type': '2',
   'Post-Type': '1',
@@ -275,29 +279,27 @@ const DEFAULT_LEAP_HEADERS: Record<string, string> = {
 
 /**
  * 发送 getSid 请求
- * 关键：请求发送到 RPC 端点，参数放在 Qs 请求头中
+ * 关键：参考 ldesign-all：请求发送到 /{context}?type=997&type2=1&_z=uuid
+ * 并通过 LID / GETLIDV2 请求头控制 lid 行为
  */
 export async function leapGetSidRequest(): Promise<Response> {
   const uuid = getUuid()
   const lid = getLid()
 
-  // 关键：请求发送到 RPC 端点
-  const url = `/${CONTEXT}/${RPC_PATH}`
+  const url = `/${CONTEXT}/${NORMALIZED_RPC_PATH}?type=997&type2=1&_z=${uuid}`
 
-  // 关键：参数放在 Qs 请求头中
   const headers: Record<string, string> = {
     ...DEFAULT_LEAP_HEADERS,
     'Lsys-Name': SYSTEM_NAME,
     'Lsys-Area': AREA,
     'Lrqvt': '1',
-    'Qs': `type=997&type2=1&_z=${uuid}`,
   }
 
   // 添加 LID 或 GETLIDV2 头
   if (lid) {
-    headers['Lid'] = lid
+    headers['LID'] = lid
   } else {
-    headers['Getlidv2'] = '1'
+    headers['GETLIDV2'] = '1'
   }
 
   const response = await fetch(url, {
@@ -323,10 +325,8 @@ export async function leapGetSidRequest(): Promise<Response> {
  */
 export async function leapLoginRequest(queryParams: string): Promise<Response> {
   const lid = getLid()
-  
-  // 关键：登录请求 URL 格式 - /${context}/${rpcPath}?params
-  // 原始 request 模块会把 /${context}?params 转换为 /${context}/${rpcPath}?params
-  const url = `/${CONTEXT}/${RPC_PATH}?${queryParams}`
+
+  const url = `/${CONTEXT}/${NORMALIZED_RPC_PATH}?${queryParams}`
 
   const requestHeaders: Record<string, string> = {
     'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
@@ -373,7 +373,7 @@ export async function leapRpcRequest<T = unknown>(
   const lid = getLid()
 
   // 构建 RPC URL
-  const url = `/${CONTEXT}/${RPC_PATH}`
+  const url = `/${CONTEXT}/${NORMALIZED_RPC_PATH}`
 
   // 构建请求头
   const headers: Record<string, string> = {
@@ -410,27 +410,27 @@ export async function leapRpcRequest<T = unknown>(
       }
     }
     const datastr = JSON.stringify(obj)
-    console.log('[LEAP RPC] method:', method)
-    console.log('[LEAP RPC] params:', params)
-    console.log('[LEAP RPC] obj array:', obj)
-    console.log('[LEAP RPC] datastr:', datastr)
-    
+    debugLog('[LEAP RPC] method:', method)
+    debugLog('[LEAP RPC] params:', params)
+    debugLog('[LEAP RPC] obj array:', obj)
+    debugLog('[LEAP RPC] datastr:', datastr)
+
     // 使用 base64 编码（简化版本，不使用 SM4 和 gzip）
     const encoded = encbase64data(base64encode(encodeURIComponent(escape(datastr))))
-    console.log('[LEAP RPC] encoded:', encoded)
+    debugLog('[LEAP RPC] encoded:', encoded)
     if (encoded) {
       body = `a=${encoded}`
       dataType = '14'
     }
   }
-  
+
   // 更新请求头中的 Data-Type
   headers['Data-Type'] = dataType
 
-  console.log('[LEAP RPC] Request URL:', url)
-  console.log('[LEAP RPC] Request headers:', headers)
-  console.log('[LEAP RPC] Request body:', body)
-  
+  debugLog('[LEAP RPC] Request URL:', url)
+  debugLog('[LEAP RPC] Request headers:', headers)
+  debugLog('[LEAP RPC] Request body:', body)
+
   const response = await fetch(url, {
     method: 'POST',
     headers,
@@ -447,10 +447,10 @@ export async function leapRpcRequest<T = unknown>(
   // 解析响应
   const responseType = response.headers.get('resptype')
   const text = await response.text()
-  
-  console.log('[LEAP RPC] Response status:', response.status)
-  console.log('[LEAP RPC] Response resptype:', responseType)
-  console.log('[LEAP RPC] Response text (first 500 chars):', text.substring(0, 500))
+
+  debugLog('[LEAP RPC] Response status:', response.status)
+  debugLog('[LEAP RPC] Response resptype:', responseType)
+  debugLog('[LEAP RPC] Response text (first 500 chars):', text.substring(0, 500))
 
   // 处理编码响应
   if (responseType === '1') {
@@ -486,8 +486,6 @@ export async function leapRpcRequest<T = unknown>(
 /**
  * Base64 编码字符集
  */
-const BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
-
 /**
  * Base64_4 编码字符集（用于 hashcode）
  */
@@ -502,16 +500,16 @@ function hashcode(input: string): string {
   for (let i = input.length - 1; i > -1; i--) {
     hash += (hash << 5) + input.charCodeAt(i)
   }
-  
+
   let value = hash & 0x7FFFFFFF
   const result: string[] = []
-  
+
   do {
     const index = value & 0x3F
     result.push(I64BIT_TABLE[index])
     value >>= 6
   } while (value !== 0)
-  
+
   return result.join('')
 }
 
@@ -535,24 +533,24 @@ function randomString(len: number): string {
 function base64encode(s: string): string {
   const base64hash = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
   const inputLength = s.length
-  
+
   // 验证字符
   for (let i = 0; i < inputLength; i++) {
     if (s.charCodeAt(i) > 255) {
       throw new Error('INVALID_CHARACTER_ERR')
     }
   }
-  
+
   let i = 0
   let prev: number | undefined
   let ascii: number
   let mod = 0
   const result: string[] = []
-  
+
   while (i < inputLength) {
     ascii = s.charCodeAt(i)
     mod = i % 3
-    
+
     switch (mod) {
       case 0:
         result.push(base64hash.charAt(ascii >> 2))
@@ -565,11 +563,11 @@ function base64encode(s: string): string {
         result.push(base64hash.charAt(ascii & 0x3F))
         break
     }
-    
+
     prev = ascii
     i++
   }
-  
+
   // 处理填充
   if (mod === 0) {
     result.push(base64hash.charAt((prev! & 3) << 4))
@@ -578,7 +576,7 @@ function base64encode(s: string): string {
     result.push(base64hash.charAt((prev! & 0x0F) << 2))
     result.push('=')
   }
-  
+
   return result.join('')
 }
 
@@ -590,28 +588,28 @@ function encbase64data(data: string): string | null {
   if (data == null || data.length === 0) {
     return null
   }
-  
+
   // 生成前后缀随机字符串（各 5 个字符）
   const prefix = randomString(5)
   const suffix = randomString(5)
-  
+
   // 拼接完整数据
   const fullData = prefix + data + suffix
   const dataLen = fullData.length
-  
+
   // 计算插入位置（25% 和 75% 位置）
   const pos1 = Math.floor(dataLen * 0.25)
   const pos2 = Math.floor(dataLen * 0.75)
-  
+
   // 计算哈希码
   let hc = hashcode(fullData)
   while (hc.length < 6) {
     hc += '_'
   }
-  
+
   // 生成额外的随机字符串（3 个字符）
   const randomStr = randomString(3)
-  
+
   // 组装最终编码结果
   return fullData.substring(0, pos1)
     + hc
@@ -628,35 +626,35 @@ function decbase64data(str: string): string {
   if (!str || str.length < 20) {
     return str
   }
-  
+
   // 总长度 - 哈希码(6) - 随机字符串(3) = 数据长度
   const len = str.length - 9
   const pos1 = Math.floor(len * 0.25)
   const pos2 = Math.floor(len * 0.75)
-  
+
   // 提取哈希码
   const hashcodeFromData = str.substring(pos1, pos1 + 6)
-  
+
   // 提取数据各部分
   const part1 = str.substring(0, pos1)
   const part2 = str.substring(pos1 + 6, pos2 + 6)
   const part3 = str.substring(pos2 + 9)
-  
+
   // 合并数据
   const lastStr = part1 + part2 + part3
-  
+
   // 验证哈希码
   let hashcodeCurrent = hashcode(lastStr)
   while (hashcodeCurrent.length < 6) {
     hashcodeCurrent += '_'
   }
-  
+
   if (hashcodeFromData !== hashcodeCurrent) {
     console.warn('[LEAP] 哈希校验失败，数据可能已被篡改')
     // 不抛出异常，返回原始数据
     return str
   }
-  
+
   // 去除前后缀随机字符（各 5 个字符）
   return lastStr.substring(5, lastStr.length - 5)
 }
@@ -669,17 +667,17 @@ function base64decode(s: string): string {
   const base64hash = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
   const cleanedString = s.replace(/\s|=/g, '')
   const cleanedLength = cleanedString.length
-  
+
   let cur: number
   let prev: number | undefined
   let mod: number
   let i = 0
   const result: string[] = []
-  
+
   while (i < cleanedLength) {
     cur = base64hash.indexOf(cleanedString.charAt(i))
     mod = i % 4
-    
+
     switch (mod) {
       case 0:
         break
@@ -693,11 +691,11 @@ function base64decode(s: string): string {
         result.push(String.fromCharCode((prev! & 3) << 6 | cur))
         break
     }
-    
+
     prev = cur
     i++
   }
-  
+
   return result.join('')
 }
 
@@ -707,36 +705,36 @@ function base64decode(s: string): string {
  */
 export function decodeLeapResponse<T>(text: string): T {
   try {
-    console.log('[LEAP Decode] Input text length:', text.length)
-    
+    debugLog('[LEAP Decode] Input text length:', text.length)
+
     // 步骤 1: 去除混淆（前后缀随机字符、哈希码等）
     const deobfuscated = decbase64data(text)
-    console.log('[LEAP Decode] After decbase64data:', deobfuscated.substring(0, 200))
-    
+    debugLog('[LEAP Decode] After decbase64data:', deobfuscated.substring(0, 200))
+
     // 步骤 2: Base64 解码
     const decoded = base64decode(deobfuscated)
-    console.log('[LEAP Decode] After base64decode:', decoded.substring(0, 200))
-    
+    debugLog('[LEAP Decode] After base64decode:', decoded.substring(0, 200))
+
     // 步骤 3: URL 解码
     const decompressed = decodeURIComponent(decoded)
-    console.log('[LEAP Decode] After decodeURIComponent:', decompressed.substring(0, 500))
-    
+    debugLog('[LEAP Decode] After decodeURIComponent:', decompressed.substring(0, 500))
+
     // 步骤 4: 尝试解析 JSON
     try {
       const parsed = JSON.parse(decompressed)
-      console.log('[LEAP Decode] Parsed JSON keys:', parsed ? Object.keys(parsed) : 'null')
+      debugLog('[LEAP Decode] Parsed JSON keys:', parsed ? Object.keys(parsed) : 'null')
       // 如果有 result 字段且是字符串，尝试解析
       if (parsed && typeof parsed.result === 'string') {
         try {
           parsed.result = JSON.parse(parsed.result)
-          console.log('[LEAP Decode] Parsed result (nested), type:', typeof parsed.result, Array.isArray(parsed.result) ? 'array length: ' + parsed.result.length : '')
+          debugLog('[LEAP Decode] Parsed result (nested), type:', typeof parsed.result, Array.isArray(parsed.result) ? 'array length: ' + parsed.result.length : '')
         } catch {
           // 保持原值
         }
         return parsed.result as T
       }
       const finalResult = parsed?.result ?? parsed
-      console.log('[LEAP Decode] Final result type:', typeof finalResult, Array.isArray(finalResult) ? 'array length: ' + finalResult.length : '')
+      debugLog('[LEAP Decode] Final result type:', typeof finalResult, Array.isArray(finalResult) ? 'array length: ' + finalResult.length : '')
       return finalResult as T
     } catch {
       // 不是 JSON，返回解码后的字符串

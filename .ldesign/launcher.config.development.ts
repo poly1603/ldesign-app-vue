@@ -1,6 +1,8 @@
 import { defineConfig } from '@ldesign/launcher'
 
-const SZWSLD_PROXY_TARGET = process.env.VITE_SZWSLD_PROXY_TARGET || 'https://wuhan.yxybb.com'
+const SZWSLD_PROXY_TARGET = process.env.VITE_SZWSLD_PROXY_TARGET
+  || process.env.VITE_SZWSLD_BASE_URL
+  || 'http://localhost:8084'
 
 /**
  * 开发环境 Launcher 配置
@@ -117,14 +119,7 @@ export default defineConfig({
    */
   resolve: {
     alias: [
-      { find: '@components', replacement: '/src/components' },
-      { find: '@views', replacement: '/src/views' },
-      { find: '@utils', replacement: '/src/utils' },
-      { find: '@assets', replacement: '/src/assets' },
-      { find: '@styles', replacement: '/src/styles' },
-      { find: '@test', replacement: '/src/test' }, // 测试别名
-      { find: '@lib', replacement: '/src/lib' }, // 新增库别名 - 测试热更新
-      { find: '@hooks4', replacement: '/src/hooks' }, // 测试 Launcher 配置热更新（别名变更）
+      { find: '@', replacement: '/src' },
     ],
     // 关键：避免重复依赖导致的 Symbol 注入失败
     dedupe: ['vue', '@ldesign/i18n-vue', '@ldesign/engine-vue3', '@ldesign/router-vue', '@ldesign/i18n-core'],

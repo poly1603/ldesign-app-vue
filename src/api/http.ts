@@ -67,7 +67,7 @@ getHttpClient()
  * HTTP 客户端代理 - 自动等待客户端初始化
  */
 const httpClient = new Proxy({} as HttpClient, {
-  get(_target, prop, receiver) {
+  get(_target, prop) {
     // 直接返回一个函数，该函数会等待客户端初始化
     if (prop === 'get' || prop === 'post' || prop === 'put' || prop === 'delete' || prop === 'patch' || prop === 'request') {
       return async (...args: any[]) => {
@@ -141,12 +141,13 @@ function setupInterceptors() {
         console.log('📥 [HTTP] Response:', response.status, response.config.url)
         return response
       },
-      (error) => {
+      (error: any) => {
+        const err = error as any
         console.error('❌ [HTTP] Response error:', error)
 
         // 统一错误处理
-        if (error.response) {
-          switch (error.response.status) {
+        if (err?.response) {
+          switch (err.response.status) {
             case 401:
               // 未授权，跳转到登录页
               console.warn('⚠️ [HTTP] Unauthorized, redirecting to login...')
@@ -162,10 +163,10 @@ function setupInterceptors() {
               console.error('❌ [HTTP] Server error')
               break
             default:
-              console.error('❌ [HTTP] Unknown error:', error.response.status)
+              console.error('❌ [HTTP] Unknown error:', err.response.status)
           }
         }
-        else if (error.request) {
+        else if (err?.request) {
           console.error('❌ [HTTP] Network error')
         }
         else {
