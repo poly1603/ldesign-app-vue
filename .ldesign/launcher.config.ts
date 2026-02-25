@@ -14,6 +14,8 @@ import { defineConfig, devLoggerPlugin } from '@ldesign/launcher'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const DEV_LOGGER_PORT = Number(process.env.VITE_DEV_LOGGER_PORT || '9529')
+
 const SZWSLD_PROXY_TARGET = process.env.VITE_SZWSLD_PROXY_TARGET
   || process.env.VITE_SZWSLD_BASE_URL
   || 'http://localhost:8084'
@@ -29,14 +31,14 @@ export default defineConfig({
    */
   plugins: [
     devLoggerPlugin({
-      port: 9528,
+      port: DEV_LOGGER_PORT,
       path: '/__dev_logger',
       logDir: resolve(__dirname, '../logs'),
       maxFileSize: 10 * 1024 * 1024, // 10MB
       maxFiles: 5,
       filePrefix: 'dev',
       enableConsole: true,
-      enabled: true,
+      enabled: false,
     }),
   ],
 
@@ -112,6 +114,18 @@ export default defineConfig({
       '@ldesign/api-vue',
       '@ldesign/permission-core',
       '@ldesign/permission-vue',
+      '@ldesign/validate-core',
+      '@ldesign/validate-vue',
+      '@ldesign/event-core',
+      '@ldesign/event-vue',
+      '@ldesign/storage-core',
+      '@ldesign/storage-vue',
+      '@ldesign/websocket-core',
+      '@ldesign/websocket-vue',
+      '@ldesign/config-core',
+      '@ldesign/config-vue',
+      '@ldesign/theme-core',
+      '@ldesign/theme-vue',
     ],
   },
 
@@ -248,6 +262,42 @@ export default defineConfig({
       { find: '@ldesign/api-core', replacement: `${monorepoRoot}/packages/api/packages/core/src/index.ts`, stage: 'dev' as const },
       { find: /^@ldesign\/api-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/api/packages/vue/src/$1`, stage: 'dev' as const },
       { find: '@ldesign/api-vue', replacement: `${monorepoRoot}/packages/api/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // Validate 表单校验包
+      { find: /^@ldesign\/validate-core\/(.+)$/, replacement: `${monorepoRoot}/packages/validate/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/validate-core', replacement: `${monorepoRoot}/packages/validate/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/validate-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/validate/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/validate-vue', replacement: `${monorepoRoot}/packages/validate/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // Event 事件总线包
+      { find: /^@ldesign\/event-core\/(.+)$/, replacement: `${monorepoRoot}/packages/event/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/event-core', replacement: `${monorepoRoot}/packages/event/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/event-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/event/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/event-vue', replacement: `${monorepoRoot}/packages/event/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // Storage 统一存储包
+      { find: /^@ldesign\/storage-core\/(.+)$/, replacement: `${monorepoRoot}/packages/storage/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/storage-core', replacement: `${monorepoRoot}/packages/storage/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/storage-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/storage/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/storage-vue', replacement: `${monorepoRoot}/packages/storage/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // WebSocket 通信包
+      { find: /^@ldesign\/websocket-core\/(.+)$/, replacement: `${monorepoRoot}/packages/websocket/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/websocket-core', replacement: `${monorepoRoot}/packages/websocket/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/websocket-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/websocket/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/websocket-vue', replacement: `${monorepoRoot}/packages/websocket/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // Config 配置管理包
+      { find: /^@ldesign\/config-core\/(.+)$/, replacement: `${monorepoRoot}/packages/config/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/config-core', replacement: `${monorepoRoot}/packages/config/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/config-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/config/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/config-vue', replacement: `${monorepoRoot}/packages/config/packages/vue/src/index.ts`, stage: 'dev' as const },
+
+      // Theme 设计令牌包
+      { find: /^@ldesign\/theme-core\/(.+)$/, replacement: `${monorepoRoot}/packages/theme/packages/core/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/theme-core', replacement: `${monorepoRoot}/packages/theme/packages/core/src/index.ts`, stage: 'dev' as const },
+      { find: /^@ldesign\/theme-vue\/(.+)$/, replacement: `${monorepoRoot}/packages/theme/packages/vue/src/$1`, stage: 'dev' as const },
+      { find: '@ldesign/theme-vue', replacement: `${monorepoRoot}/packages/theme/packages/vue/src/index.ts`, stage: 'dev' as const },
     ] satisfies AliasConfig[]) as any,
   },
 })

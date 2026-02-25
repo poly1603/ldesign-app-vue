@@ -96,11 +96,14 @@ function getRandomId(): string {
  * 生成 UUID (短版本)
  */
 function getUuid(): string {
-  return 'xxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0
-    const v = c === 'x' ? r : (r & 0x3) | 0x8
-    return v.toString(16)
-  })
+  const c = (globalThis as any)?.crypto
+  if (c?.randomUUID) {
+    return String(c.randomUUID()).replace(/-/g, '')
+  }
+
+  const now = Date.now().toString(16)
+  const rand = Math.random().toString(16).slice(2) + Math.random().toString(16).slice(2)
+  return (now + rand).slice(0, 32)
 }
 
 /**
@@ -286,20 +289,13 @@ export async function leapGetSidRequest(): Promise<Response> {
   const uuid = getUuid()
   const lid = getLid()
 
-  const url = `/${CONTEXT}/${NORMALIZED_RPC_PATH}?type=997&type2=1&_z=${uuid}`
+  const url = `/${CONTEXT}?type=997&type2=1&_z=${uuid}`
 
   const headers: Record<string, string> = {
-    ...DEFAULT_LEAP_HEADERS,
-    'Lsys-Name': SYSTEM_NAME,
-    'Lsys-Area': AREA,
-    'Lrqvt': '1',
-  }
-
-  // 添加 LID 或 GETLIDV2 头
-  if (lid) {
-    headers['LID'] = lid
-  } else {
-    headers['GETLIDV2'] = '1'
+    'Accept': '*/*',
+    'Pragma': 'no-cache',
+    'Cache-Control': 'no-cache',
+    ...(lid ? { LID: lid } : { GETLIDV2: '1' }),
   }
 
   const response = await fetch(url, {

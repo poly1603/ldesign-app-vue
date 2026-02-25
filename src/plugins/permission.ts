@@ -2,6 +2,7 @@
  * 权限插件配置
  */
 import { createPermissionEnginePlugin } from '@ldesign/permission-vue'
+import { useAuth } from '../composables/useAuth'
 
 /**
  * 创建权限插件
@@ -67,16 +68,20 @@ export function createPermissionPlugin() {
 
     // 权限数据提供者（从认证系统获取）
     permissionProvider: () => {
-      // 这里应该从认证状态中获取用户权限
-      // 示例：return authStore.user?.permissions ?? []
-      return []
+      const auth = useAuth()
+      const info = auth.userInfo.value
+      // 从用户信息中提取权限列表
+      if (!info) return []
+      return (info as any).permissions ?? (info as any).perms ?? []
     },
 
     // 角色数据提供者（从认证系统获取）
     roleProvider: () => {
-      // 这里应该从认证状态中获取用户角色
-      // 示例：return authStore.user?.roles ?? []
-      return []
+      const auth = useAuth()
+      const info = auth.userInfo.value
+      // 从用户信息中提取角色列表
+      if (!info) return []
+      return (info as any).roles ?? (info as any).role ? [(info as any).role] : []
     },
 
     // 是否设置路由守卫

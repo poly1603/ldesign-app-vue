@@ -7,6 +7,45 @@ import type { HttpClient } from '@ldesign/http-core'
 // 明确从 client/factory 导入新版本的 createHttpClient
 import { createHttpClient } from '@ldesign/http-core/client/factory'
 
+function getAuthHeaderValue(): string | undefined {
+  const scheme = String(import.meta.env.VITE_AUTH_SCHEME || 'Bearer').trim()
+  const explicit = (localStorage.getItem('auth_token') || '').trim()
+  if (explicit) {
+    if (/^[A-Za-z][A-Za-z0-9+.-]*\s+/.test(explicit)) return explicit
+    return scheme ? `${scheme} ${explicit}` : explicit
+  }
+
+  const context = String(import.meta.env.VITE_SZWSLD_CONTEXT || 'SZWSLD')
+  const legacy = (localStorage.getItem(`${context}_token`) || '').trim()
+  if (legacy) {
+    if (/^[A-Za-z][A-Za-z0-9+.-]*\s+/.test(legacy)) return legacy
+    return legacy
+  }
+
+  return undefined
+}
+
+function getLidHeaderValue(): string | undefined {
+  try {
+    const lid = (sessionStorage.getItem('__lid') || '').trim()
+    return lid ? lid : undefined
+  } catch {
+    return undefined
+  }
+}
+
+function redirectToLogin(): void {
+  try {
+    const hash = String(window.location.hash || '')
+    const current = hash.startsWith('#') ? hash.slice(1) : hash
+    const currentPath = current && current !== '#' ? current : '/'
+    if (currentPath.startsWith('/login')) return
+    const encoded = encodeURIComponent(currentPath)
+    window.location.hash = `#/login?redirect=${encoded}`
+  } catch {
+  }
+}
+
 /**
  * HTTP 客户端实例
  */
@@ -115,11 +154,16 @@ function setupInterceptors() {
   if (_httpClient?.interceptors?.request) {
     _httpClient.interceptors.request.use(
       (config) => {
-        // 从 localStorage 获取 token
-        const token = localStorage.getItem('auth_token')
-        if (token) {
+        const authHeader = getAuthHeaderValue()
+        if (authHeader) {
           config.headers = config.headers || {}
-          config.headers.Authorization = `Bearer ${token}`
+          config.headers.Authorization = authHeader
+        }
+
+        const lid = getLidHeaderValue()
+        if (lid) {
+          config.headers = config.headers || {}
+          ;(config.headers as any).Lid = lid
         }
 
         console.log('📤 [HTTP] Request:', config.method?.toUpperCase(), config.url)
@@ -151,7 +195,7 @@ function setupInterceptors() {
             case 401:
               // 未授权，跳转到登录页
               console.warn('⚠️ [HTTP] Unauthorized, redirecting to login...')
-              // window.location.href = '/login'
+              redirectToLogin()
               break
             case 403:
               console.warn('⚠️ [HTTP] Forbidden')

@@ -84,6 +84,9 @@
   "dependencies": {
 
   
+  "@ldesign/api-vue": "workspace:*",
+
+  
   "@ldesign/auth-core": "workspace:*",
 
   
@@ -99,7 +102,16 @@
   "@ldesign/cache-vue": "workspace:*",
 
   
+  "@ldesign/color-core": "workspace:*",
+
+  
   "@ldesign/color-vue": "workspace:*",
+
+  
+  "@ldesign/config-core": "workspace:*",
+
+  
+  "@ldesign/config-vue": "workspace:*",
 
   
   "@ldesign/crypto-core": "workspace:*",
@@ -114,16 +126,31 @@
   "@ldesign/engine-vue3": "workspace:*",
 
   
+  "@ldesign/error-core": "workspace:*",
+
+  
   "@ldesign/error-vue": "workspace:*",
+
+  
+  "@ldesign/event-core": "workspace:*",
+
+  
+  "@ldesign/event-vue": "workspace:*",
 
   
   "@ldesign/http-vue": "workspace:*",
 
   
+  "@ldesign/i18n-core": "workspace:*",
+
+  
   "@ldesign/i18n-vue": "workspace:*",
 
   
-  "@ldesign/logger-vue": "workspace:^",
+  "@ldesign/logger-core": "workspace:*",
+
+  
+  "@ldesign/logger-vue": "workspace:*",
 
   
   "@ldesign/menu-vue": "workspace:*",
@@ -138,10 +165,22 @@
   "@ldesign/permission-vue": "workspace:*",
 
   
+  "@ldesign/router-core": "workspace:*",
+
+  
   "@ldesign/router-vue": "workspace:*",
 
   
+  "@ldesign/size-core": "workspace:*",
+
+  
   "@ldesign/size-vue": "workspace:*",
+
+  
+  "@ldesign/storage-core": "workspace:*",
+
+  
+  "@ldesign/storage-vue": "workspace:*",
 
   
   "@ldesign/store-vue": "workspace:*",
@@ -153,7 +192,25 @@
   "@ldesign/template-vue": "workspace:*",
 
   
+  "@ldesign/theme-core": "workspace:*",
+
+  
+  "@ldesign/theme-vue": "workspace:*",
+
+  
   "@ldesign/tracker-vue": "workspace:*",
+
+  
+  "@ldesign/validate-core": "workspace:*",
+
+  
+  "@ldesign/validate-vue": "workspace:*",
+
+  
+  "@ldesign/websocket-core": "workspace:*",
+
+  
+  "@ldesign/websocket-vue": "workspace:*",
 
   
   "lucide-vue-next": "^0.468.0",
@@ -162,10 +219,7 @@
   "pinia": "^2.1.0",
 
   
-  "vue": "^3.4.0",
-
-  
-  "@ldesign/api-vue": "workspace:*"
+  "vue": "^3.4.0"
 
   },
 

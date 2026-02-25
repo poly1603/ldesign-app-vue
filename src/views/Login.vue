@@ -8,7 +8,8 @@
  * - 工具栏 slot 支持语言/主题/尺寸切换
  * - 集成 LEAP 系统认证接口
  */
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useEngine, useRouterService } from '@ldesign/engine-vue3'
 import { TemplateSwitcher, useTemplate } from '@ldesign/template-vue'
 import { useI18n, LanguageSwitcher } from '@ldesign/i18n-vue'
@@ -30,6 +31,7 @@ interface LoginData {
 
 const engine = useEngine()
 const router = useRouterService()
+const route = useRoute()
 const { t } = useI18n()
 const notification = useNotification()
 
@@ -38,6 +40,10 @@ const auth = useAuth()
 
 // 错误消息
 const errorMessage = ref('')
+
+const templateMessage = computed(() => {
+  return errorMessage.value || disabledMessage.value || ''
+})
 
 /**
  * 使用 useTemplate 动态加载模板组件
@@ -65,7 +71,14 @@ onMounted(async () => {
     console.log('[Login] 准备登录完成, captchaUrl:', auth.captchaUrl.value)
   } catch (e) {
     console.error('[Login] 准备登录失败:', e)
-    errorMessage.value = '获取登录信息失败，请刷新页面重试'
+    errorMessage.value = e instanceof Error
+      ? e.message
+      : '获取登录信息失败，请刷新页面重试'
+
+    notification.error('登录初始化失败', {
+      content: errorMessage.value,
+      duration: 8000,
+    })
   }
 })
 
@@ -109,7 +122,9 @@ async function handleLogin(data: LoginData): Promise<void> {
 
       // 稍微延迟跳转，确保通知显示出来
       setTimeout(() => {
-        router.push('/')
+        const redirect = route.query?.redirect
+        const target = typeof redirect === 'string' && redirect.trim() !== '' ? redirect : '/'
+        router.push(target)
       }, 300)
     } else {
       // 登录失败，弹出错误通知
@@ -162,7 +177,7 @@ function handleSocialLogin(provider: string): void {
     <component v-else-if="currentTemplate" :is="currentTemplate" title="登录" :on-submit="handleLogin"
       :on-forgot-password="handleForgotPassword" :on-register="handleRegister" :on-social-login="handleSocialLogin"
       :captcha-url="auth.captchaUrl.value" :on-refresh-captcha="auth.refreshCaptcha"
-      :category="'login'" :device="deviceType" :message="disabledMessage">
+      :category="'login'" :device="deviceType" :message="templateMessage">
       <!-- 工具栏 slot：语言/主题/尺寸切换 -->
       <template #toolbar>
         <LanguageSwitcher variant="primary" />
@@ -172,6 +187,8 @@ function handleSocialLogin(provider: string): void {
         <TemplateSwitcher category="login" :translate="t" variant="primary" />
       </template>
     </component>
+
+    <div v-if="errorMessage" class="login-error-banner">{{ errorMessage }}</div>
 
     <!-- 通知组件容器 -->
     <LNotification />
@@ -198,6 +215,20 @@ function handleSocialLogin(provider: string): void {
   height: 100vh;
   font-size: var(--size-font-lg);
   color: var(--color-text-secondary);
+}
+
+.login-error-banner {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  padding: 12px 14px;
+  background: rgba(255, 77, 79, 0.12);
+  border: 1px solid rgba(255, 77, 79, 0.35);
+  color: var(--color-text-primary);
+  border-radius: 10px;
+  font-size: var(--size-font-md);
 }
 
 .spinner {

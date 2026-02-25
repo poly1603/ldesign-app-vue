@@ -1,8 +1,7 @@
 import { defineConfig } from '@ldesign/launcher'
 
 const SZWSLD_PROXY_TARGET = process.env.VITE_SZWSLD_PROXY_TARGET
-  || process.env.VITE_SZWSLD_BASE_URL
-  || 'http://localhost:8084'
+  || 'https://wuhan.yxybb.com'
 
 /**
  * 开发环境 Launcher 配置
@@ -32,7 +31,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: path => path.replace(/^\/api/, ''),
+        rewrite: (path: string) => path.replace(/^\/api/, ''),
       },
       // WebSocket 代理
       '/ws': {
@@ -63,12 +62,44 @@ export default defineConfig({
         target: SZWSLD_PROXY_TARGET,
         changeOrigin: true,
         secure: false,
+        headers: {
+          Origin: 'https://wuhan.yxybb.com',
+          Referer: 'https://wuhan.yxybb.com/',
+        },
+        configure: (proxy: any) => {
+          proxy.on('proxyReq', (proxyReq: any, req: any) => {
+            console.log('[proxy][SZWSLD] ->', req.method, req.url)
+            try {
+              console.log('[proxy][SZWSLD]   host:', proxyReq.getHeader('host'))
+            } catch {
+            }
+          })
+          proxy.on('proxyRes', (proxyRes: any, req: any) => {
+            console.log('[proxy][SZWSLD] <-', proxyRes.statusCode, req.url)
+          })
+        },
       },
       // SZVSF LEAP 系统代理（志愿服务联合会）
       '/SZVSF': {
         target: SZWSLD_PROXY_TARGET,
         changeOrigin: true,
         secure: false,
+        headers: {
+          Origin: 'https://wuhan.yxybb.com',
+          Referer: 'https://wuhan.yxybb.com/',
+        },
+        configure: (proxy: any) => {
+          proxy.on('proxyReq', (proxyReq: any, req: any) => {
+            console.log('[proxy][SZVSF] ->', req.method, req.url)
+            try {
+              console.log('[proxy][SZVSF]   host:', proxyReq.getHeader('host'))
+            } catch {
+            }
+          })
+          proxy.on('proxyRes', (proxyRes: any, req: any) => {
+            console.log('[proxy][SZVSF] <-', proxyRes.statusCode, req.url)
+          })
+        },
       },
     },
 
@@ -76,6 +107,52 @@ export default defineConfig({
     hmr: {
       overlay: true, // 显示错误覆盖层
       // clientPort 会自动使用服务器端口，不需要手动指定
+    },
+  },
+
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+      rewrite: (path: string) => path.replace(/^\/api/, ''),
+    },
+    '/ws': {
+      target: 'ws://localhost:8080',
+      ws: true,
+    },
+    '/LPOM': {
+      target: 'https://pm.longrise.cn',
+      changeOrigin: true,
+      secure: true,
+      headers: {
+        'Origin': 'https://pm.longrise.cn',
+      },
+    },
+    '/LROA': {
+      target: 'https://pm.longrise.cn',
+      changeOrigin: true,
+      secure: true,
+      headers: {
+        'Origin': 'https://pm.longrise.cn',
+      },
+    },
+    '/SZWSLD': {
+      target: SZWSLD_PROXY_TARGET,
+      changeOrigin: true,
+      secure: false,
+      headers: {
+        Origin: 'https://wuhan.yxybb.com',
+        Referer: 'https://wuhan.yxybb.com/',
+      },
+    },
+    '/SZVSF': {
+      target: SZWSLD_PROXY_TARGET,
+      changeOrigin: true,
+      secure: false,
+      headers: {
+        Origin: 'https://wuhan.yxybb.com',
+        Referer: 'https://wuhan.yxybb.com/',
+      },
     },
   },
 
@@ -161,6 +238,18 @@ export default defineConfig({
       '@ldesign/size-vue',
       '@ldesign/device-core',
       '@ldesign/device-vue',
+      '@ldesign/validate-core',
+      '@ldesign/validate-vue',
+      '@ldesign/event-core',
+      '@ldesign/event-vue',
+      '@ldesign/storage-core',
+      '@ldesign/storage-vue',
+      '@ldesign/websocket-core',
+      '@ldesign/websocket-vue',
+      '@ldesign/config-core',
+      '@ldesign/config-vue',
+      '@ldesign/theme-core',
+      '@ldesign/theme-vue',
     ],
   },
 

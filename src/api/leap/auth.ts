@@ -695,9 +695,33 @@ export async function fetchSid(): Promise<{ sid: string; lid: string }> {
 
   const text = await response.text()
 
+  const lrMsgCode = response.headers.get('lr_msg_code')
+  const isMaintenance = lrMsgCode === '599'
+    || text.includes('update-info')
+    || text.includes('为了给您更好的体验')
+
+  if (isMaintenance) {
+    let msg = ''
+    try {
+      const m = text.match(/<p\s+class=\"update-info\">([\s\S]*?)<\/p>/)
+      if (m?.[1]) {
+        msg = m[1]
+          .replace(/<br\s*\/?\s*>/g, ' ')
+          .replace(/<[^>]+>/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+      }
+    } catch {
+    }
+    throw new Error(`[LEAP] fetchSid blocked: 后端维护中${msg ? `，${msg}` : ''}`)
+  }
+
   if (!response.ok) {
+    const hint = response.status === 404
+      ? ' (可能是 /SZWSLD 代理未生效：请确认使用 launcher dev --environment development 启动，并检查 VITE_SZWSLD_PROXY_TARGET / 本地 8084 服务是否可达)'
+      : ''
     throw new Error(
-      `[LEAP] fetchSid failed: ${response.status} ${response.statusText}, url=${response.url}, response=${text.substring(0, 200)}`
+      `[LEAP] fetchSid failed: ${response.status} ${response.statusText}${hint}, url=${response.url}, response=${text.substring(0, 200)}`
     )
   }
 
@@ -805,6 +829,12 @@ export async function loginByPassword(params: LoginParams): Promise<LoginResult>
     && /^[0-9A-Za-z_=-]+$/.test(raw)
 
   if (isTokenLike) {
+    try {
+      const context = String(import.meta.env.VITE_SZWSLD_CONTEXT || leapConfig.context || 'SZWSLD')
+      localStorage.setItem(`${context}_token`, raw)
+      localStorage.setItem('auth_token', raw)
+    } catch {
+    }
     return getLoginMessage('1')
   }
 

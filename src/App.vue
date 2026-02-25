@@ -461,7 +461,13 @@ function closeTabBarMore() {
 
 /** 跳转到登录页 */
 function goToLogin() {
-  router.push('/login')
+  const redirect = route.fullPath && route.fullPath !== '/login' ? route.fullPath : '/'
+  router.push({
+    path: '/login',
+    query: {
+      redirect,
+    },
+  })
 }
 
 /** 退出登录确认弹窗状态 */
@@ -512,8 +518,14 @@ onMounted(async () => {
           duration: 3000,
         })
       }
+      const redirect = route.fullPath && route.fullPath !== '/login' ? route.fullPath : '/'
       setTimeout(() => {
-        router.push('/login')
+        router.push({
+          path: '/login',
+          query: {
+            redirect,
+          },
+        })
       }, 500)
     }
   }

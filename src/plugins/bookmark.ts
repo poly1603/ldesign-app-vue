@@ -1,20 +1,32 @@
 /**
  * 书签插件配置
  * @module plugins/bookmark
+ *
+ * 已升级为标准引擎插件模式，通过 definePlugin 封装
  */
-
-import type { App } from 'vue'
+import { definePlugin } from '@ldesign/engine-vue3'
 import { BookmarkPlugin } from '@ldesign/bookmark-vue'
 
 /**
- * 安装书签插件
- * @param app - Vue 应用实例
+ * 创建书签引擎插件
  */
-export function setupBookmark(app: App): void {
-  app.use(BookmarkPlugin, {
-    prefix: 'L',
+export function createBookmarkPlugin() {
+  return definePlugin({
+    name: 'bookmark',
+    version: '1.0.0',
+
+    async install(context) {
+      const { app } = context as any
+      if (!app) return
+
+      app.use(BookmarkPlugin, {
+        prefix: 'L',
+      })
+
+      if (import.meta.env.DEV) {
+        console.log('[Bookmark Plugin] 书签插件已安装')
+      }
+    },
   })
 }
-
-export default setupBookmark
 
